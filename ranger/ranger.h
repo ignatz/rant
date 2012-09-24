@@ -39,37 +39,44 @@ struct range
 		RANGER_CHECK(_val);
 	}
 
+	inline
 	operator T () const noexcept
 	{
 		return _val;
 	}
 
+	inline
 	self operator+ (self x) const
 	{
 		return self(_val + x);
 	}
 
+	inline
 	self operator- (self x) const
 	{
 		return self(_val - x);
 	}
 
+	inline
 	self operator* (self x) const
 	{
 		return self(_val * x);
 	}
 
+	inline
 	self operator/ (self x) const
 	{
 		return self(_val / x);
 	}
 
+	inline
 	void operator+= (self x)
 	{
 		RANGER_CHECK(_val+x);
 		_val += x;
 	}
 
+	inline
 	void operator-= (self x)
 	{
 		RANGER_CHECK(_val-x);

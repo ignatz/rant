@@ -4,7 +4,6 @@ import sys, os
 components = ['gtest', '..']
 recurse    = lambda ctx : map(lambda proj: ctx.recurse(proj), components)
 
-
 def options(opt):
     opt.load('g++')
     recurse(opt)
