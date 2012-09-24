@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cassert>
 #include <limits>
-#include <stdexcept>
 #include <type_traits>
 
 #ifdef NDEBUG
@@ -10,6 +8,7 @@
 #define RANGER_CHECK(VAL)
 #define RANGER_CONSTEXPR constexpr
 #else
+#include <stdexcept>
 #define RANGER_CHECK(VAL) \
 	if (!(VAL >= Min)) \
 		throw std::underflow_error(""); \

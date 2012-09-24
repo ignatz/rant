@@ -9,12 +9,14 @@ TEST(Ranger, Basics)
 	range<int> r;
 
 	typedef range<int, 64, 0> t;
+#ifndef NDEBUG
 	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(64), std::overflow_error);
 
 	ASSERT_NO_THROW(t(63)+t(0));
 	ASSERT_THROW(t(1)-t(2), std::underflow_error);
 	ASSERT_THROW(t(0)--, std::underflow_error);
+#endif
 }
 
 TEST(Ranger, Addition)
