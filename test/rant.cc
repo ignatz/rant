@@ -8,6 +8,10 @@
 
 using namespace rant;
 
+typedef integral<int>          _int;
+typedef floating_point<double> _d;
+
+
 TEST(Rant, Integral)
 {
 	typedef integral<int, 64, 0> t;
@@ -36,38 +40,54 @@ TEST(Rant, FloatingPoint)
 
 TEST(Rant, Addition)
 {
-	typedef integral<int> r;
-
-	r c = r(2) + r(1);
+	_int c = _int(2) + _int(1);
 	ASSERT_EQ(3, (int)c);
-	ASSERT_EQ(r(3), c);
+	ASSERT_EQ(_int(3), c);
 
-	r x(2);
-	ASSERT_EQ(r(3), ++x);
-	ASSERT_EQ(r(3), x++);
-	ASSERT_EQ(r(4), x);
+	_int x(2);
+	ASSERT_EQ(_int(3), ++x);
+	ASSERT_EQ(_int(3), x++);
+	ASSERT_EQ(_int(4), x);
 
-	ASSERT_EQ(r(3), --x);
-	ASSERT_EQ(r(3), x--);
-	ASSERT_EQ(r(2), x);
+	_d y(3.141);
+	ASSERT_DOUBLE_EQ(4.141, y + _d(1.0));
+}
+
+TEST(Rant, Substraction)
+{
+	_int c = _int(3) - _int(1);
+	ASSERT_EQ(2, (int)c);
+	ASSERT_EQ(_int(2), (int)c);
+
+	_int x(4);
+	ASSERT_EQ(_int(3), --x);
+	ASSERT_EQ(_int(3), x--);
+	ASSERT_EQ(_int(2), x);
 }
 
 TEST(Rant, Multiplication)
 {
-	typedef integral<int> r;
-	r c = r(42) / r(2);
-	ASSERT_EQ(r(21), c);
+	_int c = _int(42) / _int(2);
+	ASSERT_EQ(_int(21), c);
 	c*=3;
-	ASSERT_EQ(r(63), c);
+	ASSERT_EQ(_int(63), c);
 }
 
 TEST(Rant, Division)
 {
-	typedef integral<int> r;
-	r c = r(21) * r(2);
-	ASSERT_EQ(r(42), c);
+	_int c = _int(21) *_int(2);
+	ASSERT_EQ(_int(42), c);
 	c/=7;
-	ASSERT_EQ(r(6), c);
+	ASSERT_EQ(_int(6), c);
+}
+
+TEST(Rant, ModuloDivision)
+{
+	for (int ii = -10; ii<10; ++ii) {
+		for (int jj = 1; jj<10; ++jj) {
+			ASSERT_EQ(ii % jj, (int)(_int(ii) % _int(jj)));
+		}
+	}
 }
 
 #ifndef __WITHOUT_BOOST__
