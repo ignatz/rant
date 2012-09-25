@@ -23,12 +23,14 @@
 	RANGER_OPERATOR_ASSIGNMENT(%)                             \
 
 #define RANGER_BASE                                           \
-private:                                                      \
+protected:                                                    \
 	T _val;                                                   \
 public:                                                       \
+	typedef range<T, max, min> self;                          \
+                                                              \
 	range(T val = T()) : _val(val)                            \
 	{                                                         \
-		range_check<self>::check(val);                        \
+		check<T, max, min>(val);                              \
 	}                                                         \
                                                               \
 	inline operator T () const noexcept                       \
@@ -37,6 +39,7 @@ public:                                                       \
 	}                                                         \
 
 #define RANGER_OPERATOR_BINARY(OP)                            \
+public:                                                       \
 	inline                                                    \
 	self operator OP (self x) const                           \
 	{                                                         \
@@ -44,6 +47,7 @@ public:                                                       \
 	}
 
 #define RANGER_OPERATOR_UNARY(OP)                             \
+public:                                                       \
 	inline                                                    \
 	self operator OP () const                                 \
 	{                                                         \
@@ -51,11 +55,11 @@ public:                                                       \
 	}
 
 #define RANGER_OPERATOR_ASSIGNMENT(OP)                        \
+public:                                                       \
 	inline                                                    \
 	self& operator OP##= (self x)                             \
 	{                                                         \
-		typedef range_check<self> type;                       \
-		type::check(this->_val OP x);                         \
+		check<T, max, min>(this->_val OP x);                  \
 		this->_val OP##= x;                                   \
 		return *static_cast<self*>(this);                     \
 	}
@@ -77,14 +81,14 @@ namespace ranger {
 template<typename T, typename Max, typename Min, typename Enable = void>
 struct range;
 
-
 template<typename T, T Max, T Min>
 struct range<T, ic<T, Max>, ic<T, Min>,
 		typename std::enable_if<std::is_integral<T>::value>::type>
 {
 	static_assert(std::is_integral<T>::value,
 		"T must be integral type");
-	typedef range<T, ic<T, Max>, ic<T, Min>> self;
+	typedef ic<T, Max> max;
+	typedef ic<T, Min> min;
 
 	RANGER_BASE
 	RANGER_ARITHMETIC_OPS
@@ -141,7 +145,8 @@ struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
 {
 	static_assert(std::is_floating_point<T>::value,
 		"T must be floating point type");
-	typedef range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>> self;
+	typedef ratio<MaxNum, MaxDen> max;
+	typedef ratio<MinNum, MinDen> min;
 
 	RANGER_BASE
 	RANGER_ARITHMETIC_OPS
