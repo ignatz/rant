@@ -27,7 +27,7 @@ def build(bld):
                 '-Wall',
                 '-Wextra',
                 '-pedantic',
-                #'-DNDEBUG',
+                #'-DRANGER_DISABLE',
             ],
         includes       = '.',
     )

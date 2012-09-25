@@ -9,7 +9,7 @@ TEST(Ranger, Basics)
 	integral<int> r;
 
 	typedef integral<int, 64, 0> t;
-#ifndef NDEBUG
+#ifndef RANGER_DISABLE
 	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(64), std::overflow_error);
 

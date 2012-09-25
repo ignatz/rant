@@ -7,13 +7,14 @@
 #include <type_traits>
 #include <ratio>
 
-#ifdef NDEBUG
-#pragma message "NDEBUG is set; no range checking"
-#define RANGER_CHECK(VAL)
+#ifndef RANGER_DISABLE
+	#include "ranger/check.h"
+	#define RANGER_CHECK(VAL) \
+		detail::range_check<T, Max, Min>::check(VAL)
 #else
-#include "ranger/check.h"
-#define RANGER_CHECK(VAL) detail::range_check<T, Max, Min>::check(VAL)
-#endif // NDEBUG
+	#pragma message "RANGER_DISABLE is set => no range checking"
+	#define RANGER_CHECK(VAL)
+#endif // RANGER_DISABLE
 
 #define RANGER_EN_IF_RANGE(RET)                \
 	typename std::enable_if<std::is_base_of<   \
