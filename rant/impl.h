@@ -3,10 +3,10 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#ifndef __WITHOUT_BOOST__
+#ifndef RANT_DISABLE_SERIALIZATION
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/nvp.hpp>
-#endif // __WITHOUT_BOOST__
+#endif // RANT_DISABLE_SERIALIZATION
 
 #include "rant/util.h"
 #include "rant/check.h"
@@ -162,10 +162,10 @@ public:
 		return t;
 	}
 
-#ifndef __WITHOUT_BOOST__
+#ifndef RANT_DISABLE_SERIALIZATION
 private:
 	RANT_SERIALIZATION
-#endif // __WITHOUT_BOOST__
+#endif // RANT_DISABLE_SERIALIZATION
 };
 
 
@@ -186,10 +186,10 @@ public:
 	RANT_ARITHMETIC_OPS
 	RANT_ASSIGNMENT_OPS
 
-#ifndef __WITHOUT_BOOST__
+#ifndef RANT_DISABLE_SERIALIZATION
 private:
 	RANT_SERIALIZATION
-#endif // __WITHOUT_BOOST__
+#endif // RANT_DISABLE_SERIALIZATION
 };
 
 

@@ -130,7 +130,7 @@ TEST(Rant, Bit)
 	ASSERT_EQ(42 >> 2, _int(42) >> _int(2));
 }
 
-#ifndef __WITHOUT_BOOST__
+#ifndef RANT_DISABLE_SERIALIZATION
 TEST(Rant, Serialization)
 {
 	std::stringstream s;
@@ -142,4 +142,4 @@ TEST(Rant, Serialization)
 	floating_point<double> d(3.141);
 	oa << d;
 }
-#endif // __WITHOUT_BOOST__
+#endif // RANT_DISABLE_SERIALIZATION

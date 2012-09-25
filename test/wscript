@@ -35,7 +35,7 @@ def build(bld):
                 '-pedantic',
                 #'-DRANT_DISABLE',
                 #'-DRANT_LIGHTWEIGHT_EXCEPTIONS',
-                #'-D__WITHOUT_BOOST__',
+                #'-DRANT_DISABLE_SERIALIZATION',
             ],
         includes       = '.',
     )
