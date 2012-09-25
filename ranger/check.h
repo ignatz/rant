@@ -8,13 +8,14 @@
 #include "ranger/util.h"
 
 namespace ranger {
-namespace detail {
 
-template<typename T, typename Max, typename Min, typename Enable = void>
+template<typename T, typename Enable = void>
 struct range_check;
 
-template<typename T, typename Max, typename Min>
-struct range_check<T, Max, Min, typename std::enable_if<std::is_integral<T>::value>::type>
+template<template<typename, typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+struct range_check<R<T, Max, Min, void>,
+	typename std::enable_if<std::is_integral<T>::value>::type>
 {
 	static_assert(Max::value >= Min::value, "Max must be >= Min");
 
@@ -27,8 +28,10 @@ struct range_check<T, Max, Min, typename std::enable_if<std::is_integral<T>::val
 	}
 };
 
-template<typename T, typename Max, typename Min>
-struct range_check<T, Max, Min, typename std::enable_if<std::is_floating_point<T>::value>::type>
+template<template<typename, typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+struct range_check<R<T, Max, Min, void>,
+	typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 	static_assert(std::ratio_greater_equal<Max, Min>::value,
 				  "Max must be >= Min");
@@ -42,5 +45,4 @@ struct range_check<T, Max, Min, typename std::enable_if<std::is_floating_point<T
 	}
 };
 
-} // namespace detail
 } // namespace ranger

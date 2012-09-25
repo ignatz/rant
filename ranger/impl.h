@@ -6,6 +6,36 @@
 #include "ranger/util.h"
 #include "ranger/check.h"
 
+#define RANGER_ARITHMETIC_OPS                                 \
+	RANGER_OPERATOR_BINARY(+)                                 \
+	RANGER_OPERATOR_BINARY(-)                                 \
+	RANGER_OPERATOR_BINARY(*)                                 \
+	RANGER_OPERATOR_BINARY(/)                                 \
+	RANGER_OPERATOR_BINARY(%)                                 \
+	RANGER_OPERATOR_UNARY(+)                                  \
+	RANGER_OPERATOR_UNARY(-)
+
+#define RANGER_ASSIGNMENT_OPS                                 \
+	RANGER_OPERATOR_ASSIGNMENT(+)                             \
+	RANGER_OPERATOR_ASSIGNMENT(-)                             \
+	RANGER_OPERATOR_ASSIGNMENT(*)                             \
+	RANGER_OPERATOR_ASSIGNMENT(/)                             \
+	RANGER_OPERATOR_ASSIGNMENT(%)                             \
+
+#define RANGER_BASE                                           \
+private:                                                      \
+	T _val;                                                   \
+public:                                                       \
+	range(T val = T()) : _val(val)                            \
+	{                                                         \
+		range_check<self>::check(val);                        \
+	}                                                         \
+                                                              \
+	inline operator T () const noexcept                       \
+	{                                                         \
+		return _val;                                          \
+	}                                                         \
+
 #define RANGER_OPERATOR_BINARY(OP)                            \
 	inline                                                    \
 	self operator OP (self x) const                           \
@@ -24,93 +54,41 @@
 	inline                                                    \
 	self& operator OP##= (self x)                             \
 	{                                                         \
-		typedef detail::range_check<T, Max, Min> type;        \
+		typedef range_check<self> type;                       \
 		type::check(this->_val OP x);                         \
 		this->_val OP##= x;                                   \
 		return *static_cast<self*>(this);                     \
 	}
 
-#define RANGER_EN_IF_RANGE(RET)                               \
-	typename std::enable_if<std::is_base_of<                  \
-			R<T, Max, Min>,                                   \
-			detail::range_impl<R<T, Max, Min>>                \
-		>::value, RET>::type
-
-#define RANGER_OPERATOR_COMPARE(OP)                           \
-	template<template<typename, typename, typename> class R,  \
-		typename T, typename Max, typename Min>               \
-	RANGER_EN_IF_RANGE(bool)                                  \
-	operator OP (R<T, Max, Min> a, R<T, Max, Min> b) noexcept \
+#define RANGER_OPERATOR_COMPARE_FF(RET, OP)                   \
+	template<typename T, typename Max, typename Min>          \
+	inline                                                    \
+	RET operator OP (                                         \
+		range<T, Max, Min> a,                                 \
+		range<T, Max, Min> b) noexcept                        \
 	{                                                         \
 		return static_cast<T>(a) OP static_cast<T>(b);        \
 	}
 
+
 namespace ranger {
-
-namespace detail {
-
-template<typename Derived>
-struct range_impl;
-
-template<template<typename, typename, typename, typename> class Derived,
-	typename T, typename Max, typename Min, typename Enable>
-struct range_impl<Derived<T, Max, Min, Enable>>
-{
-	typedef Derived<T, Max, Min, Enable> self;
-
-	range_impl(T val = T()) :
-		_val(val)
-	{
-		range_check<T, Max, Min>::check(val);
-	}
-
-	// implicit cast
-	inline
-	operator T () const noexcept
-	{
-		return _val;
-	}
-
-	// arithmetic operations
-	RANGER_OPERATOR_BINARY(+)
-	RANGER_OPERATOR_BINARY(-)
-	RANGER_OPERATOR_BINARY(*)
-	RANGER_OPERATOR_BINARY(/)
-	RANGER_OPERATOR_BINARY(%)
-
-	RANGER_OPERATOR_UNARY(+)
-	RANGER_OPERATOR_UNARY(-)
-
-	// compound assignment operations
-	RANGER_OPERATOR_ASSIGNMENT(+)
-	RANGER_OPERATOR_ASSIGNMENT(-)
-	RANGER_OPERATOR_ASSIGNMENT(*)
-	RANGER_OPERATOR_ASSIGNMENT(/)
-	RANGER_OPERATOR_ASSIGNMENT(%)
-
-protected:
-	T _val;
-};
-
-} // namespace detail
-
-
 
 // the actual ranged value class
 template<typename T, typename Max, typename Min, typename Enable = void>
 struct range;
 
+
 template<typename T, T Max, T Min>
 struct range<T, ic<T, Max>, ic<T, Min>,
-		typename std::enable_if<std::is_integral<T>::value>::type
-	> :
-	public detail::range_impl<range<T, ic<T, Max>, ic<T, Min>>>
+		typename std::enable_if<std::is_integral<T>::value>::type>
 {
+	static_assert(std::is_integral<T>::value,
+		"T must be integral type");
 	typedef range<T, ic<T, Max>, ic<T, Min>> self;
 
-	range(T val = T()) :
-		detail::range_impl<range<T, ic<T, Max>, ic<T, Min>>>(val)
-	{}
+	RANGER_BASE
+	RANGER_ARITHMETIC_OPS
+	RANGER_ASSIGNMENT_OPS
 
 	// prefix ++/-- operators
 	self& operator++ ()
@@ -154,26 +132,37 @@ struct range<T, ic<T, Max>, ic<T, Min>,
 	RANGER_OPERATOR_BINARY(>>)
 };
 
+
 template<typename T,
 	intmax_t MaxNum, intmax_t MaxDen,
 	intmax_t MinNum, intmax_t MinDen>
 struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
-		typename std::enable_if<std::is_floating_point<T>::value>::type
-	> :
-	public detail::range_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>
+		typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
-	range(T val = T()) :
-		detail::range_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>(val)
-	{}
+	static_assert(std::is_floating_point<T>::value,
+		"T must be floating point type");
+	typedef range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>> self;
+
+	RANGER_BASE
+	RANGER_ARITHMETIC_OPS
+	RANGER_ASSIGNMENT_OPS
 };
 
 
 // comparison operators
-RANGER_OPERATOR_COMPARE(==)
-RANGER_OPERATOR_COMPARE(!=)
-RANGER_OPERATOR_COMPARE(<)
-RANGER_OPERATOR_COMPARE(>)
-RANGER_OPERATOR_COMPARE(<=)
-RANGER_OPERATOR_COMPARE(>=)
+RANGER_OPERATOR_COMPARE_FF(bool, ==)
+RANGER_OPERATOR_COMPARE_FF(bool, !=)
+RANGER_OPERATOR_COMPARE_FF(bool, <)
+RANGER_OPERATOR_COMPARE_FF(bool, >)
+RANGER_OPERATOR_COMPARE_FF(bool, <=)
+RANGER_OPERATOR_COMPARE_FF(bool, >=)
 
 } // namespace ranger
+
+#undef RANGER_ARITHMETIC_OPS
+#undef RANGER_ASSIGNMENT_OPS
+#undef RANGER_BASE
+#undef RANGER_OPERATOR_BINARY
+#undef RANGER_OPERATOR_UNARY
+#undef RANGER_OPERATOR_ASSIGNMENT
+#undef RANGER_OPERATOR_COMPARE_FF
