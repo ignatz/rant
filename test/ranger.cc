@@ -63,6 +63,7 @@ TEST(Ranger, FloatingPoint)
 	typedef floating_point<double, std::ratio<10>> t1;
 }
 
+#ifndef __WITHOUT_BOOST__
 TEST(Ranger, Serialization)
 {
 	std::stringstream s;
@@ -74,3 +75,4 @@ TEST(Ranger, Serialization)
 	floating_point<double> d(3.141);
 	oa << d;
 }
+#endif // __WITHOUT_BOOST__

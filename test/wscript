@@ -34,6 +34,7 @@ def build(bld):
                 '-Wextra',
                 '-pedantic',
                 #'-DRANGER_DISABLE',
+                #'-D__WITHOUT_BOOST__',
             ],
         includes       = '.',
     )
