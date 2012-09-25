@@ -6,34 +6,43 @@
 #include "ranger/util.h"
 #include "ranger/check.h"
 
-#define RANGER_EN_IF_RANGE(RET)                         \
-	typename std::enable_if<std::is_base_of<            \
-			R<T, Max, Min>,                             \
-			detail::range_impl<R<T, Max, Min>>          \
+#define RANGER_OPERATOR_BINARY(OP)                            \
+	inline                                                    \
+	self operator OP (self x) const                           \
+	{                                                         \
+		return self(this->_val OP x);                         \
+	}
+
+#define RANGER_OPERATOR_UNARY(OP)                             \
+	inline                                                    \
+	self operator OP () const                                 \
+	{                                                         \
+		return self(OP this->_val);                           \
+	}
+
+#define RANGER_OPERATOR_ASSIGNMENT(OP)                        \
+	inline                                                    \
+	self& operator OP##= (self x)                             \
+	{                                                         \
+		typedef detail::range_check<T, Max, Min> type;        \
+		type::check(this->_val OP x);                         \
+		this->_val OP##= x;                                   \
+		return *static_cast<self*>(this);                     \
+	}
+
+#define RANGER_EN_IF_RANGE(RET)                               \
+	typename std::enable_if<std::is_base_of<                  \
+			R<T, Max, Min>,                                   \
+			detail::range_impl<R<T, Max, Min>>                \
 		>::value, RET>::type
 
-#define RANGER_OPERATOR_BINARY(OP)                      \
-	inline                                              \
-	self operator OP (self x) const                     \
-	{                                                   \
-		return self(this->_val OP x);                   \
-	}
-
-#define RANGER_OPERATOR_UNARY(OP)                       \
-	inline                                              \
-	self operator OP () const                           \
-	{                                                   \
-		return self(OP this->_val);                     \
-	}
-
-#define RANGER_OPERATOR_ASSIGNMENT(OP)                  \
-	inline                                              \
-	self& operator OP##= (self x)                       \
-	{                                                   \
-		typedef detail::range_check<T, Max, Min> type;  \
-		type::check(this->_val OP x);                   \
-		this->_val OP##= x;                             \
-		return *static_cast<self*>(this);               \
+#define RANGER_OPERATOR_COMPARE(OP)                           \
+	template<template<typename, typename, typename> class R,  \
+		typename T, typename Max, typename Min>               \
+	RANGER_EN_IF_RANGE(bool)                                  \
+	operator OP (R<T, Max, Min> a, R<T, Max, Min> b) noexcept \
+	{                                                         \
+		return static_cast<T>(a) OP static_cast<T>(b);        \
 	}
 
 namespace ranger {
@@ -159,53 +168,12 @@ struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
 };
 
 
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator== (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return static_cast<T>(a) == static_cast<T>(b);
-}
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator< (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return static_cast<T>(a) < static_cast<T>(b);
-}
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator!= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return !(a==b);
-}
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator> (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return b < a;
-}
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator<= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return !(b<a);
-}
-
-template<template<typename, typename, typename> class R,
-	typename T, typename Max, typename Min>
-RANGER_EN_IF_RANGE(bool)
-operator>= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
-{
-	return !(a<b);
-}
+// comparison operators
+RANGER_OPERATOR_COMPARE(==)
+RANGER_OPERATOR_COMPARE(!=)
+RANGER_OPERATOR_COMPARE(<)
+RANGER_OPERATOR_COMPARE(>)
+RANGER_OPERATOR_COMPARE(<=)
+RANGER_OPERATOR_COMPARE(>=)
 
 } // namespace ranger
