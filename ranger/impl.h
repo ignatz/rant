@@ -3,6 +3,8 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
+#include <boost/serialization/serialization.hpp>
+
 #include "ranger/util.h"
 #include "ranger/check.h"
 
@@ -24,6 +26,13 @@
 
 #define RANGER_BASE                                           \
 protected:                                                    \
+	friend class boost::serialization::access;                \
+	template<typename Archiver>                               \
+	void serialize(Archiver& ar, unsigned int)                \
+	{                                                         \
+		ar & _val;                                            \
+	}                                                         \
+                                                              \
 	T _val;                                                   \
 public:                                                       \
 	typedef range<T, Max, Min> self;                          \
@@ -85,7 +94,7 @@ template<typename T, typename Max, typename Min>
 struct range<T, Max, Min,
 		typename std::enable_if<std::is_integral<T>::value>::type>
 {
-	static_assert(std::is_integral<T>::value, "T must be integral type");
+	static_assert(std::is_integral<T>::value,       "T must be integral type");
 	static_assert(is_integral_constant<Max>::value, "Max must be std::integral_constant type");
 	static_assert(is_integral_constant<Min>::value, "Min must be std::integral_constant type");
 
@@ -141,8 +150,8 @@ struct range<T, Max, Min,
 		typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 	static_assert(std::is_floating_point<T>::value, "T must be floating point type");
-	static_assert(is_ratio<Max>::value, "Max must be std::ratio type");
-	static_assert(is_ratio<Min>::value, "Min must be std::ratio type");
+	static_assert(is_ratio<Max>::value,             "Max must be std::ratio type");
+	static_assert(is_ratio<Min>::value,             "Min must be std::ratio type");
 
 	RANGER_BASE
 	RANGER_ARITHMETIC_OPS

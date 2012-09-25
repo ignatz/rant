@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
 
+#include <sstream>
+#include <boost/serialization/serialization.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
 #include "ranger/ranger.h"
 
 using namespace ranger;
@@ -57,4 +61,16 @@ TEST(Ranger, FloatingPoint)
 {
 	typedef range<double, std::ratio<10>, std::ratio<0>> t;
 	typedef floating_point<double, std::ratio<10>> t1;
+}
+
+TEST(Ranger, Serialization)
+{
+	std::stringstream s;
+	boost::archive::text_oarchive oa(s);
+
+	integral<int> a(42);
+	oa << a;
+
+	floating_point<double> d(3.141);
+	oa << d;
 }
