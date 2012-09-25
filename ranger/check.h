@@ -3,10 +3,9 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <limits>
-#include <type_traits>
-#include <ratio>
 #include <stdexcept>
+
+#include "ranger/util.h"
 
 namespace ranger {
 namespace detail {
