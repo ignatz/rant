@@ -22,6 +22,29 @@
 			detail::range_impl<R<T, Max, Min>> \
 		>::value, RET>::type
 
+#define RANGER_OPERATOR_BINARY(OP)             \
+	inline                                     \
+	self operator OP (self x) const            \
+	{                                          \
+		return self(this->_val OP x);          \
+	}
+
+#define RANGER_OPERATOR_UNARY(OP)              \
+	inline                                     \
+	self operator OP () const                  \
+	{                                          \
+		return self(OP this->_val);            \
+	}
+
+#define RANGER_OPERATOR_ASSIGNMENT(OP)         \
+	inline                                     \
+	self& operator OP##= (self x)              \
+	{                                          \
+		RANGER_CHECK(this->_val OP x);         \
+		this->_val OP##= x;                    \
+		return *static_cast<self*>(this);      \
+	}
+
 namespace ranger {
 
 // some type imports
@@ -61,64 +84,22 @@ struct range_impl<Derived<T, Max, Min, Enable>>
 		return _val;
 	}
 
-
 	// arithmetic operations
-	inline
-	self operator+ (self x) const
-	{
-		return self(_val + x);
-	}
+	RANGER_OPERATOR_BINARY(+)
+	RANGER_OPERATOR_BINARY(-)
+	RANGER_OPERATOR_BINARY(*)
+	RANGER_OPERATOR_BINARY(/)
+	RANGER_OPERATOR_BINARY(%)
 
-	inline
-	self operator- (self x) const
-	{
-		return self(_val - x);
-	}
-
-	inline
-	self operator* (self x) const
-	{
-		return self(_val * x);
-	}
-
-	inline
-	self operator/ (self x) const
-	{
-		return self(_val / x);
-	}
+	RANGER_OPERATOR_UNARY(+)
+	RANGER_OPERATOR_UNARY(-)
 
 	// compound assignment operations
-	inline
-	self& operator+= (self x)
-	{
-		RANGER_CHECK(_val+x);
-		_val += x;
-		return *static_cast<self*>(this);
-	}
-
-	inline
-	self& operator-= (self x)
-	{
-		RANGER_CHECK(_val-x);
-		_val -= x;
-		return *static_cast<self*>(this);
-	}
-
-	inline
-	self& operator*= (self x)
-	{
-		RANGER_CHECK(_val*x);
-		_val *= x;
-		return *static_cast<self*>(this);
-	}
-
-	inline
-	self& operator/= (self x)
-	{
-		RANGER_CHECK(_val/x);
-		_val /= x;
-		return *static_cast<self*>(this);
-	}
+	RANGER_OPERATOR_ASSIGNMENT(+)
+	RANGER_OPERATOR_ASSIGNMENT(-)
+	RANGER_OPERATOR_ASSIGNMENT(*)
+	RANGER_OPERATOR_ASSIGNMENT(/)
+	RANGER_OPERATOR_ASSIGNMENT(%)
 
 protected:
 	T _val;
@@ -169,6 +150,21 @@ struct range<T, ic<T, Max>, ic<T, Min>,
 		*this -= 1;
 		return t;
 	}
+
+	// logical operations
+	RANGER_OPERATOR_UNARY(!)
+
+	RANGER_OPERATOR_BINARY(&&)
+	RANGER_OPERATOR_BINARY(||)
+
+	// bitwise operations
+	RANGER_OPERATOR_UNARY(~)
+
+	RANGER_OPERATOR_BINARY(&)
+	RANGER_OPERATOR_BINARY(|)
+	RANGER_OPERATOR_BINARY(^)
+	RANGER_OPERATOR_BINARY(<<)
+	RANGER_OPERATOR_BINARY(>>)
 };
 
 template<typename T,
