@@ -1,11 +1,15 @@
 Ranged Number Types
 ===================
 
-The RANT Library provides ranged integers and floating point types for C++.
+The RANT Library provides ranged integers and floating point types for C++11.
 
 Over and under runs can be both, a correctness and security threat. RANT
-therefore provides lightweight runtime checking of ranges. Violations produce
-exceptions which can then be safely handled by the program.
+therefore provides runtime checking of ranges. Range violations produce
+exceptions which can then be handled safely.
+
+Checks are supposed to be lightweight enough to be included in production
+code. If required, ranged types can be replaced by their native counterparts
+via compile flag to get rid of any overhead.
 
 
 Licensing
