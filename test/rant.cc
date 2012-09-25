@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <sstream>
+#include <iostream>
+#include <typeinfo>
 #include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
@@ -47,14 +49,14 @@ TEST(Rant, MinMax)
 TEST(Rant, Addition)
 {
 	_int c = _int(2) + _int(1);
-	ASSERT_EQ(3, (int)c);
+	ASSERT_EQ(3, c);
 	ASSERT_EQ(_int(3), c);
 
 	_int x(2);
 	ASSERT_EQ(_int(3), ++x);
 	ASSERT_EQ(_int(3), x++);
 	ASSERT_EQ(_int(4), x);
-	ASSERT_EQ(+(-4), (int)(+_int(-4)));
+	ASSERT_EQ(+(-4), +_int(-4));
 
 	_d y(3.141);
 	ASSERT_DOUBLE_EQ(4.141, y + _d(1.0));
@@ -63,14 +65,14 @@ TEST(Rant, Addition)
 TEST(Rant, Substraction)
 {
 	_int c = _int(3) - _int(1);
-	ASSERT_EQ(2, (int)c);
-	ASSERT_EQ(_int(2), (int)c);
+	ASSERT_EQ(2, c);
+	ASSERT_EQ(_int(2), c);
 
 	_int x(4);
 	ASSERT_EQ(_int(3), --x);
 	ASSERT_EQ(_int(3), x--);
 	ASSERT_EQ(_int(2), x);
-	ASSERT_EQ(-4, (int)(-_int(4)));
+	ASSERT_EQ(-4, -_int(4));
 
 	_d y(3.141);
 	ASSERT_DOUBLE_EQ(2.141, y - _d(1.0));
@@ -96,9 +98,36 @@ TEST(Rant, ModuloDivision)
 {
 	for (int ii = -10; ii<10; ++ii) {
 		for (int jj = 1; jj<10; ++jj) {
-			ASSERT_EQ(ii % jj, (int)(_int(ii) % _int(jj)));
+			ASSERT_EQ(ii % jj, _int(ii) % _int(jj));
 		}
 	}
+}
+
+TEST(Rant, Logic)
+{
+	ASSERT_FALSE(!_int(5));
+	ASSERT_TRUE(!_int(0));
+
+	ASSERT_TRUE(_int(4) && _int(4));
+	ASSERT_FALSE(_int(0) && _int(0));
+	ASSERT_FALSE(_int(4) && _int(0));
+	ASSERT_FALSE(_int(0) && _int(4));
+
+	ASSERT_TRUE(_int(4) || _int(4));
+	ASSERT_FALSE(_int(0) || _int(0));
+	ASSERT_TRUE(_int(4) || _int(0));
+	ASSERT_TRUE(_int(0) || _int(4));
+}
+
+TEST(Rant, Bit)
+{
+	ASSERT_EQ(~0xff, ~_int(0xff));
+
+	ASSERT_EQ(42 & 23, _int(42) & _int(23));
+	ASSERT_EQ(42 | 23, _int(42) | _int(23));
+	ASSERT_EQ(42 ^ 23, _int(42) ^ _int(23));
+	ASSERT_EQ(42 << 23, _int(42) << _int(23));
+	ASSERT_EQ(42 >> 2, _int(42) >> _int(2));
 }
 
 #ifndef __WITHOUT_BOOST__

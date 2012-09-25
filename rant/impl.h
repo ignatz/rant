@@ -5,18 +5,19 @@
 
 #ifndef __WITHOUT_BOOST__
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
 #endif // __WITHOUT_BOOST__
 
 #include "rant/util.h"
 #include "rant/check.h"
 
 #define RANT_ARITHMETIC_OPS                                   \
-	RANT_OPERATOR_BINARY(+)                                   \
-	RANT_OPERATOR_BINARY(-)                                   \
-	RANT_OPERATOR_BINARY(*)                                   \
-	RANT_OPERATOR_BINARY(/)                                   \
-	RANT_OPERATOR_UNARY(+)                                    \
-	RANT_OPERATOR_UNARY(-)
+	RANT_OPERATOR_BINARY(self, +)                             \
+	RANT_OPERATOR_BINARY(self, -)                             \
+	RANT_OPERATOR_BINARY(self, *)                             \
+	RANT_OPERATOR_BINARY(self, /)                             \
+	RANT_OPERATOR_UNARY(self, +)                              \
+	RANT_OPERATOR_UNARY(self, -)
 
 #define RANT_ASSIGNMENT_OPS                                   \
 	RANT_OPERATOR_ASSIGNMENT(+)                               \
@@ -29,7 +30,7 @@
 	template<typename Archiver>                               \
 	void serialize(Archiver& ar, unsigned int)                \
 	{                                                         \
-		ar & _val;                                            \
+		ar & BOOST_SERIALIZATION_NVP(_val);                   \
 	}
 
 #define RANT_BASE                                             \
@@ -61,18 +62,18 @@ public:                                                       \
 		return value<T, Max>();                               \
 	}
 
-#define RANT_OPERATOR_BINARY(OP)                              \
+#define RANT_OPERATOR_BINARY(RET, OP)                         \
 	inline                                                    \
-	self operator OP (self x) const                           \
+	RET operator OP (self x) const                            \
 	{                                                         \
-		return self(this->_val OP x);                         \
+		return RET(this->_val OP x);                          \
 	}
 
-#define RANT_OPERATOR_UNARY(OP)                               \
+#define RANT_OPERATOR_UNARY(RET, OP)                          \
 	inline                                                    \
-	self operator OP () const                                 \
+	RET operator OP () const                                  \
 	{                                                         \
-		return self(OP this->_val);                           \
+		return RET(OP this->_val);                            \
 	}
 
 #define RANT_OPERATOR_ASSIGNMENT(OP)                          \
@@ -119,21 +120,21 @@ public:
 	RANT_ASSIGNMENT_OPS
 
 	// arithmetic operations
-	RANT_OPERATOR_BINARY(%)                                   \
+	RANT_OPERATOR_BINARY(self, %)                                   \
 	RANT_OPERATOR_ASSIGNMENT(%)                               \
 
 	// logical operations
-	RANT_OPERATOR_UNARY(!)
-	RANT_OPERATOR_BINARY(&&)
-	RANT_OPERATOR_BINARY(||)
+	RANT_OPERATOR_UNARY(bool, !)
+	RANT_OPERATOR_BINARY(bool, &&)
+	RANT_OPERATOR_BINARY(bool, ||)
 
 	// bitwise operations
-	RANT_OPERATOR_UNARY(~)
-	RANT_OPERATOR_BINARY(&)
-	RANT_OPERATOR_BINARY(|)
-	RANT_OPERATOR_BINARY(^)
-	RANT_OPERATOR_BINARY(<<)
-	RANT_OPERATOR_BINARY(>>)
+	RANT_OPERATOR_UNARY(self, ~)
+	RANT_OPERATOR_BINARY(self, &)
+	RANT_OPERATOR_BINARY(self, |)
+	RANT_OPERATOR_BINARY(self, ^)
+	RANT_OPERATOR_BINARY(self, <<)
+	RANT_OPERATOR_BINARY(self, >>)
 
 	// prefix ++/-- operators
 	self& operator++ ()
