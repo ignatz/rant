@@ -10,19 +10,15 @@
 #ifdef NDEBUG
 #pragma message "NDEBUG is set; no range checking"
 #define RANGER_CHECK(VAL)
-#define RANGER_CONSTEXPR constexpr
 #else
 #include "ranger/check.h"
-#define RANGER_CHECK(VAL) _check<T, Max, Min>::check(VAL)
-#define RANGER_CONSTEXPR
+#define RANGER_CHECK(VAL) detail::range_check<T, Max, Min>::check(VAL)
 #endif // NDEBUG
 
 #define RANGER_EN_IF_RANGE(RET)                \
 	typename std::enable_if<std::is_base_of<   \
 			R<T, Max, Min>,                    \
-			detail::_impl<                     \
-				R<T, Max, Min>                 \
-			>                                  \
+			detail::range_impl<R<T, Max, Min>> \
 		>::value, RET>::type
 
 namespace ranger {
@@ -43,27 +39,29 @@ using ratio = std::ratio<Num, Den>;
 namespace detail {
 
 template<typename Derived>
-struct _impl;
+struct range_impl;
 
 template<template<typename, typename, typename, typename> class Derived,
 	typename T, typename Max, typename Min, typename Enable>
-struct _impl<Derived<T, Max, Min, Enable>>
+struct range_impl<Derived<T, Max, Min, Enable>>
 {
 	typedef Derived<T, Max, Min, Enable> self;
 
-	RANGER_CONSTEXPR
-	_impl(T val = T()) :
+	range_impl(T val = T()) :
 		_val(val)
 	{
 		RANGER_CHECK(_val);
 	}
 
+	// implicit cast
 	inline
 	operator T () const noexcept
 	{
 		return _val;
 	}
 
+
+	// arithmetic operations
 	inline
 	self operator+ (self x) const
 	{
@@ -88,49 +86,40 @@ struct _impl<Derived<T, Max, Min, Enable>>
 		return self(_val / x);
 	}
 
+	// compound assignment operations
 	inline
-	void operator+= (self x)
+	self& operator+= (self x)
 	{
 		RANGER_CHECK(_val+x);
 		_val += x;
+		return *static_cast<self*>(this);
 	}
 
 	inline
-	void operator-= (self x)
+	self& operator-= (self x)
 	{
 		RANGER_CHECK(_val-x);
 		_val -= x;
-	}
-
-	// prefix ++/-- operators
-	self& operator++ ()
-	{
-		_val += 1;
 		return *static_cast<self*>(this);
 	}
 
-	self& operator-- ()
+	inline
+	self& operator*= (self x)
 	{
-		_val -= 1;
+		RANGER_CHECK(_val*x);
+		_val *= x;
 		return *static_cast<self*>(this);
 	}
 
-	// postfix ++/-- operators
-	self operator++ (int)
+	inline
+	self& operator/= (self x)
 	{
-		self t(*this);
-		self(_val + 1);
-		return t;
+		RANGER_CHECK(_val/x);
+		_val /= x;
+		return *static_cast<self*>(this);
 	}
 
-	self operator-- (int)
-	{
-		self t(*this);
-		self(_val - 1);
-		return t;
-	}
-
-private:
+protected:
 	T _val;
 };
 
@@ -146,12 +135,39 @@ template<typename T, T Max, T Min>
 struct range<T, ic<T, Max>, ic<T, Min>,
 		typename eif<std::is_integral<T>::value>::type
 	> :
-	public detail::_impl<range<T, ic<T, Max>, ic<T, Min>>>
+	public detail::range_impl<range<T, ic<T, Max>, ic<T, Min>>>
 {
-	RANGER_CONSTEXPR
+	typedef range<T, ic<T, Max>, ic<T, Min>> self;
+
 	range(T val = T()) :
-		detail::_impl<range<T, ic<T, Max>, ic<T, Min>>>(val)
+		detail::range_impl<range<T, ic<T, Max>, ic<T, Min>>>(val)
 	{}
+
+	// prefix ++/-- operators
+	self& operator++ ()
+	{
+		return *this += 1;
+	}
+
+	self& operator-- ()
+	{
+		return *this -= 1;
+	}
+
+	// postfix ++/-- operators
+	self operator++ (int)
+	{
+		self t(*this);
+		*this += 1;
+		return t;
+	}
+
+	self operator-- (int)
+	{
+		self t(*this);
+		*this -= 1;
+		return t;
+	}
 };
 
 template<typename T,
@@ -160,11 +176,10 @@ template<typename T,
 struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
 		typename eif<std::is_floating_point<T>::value>::type
 	> :
-	public detail::_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>
+	public detail::range_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>
 {
-	RANGER_CONSTEXPR
 	range(T val = T()) :
-		detail::_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>(val)
+		detail::range_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>(val)
 	{}
 };
 

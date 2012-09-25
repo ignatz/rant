@@ -29,17 +29,28 @@ TEST(Ranger, Addition)
 	ASSERT_EQ(r(3), c);
 
 	ASSERT_EQ(--a, ++a);
-	ASSERT_EQ(a, a++);
-	ASSERT_EQ(a, a--);
+	ASSERT_EQ(r(2), a++);
+	ASSERT_EQ(r(3), a);
+	ASSERT_EQ(r(3), a--);
+	ASSERT_EQ(r(2), a);
+}
+
+TEST(Ranger, Multiplication)
+{
+	typedef integral<int> r;
+	r c = r(42) / r(2);
+	ASSERT_EQ(r(21), c);
+	c*=3;
+	ASSERT_EQ(r(63), c);
 }
 
 TEST(Ranger, Division)
 {
 	typedef integral<int> r;
-	r a(42);
-	r b(2);
-	r c = a / b;
-	ASSERT_EQ(r(21), c);
+	r c = r(21) * r(2);
+	ASSERT_EQ(r(42), c);
+	c/=7;
+	ASSERT_EQ(r(6), c);
 }
 
 TEST(Ranger, FloatingPoint)

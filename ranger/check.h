@@ -9,12 +9,13 @@
 #include <stdexcept>
 
 namespace ranger {
+namespace detail {
 
 template<typename T, typename Max, typename Min, typename Enable = void>
-struct _check;
+struct range_check;
 
 template<typename T, typename Max, typename Min>
-struct _check<T, Max, Min, typename std::enable_if<std::is_integral<T>::value>::type>
+struct range_check<T, Max, Min, typename std::enable_if<std::is_integral<T>::value>::type>
 {
 	static_assert(Max::value >= Min::value, "Max must be >= Min");
 
@@ -28,7 +29,7 @@ struct _check<T, Max, Min, typename std::enable_if<std::is_integral<T>::value>::
 };
 
 template<typename T, typename Max, typename Min>
-struct _check<T, Max, Min, typename std::enable_if<std::is_floating_point<T>::value>::type>
+struct range_check<T, Max, Min, typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 	static_assert(std::ratio_greater_equal<Max, Min>::value,
 				  "Max must be >= Min");
@@ -42,4 +43,5 @@ struct _check<T, Max, Min, typename std::enable_if<std::is_floating_point<T>::va
 	}
 };
 
+} // namespace detail
 } // namespace ranger
