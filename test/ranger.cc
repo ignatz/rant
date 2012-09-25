@@ -8,7 +8,7 @@
 
 using namespace rant;
 
-TEST(Rant, Basics)
+TEST(Rant, Integral)
 {
 	typedef integral<int, 64, 0> t;
 #ifndef RANT_DISABLE
@@ -18,6 +18,19 @@ TEST(Rant, Basics)
 
 	ASSERT_THROW(t(1)-t(2), std::underflow_error);
 	ASSERT_THROW(t(0)--, std::underflow_error);
+#endif
+}
+
+
+TEST(Rant, FloatingPoint)
+{
+	typedef range<double, std::ratio<10>, std::ratio<0>> t0;
+	typedef floating_point<double, std::ratio<10>>       t1;
+
+#ifndef RANT_DISABLE
+	ASSERT_THROW(t0(-0.1), std::underflow_error);
+	ASSERT_THROW(t0(10.1), std::overflow_error);
+	ASSERT_NO_THROW(t0(0.1)-t0(0.1));
 #endif
 }
 
@@ -55,12 +68,6 @@ TEST(Rant, Division)
 	ASSERT_EQ(r(42), c);
 	c/=7;
 	ASSERT_EQ(r(6), c);
-}
-
-TEST(Rant, FloatingPoint)
-{
-	typedef range<double, std::ratio<10>, std::ratio<0>> t;
-	typedef floating_point<double, std::ratio<10>> t1;
 }
 
 #ifndef __WITHOUT_BOOST__
