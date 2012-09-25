@@ -4,14 +4,14 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
-#include "ranger/ranger.h"
+#include "rant/rant.h"
 
-using namespace ranger;
+using namespace rant;
 
-TEST(Ranger, Basics)
+TEST(Rant, Basics)
 {
 	typedef integral<int, 64, 0> t;
-#ifndef RANGER_DISABLE
+#ifndef RANT_DISABLE
 	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(64), std::overflow_error);
 	ASSERT_NO_THROW(t(63)+t(0));
@@ -21,7 +21,7 @@ TEST(Ranger, Basics)
 #endif
 }
 
-TEST(Ranger, Addition)
+TEST(Rant, Addition)
 {
 	typedef integral<int> r;
 
@@ -39,7 +39,7 @@ TEST(Ranger, Addition)
 	ASSERT_EQ(r(2), x);
 }
 
-TEST(Ranger, Multiplication)
+TEST(Rant, Multiplication)
 {
 	typedef integral<int> r;
 	r c = r(42) / r(2);
@@ -48,7 +48,7 @@ TEST(Ranger, Multiplication)
 	ASSERT_EQ(r(63), c);
 }
 
-TEST(Ranger, Division)
+TEST(Rant, Division)
 {
 	typedef integral<int> r;
 	r c = r(21) * r(2);
@@ -57,14 +57,14 @@ TEST(Ranger, Division)
 	ASSERT_EQ(r(6), c);
 }
 
-TEST(Ranger, FloatingPoint)
+TEST(Rant, FloatingPoint)
 {
 	typedef range<double, std::ratio<10>, std::ratio<0>> t;
 	typedef floating_point<double, std::ratio<10>> t1;
 }
 
 #ifndef __WITHOUT_BOOST__
-TEST(Ranger, Serialization)
+TEST(Rant, Serialization)
 {
 	std::stringstream s;
 	boost::archive::text_oarchive oa(s);

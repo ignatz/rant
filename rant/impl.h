@@ -7,26 +7,26 @@
 #include <boost/serialization/serialization.hpp>
 #endif // __WITHOUT_BOOST__
 
-#include "ranger/util.h"
-#include "ranger/check.h"
+#include "rant/util.h"
+#include "rant/check.h"
 
-#define RANGER_ARITHMETIC_OPS                                 \
-	RANGER_OPERATOR_BINARY(+)                                 \
-	RANGER_OPERATOR_BINARY(-)                                 \
-	RANGER_OPERATOR_BINARY(*)                                 \
-	RANGER_OPERATOR_BINARY(/)                                 \
-	RANGER_OPERATOR_BINARY(%)                                 \
-	RANGER_OPERATOR_UNARY(+)                                  \
-	RANGER_OPERATOR_UNARY(-)
+#define RANT_ARITHMETIC_OPS                                   \
+	RANT_OPERATOR_BINARY(+)                                   \
+	RANT_OPERATOR_BINARY(-)                                   \
+	RANT_OPERATOR_BINARY(*)                                   \
+	RANT_OPERATOR_BINARY(/)                                   \
+	RANT_OPERATOR_BINARY(%)                                   \
+	RANT_OPERATOR_UNARY(+)                                    \
+	RANT_OPERATOR_UNARY(-)
 
-#define RANGER_ASSIGNMENT_OPS                                 \
-	RANGER_OPERATOR_ASSIGNMENT(+)                             \
-	RANGER_OPERATOR_ASSIGNMENT(-)                             \
-	RANGER_OPERATOR_ASSIGNMENT(*)                             \
-	RANGER_OPERATOR_ASSIGNMENT(/)                             \
-	RANGER_OPERATOR_ASSIGNMENT(%)                             \
+#define RANT_ASSIGNMENT_OPS                                   \
+	RANT_OPERATOR_ASSIGNMENT(+)                               \
+	RANT_OPERATOR_ASSIGNMENT(-)                               \
+	RANT_OPERATOR_ASSIGNMENT(*)                               \
+	RANT_OPERATOR_ASSIGNMENT(/)                               \
+	RANT_OPERATOR_ASSIGNMENT(%)                               \
 
-#define RANGER_SERIALIZATION                                  \
+#define RANT_SERIALIZATION                                    \
 	friend class boost::serialization::access;                \
 	template<typename Archiver>                               \
 	void serialize(Archiver& ar, unsigned int)                \
@@ -34,7 +34,7 @@
 		ar & _val;                                            \
 	}
 
-#define RANGER_BASE                                           \
+#define RANT_BASE                                             \
 protected:                                                    \
 	T _val;                                                   \
 public:                                                       \
@@ -50,21 +50,21 @@ public:                                                       \
 		return _val;                                          \
 	}                                                         \
 
-#define RANGER_OPERATOR_BINARY(OP)                            \
+#define RANT_OPERATOR_BINARY(OP)                              \
 	inline                                                    \
 	self operator OP (self x) const                           \
 	{                                                         \
 		return self(this->_val OP x);                         \
 	}
 
-#define RANGER_OPERATOR_UNARY(OP)                             \
+#define RANT_OPERATOR_UNARY(OP)                               \
 	inline                                                    \
 	self operator OP () const                                 \
 	{                                                         \
 		return self(OP this->_val);                           \
 	}
 
-#define RANGER_OPERATOR_ASSIGNMENT(OP)                        \
+#define RANT_OPERATOR_ASSIGNMENT(OP)                          \
 	inline                                                    \
 	self& operator OP##= (self x)                             \
 	{                                                         \
@@ -73,7 +73,7 @@ public:                                                       \
 		return *static_cast<self*>(this);                     \
 	}
 
-#define RANGER_OPERATOR_COMPARE_FF(RET, OP)                   \
+#define RANT_OPERATOR_COMPARE_FF(RET, OP)                     \
 	template<typename T, typename Max, typename Min>          \
 	inline                                                    \
 	RET operator OP (                                         \
@@ -84,7 +84,7 @@ public:                                                       \
 	}
 
 
-namespace ranger {
+namespace rant {
 
 // the actual ranged value class
 template<typename T, typename Max, typename Min, typename Enable = void>
@@ -103,22 +103,22 @@ private:
 				  "Min must be std::integral_constant type");
 
 public:
-	RANGER_BASE
-	RANGER_ARITHMETIC_OPS
-	RANGER_ASSIGNMENT_OPS
+	RANT_BASE
+	RANT_ARITHMETIC_OPS
+	RANT_ASSIGNMENT_OPS
 
 	// logical operations
-	RANGER_OPERATOR_UNARY(!)
-	RANGER_OPERATOR_BINARY(&&)
-	RANGER_OPERATOR_BINARY(||)
+	RANT_OPERATOR_UNARY(!)
+	RANT_OPERATOR_BINARY(&&)
+	RANT_OPERATOR_BINARY(||)
 
 	// bitwise operations
-	RANGER_OPERATOR_UNARY(~)
-	RANGER_OPERATOR_BINARY(&)
-	RANGER_OPERATOR_BINARY(|)
-	RANGER_OPERATOR_BINARY(^)
-	RANGER_OPERATOR_BINARY(<<)
-	RANGER_OPERATOR_BINARY(>>)
+	RANT_OPERATOR_UNARY(~)
+	RANT_OPERATOR_BINARY(&)
+	RANT_OPERATOR_BINARY(|)
+	RANT_OPERATOR_BINARY(^)
+	RANT_OPERATOR_BINARY(<<)
+	RANT_OPERATOR_BINARY(>>)
 
 	// prefix ++/-- operators
 	self& operator++ ()
@@ -148,7 +148,7 @@ public:
 
 #ifndef __WITHOUT_BOOST__
 private:
-	RANGER_SERIALIZATION
+	RANT_SERIALIZATION
 #endif // __WITHOUT_BOOST__
 };
 
@@ -166,31 +166,31 @@ private:
 				  "Min must be std::ratio type");
 
 public:
-	RANGER_BASE
-	RANGER_ARITHMETIC_OPS
-	RANGER_ASSIGNMENT_OPS
+	RANT_BASE
+	RANT_ARITHMETIC_OPS
+	RANT_ASSIGNMENT_OPS
 
 #ifndef __WITHOUT_BOOST__
 private:
-	RANGER_SERIALIZATION
+	RANT_SERIALIZATION
 #endif // __WITHOUT_BOOST__
 };
 
 
 // comparison operators
-RANGER_OPERATOR_COMPARE_FF(bool, ==)
-RANGER_OPERATOR_COMPARE_FF(bool, !=)
-RANGER_OPERATOR_COMPARE_FF(bool, <)
-RANGER_OPERATOR_COMPARE_FF(bool, >)
-RANGER_OPERATOR_COMPARE_FF(bool, <=)
-RANGER_OPERATOR_COMPARE_FF(bool, >=)
+RANT_OPERATOR_COMPARE_FF(bool, ==)
+RANT_OPERATOR_COMPARE_FF(bool, !=)
+RANT_OPERATOR_COMPARE_FF(bool, <)
+RANT_OPERATOR_COMPARE_FF(bool, >)
+RANT_OPERATOR_COMPARE_FF(bool, <=)
+RANT_OPERATOR_COMPARE_FF(bool, >=)
 
-} // namespace ranger
+} // namespace rant
 
-#undef RANGER_ARITHMETIC_OPS
-#undef RANGER_ASSIGNMENT_OPS
-#undef RANGER_BASE
-#undef RANGER_OPERATOR_BINARY
-#undef RANGER_OPERATOR_UNARY
-#undef RANGER_OPERATOR_ASSIGNMENT
-#undef RANGER_OPERATOR_COMPARE_FF
+#undef RANT_ARITHMETIC_OPS
+#undef RANT_ASSIGNMENT_OPS
+#undef RANT_BASE
+#undef RANT_OPERATOR_BINARY
+#undef RANT_OPERATOR_UNARY
+#undef RANT_OPERATOR_ASSIGNMENT
+#undef RANT_OPERATOR_COMPARE_FF

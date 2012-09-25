@@ -5,9 +5,9 @@
 
 #include <stdexcept>
 
-#include "ranger/util.h"
+#include "rant/util.h"
 
-namespace ranger {
+namespace rant {
 
 template<typename T, typename Max, typename Min>
 typename std::enable_if<std::is_integral<T>::value>::type
@@ -34,4 +34,4 @@ check(T val)
 		throw std::overflow_error("overflow");
 }
 
-} // namespace ranger
+} // namespace rant

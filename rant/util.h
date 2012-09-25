@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <ratio>
 
-namespace ranger {
+namespace rant {
 
 template<typename T, T Val>
 using ic = std::integral_constant<T, Val>;
@@ -35,4 +35,4 @@ struct is_ratio<std::ratio<Num, Den>> :
 template<typename T>
 using limit = std::numeric_limits<T>;
 
-} // namespace ranger
+} // namespace rant

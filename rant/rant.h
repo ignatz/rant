@@ -3,13 +3,13 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "ranger/util.h"
+#include "rant/util.h"
 
-#ifndef RANGER_DISABLE
-#include "ranger/impl.h"
+#ifndef RANT_DISABLE
+#include "rant/impl.h"
 #else
-#pragma message "RANGER_DISABLE is set => no range checking"
-namespace ranger {
+#pragma message "RANT_DISABLE is set => no range checking"
+namespace rant {
 
 template<typename T,
 	typename Max    = void,
@@ -17,12 +17,12 @@ template<typename T,
 	typename Enable = void>
 using range = T;
 
-} // namespace ranger
-#endif // RANGER_DISABLE
+} // namespace rant
+#endif // RANT_DISABLE
 
 
 // some convinient aliases
-namespace ranger {
+namespace rant {
 
 template<typename T = int,
 	T Max = limit<T>::max(),
@@ -34,4 +34,4 @@ template<typename T = double,
 	typename Min = std::ratio<-limit<intmax_t>::max()>>
 using floating_point = range<T, Max, Min>;
 
-} // namespace ranger
+} // namespace rant

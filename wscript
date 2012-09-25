@@ -5,11 +5,11 @@ def options(opt):
     pass
 
 def configure(cfg):
-    cfg.env.CXXFLAGS_RANGER = ['-std=c++0x',]
+    cfg.env.CXXFLAGS_RANT = ['-std=c++0x',]
 
 def build(bld):
     bld(
-        target          = 'ranger',
+        target          = 'rant',
         export_includes = '.',
-        use             = ['RANGER'],
+        use             = ['RANT'],
     )

@@ -25,7 +25,7 @@ def build(bld):
         target          = 'main',
         features        = 'cxx cxxprogram',
         source          = bld.path.ant_glob('*.cc'),
-        use             = ['ranger', 'gtest', 'BOOST'],
+        use             = ['rant', 'gtest', 'BOOST'],
         install_path    = 'bin',
         cxxflags        = [
                 '-g',
@@ -33,7 +33,7 @@ def build(bld):
                 '-Wall',
                 '-Wextra',
                 '-pedantic',
-                #'-DRANGER_DISABLE',
+                #'-DRANT_DISABLE',
                 #'-D__WITHOUT_BOOST__',
             ],
         includes       = '.',
