@@ -30,8 +30,8 @@ template<typename T = int,
 using integral = range<T, ic<T, Max>, ic<T, Min>, void>;
 
 template<typename T = double,
-	typename Max = ratio<limit<intmax_t>::max()>,
-	typename Min = ratio<limit<intmax_t>::min()>>
+	typename Max = std::ratio<limit<intmax_t>::max()>,
+	typename Min = std::ratio<limit<intmax_t>::min()>>
 using floating_point = range<T, Max, Min>;
 
 } // namespace ranger

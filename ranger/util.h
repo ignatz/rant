@@ -9,14 +9,28 @@
 
 namespace ranger {
 
-// some type imports
-using std::intmax_t;
-
 template<typename T, T Val>
 using ic = std::integral_constant<T, Val>;
 
-template<intmax_t Num, intmax_t Den = 1>
-using ratio = std::ratio<Num, Den>;
+template<typename T>
+struct is_integral_constant :
+	public ic<bool, false> {};
+
+template<typename T, T Val>
+struct is_integral_constant<std::integral_constant<T, Val>> :
+	public ic<bool, true> {};
+
+
+using std::intmax_t;
+
+template<typename T>
+struct is_ratio :
+	public ic<bool, false> {};
+
+template<intmax_t Num, intmax_t Den>
+struct is_ratio<std::ratio<Num, Den>> :
+	public ic<bool, true> {};
+
 
 template<typename T>
 using limit = std::numeric_limits<T>;

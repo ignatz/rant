@@ -26,11 +26,11 @@
 protected:                                                    \
 	T _val;                                                   \
 public:                                                       \
-	typedef range<T, max, min> self;                          \
+	typedef range<T, Max, Min> self;                          \
                                                               \
 	range(T val = T()) : _val(val)                            \
 	{                                                         \
-		check<T, max, min>(val);                              \
+		check<T, Max, Min>(val);                              \
 	}                                                         \
                                                               \
 	inline operator T () const noexcept                       \
@@ -59,7 +59,7 @@ public:                                                       \
 	inline                                                    \
 	self& operator OP##= (self x)                             \
 	{                                                         \
-		check<T, max, min>(this->_val OP x);                  \
+		check<T, Max, Min>(this->_val OP x);                  \
 		this->_val OP##= x;                                   \
 		return *static_cast<self*>(this);                     \
 	}
@@ -81,14 +81,13 @@ namespace ranger {
 template<typename T, typename Max, typename Min, typename Enable = void>
 struct range;
 
-template<typename T, T Max, T Min>
-struct range<T, ic<T, Max>, ic<T, Min>,
+template<typename T, typename Max, typename Min>
+struct range<T, Max, Min,
 		typename std::enable_if<std::is_integral<T>::value>::type>
 {
-	static_assert(std::is_integral<T>::value,
-		"T must be integral type");
-	typedef ic<T, Max> max;
-	typedef ic<T, Min> min;
+	static_assert(std::is_integral<T>::value, "T must be integral type");
+	static_assert(is_integral_constant<Max>::value, "Max must be std::integral_constant type");
+	static_assert(is_integral_constant<Min>::value, "Min must be std::integral_constant type");
 
 	RANGER_BASE
 	RANGER_ARITHMETIC_OPS
@@ -137,16 +136,13 @@ struct range<T, ic<T, Max>, ic<T, Min>,
 };
 
 
-template<typename T,
-	intmax_t MaxNum, intmax_t MaxDen,
-	intmax_t MinNum, intmax_t MinDen>
-struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
+template<typename T, typename Max, typename Min>
+struct range<T, Max, Min,
 		typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
-	static_assert(std::is_floating_point<T>::value,
-		"T must be floating point type");
-	typedef ratio<MaxNum, MaxDen> max;
-	typedef ratio<MinNum, MinDen> min;
+	static_assert(std::is_floating_point<T>::value, "T must be floating point type");
+	static_assert(is_ratio<Max>::value, "Max must be std::ratio type");
+	static_assert(is_ratio<Min>::value, "Min must be std::ratio type");
 
 	RANGER_BASE
 	RANGER_ARITHMETIC_OPS
