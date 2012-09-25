@@ -5,35 +5,54 @@
 
 #include <limits>
 #include <type_traits>
+#include <ratio>
 
 #ifdef NDEBUG
 #pragma message "NDEBUG is set; no range checking"
 #define RANGER_CHECK(VAL)
 #define RANGER_CONSTEXPR constexpr
 #else
-#include <stdexcept>
-#define RANGER_CHECK(VAL) \
-	if (!(VAL >= Min)) \
-		throw std::underflow_error(""); \
-	else if (!(VAL <  Max)) \
-		throw std::overflow_error("");
+#include "ranger/check.h"
+#define RANGER_CHECK(VAL) _check<T, Max, Min>::check(VAL)
 #define RANGER_CONSTEXPR
 #endif // NDEBUG
 
+#define RANGER_EN_IF_RANGE(RET)                \
+	typename std::enable_if<std::is_base_of<   \
+			R<T, Max, Min>,                    \
+			detail::_impl<                     \
+				R<T, Max, Min>                 \
+			>                                  \
+		>::value, RET>::type
+
 namespace ranger {
 
-template<typename T = int,
-	T Max = std::numeric_limits<T>::max(),
-	T Min = std::numeric_limits<T>::min()>
-struct range
-{
-	static_assert(std::is_integral<T>::value, "T is no integral type");
-	static_assert(Max >= Min, "Max must be >= Min");
+// some type imports
+using std::intmax_t;
 
-	typedef range<T, Max, Min> self;
+template<typename T, T Val>
+using ic = std::integral_constant<T, Val>;
+
+template<bool Expr, typename T = void>
+using eif = std::enable_if<Expr, T>;
+
+template<intmax_t Num, intmax_t Den = 1>
+using ratio = std::ratio<Num, Den>;
+
+
+namespace detail {
+
+template<typename Derived>
+struct _impl;
+
+template<template<typename, typename, typename, typename> class Derived,
+	typename T, typename Max, typename Min, typename Enable>
+struct _impl<Derived<T, Max, Min, Enable>>
+{
+	typedef Derived<T, Max, Min, Enable> self;
 
 	RANGER_CONSTEXPR
-	range(T val = T()) :
+	_impl(T val = T()) :
 		_val(val)
 	{
 		RANGER_CHECK(_val);
@@ -87,13 +106,13 @@ struct range
 	self& operator++ ()
 	{
 		_val += 1;
-		return *this;
+		return *static_cast<self*>(this);
 	}
 
 	self& operator-- ()
 	{
 		_val -= 1;
-		return *this;
+		return *static_cast<self*>(this);
 	}
 
 	// postfix ++/-- operators
@@ -115,41 +134,101 @@ private:
 	T _val;
 };
 
+} // namespace detail
+
+
+
+// the actual ranged value class
+template<typename T, typename Max, typename Min, typename Enable = void>
+struct range;
 
 template<typename T, T Max, T Min>
-bool operator== (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+struct range<T, ic<T, Max>, ic<T, Min>,
+		typename eif<std::is_integral<T>::value>::type
+	> :
+	public detail::_impl<range<T, ic<T, Max>, ic<T, Min>>>
+{
+	RANGER_CONSTEXPR
+	range(T val = T()) :
+		detail::_impl<range<T, ic<T, Max>, ic<T, Min>>>(val)
+	{}
+};
+
+template<typename T,
+	intmax_t MaxNum, intmax_t MaxDen,
+	intmax_t MinNum, intmax_t MinDen>
+struct range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>,
+		typename eif<std::is_floating_point<T>::value>::type
+	> :
+	public detail::_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>
+{
+	RANGER_CONSTEXPR
+	range(T val = T()) :
+		detail::_impl<range<T, ratio<MaxNum, MaxDen>, ratio<MinNum, MinDen>>>(val)
+	{}
+};
+
+
+
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator== (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return static_cast<T>(a) == static_cast<T>(b);
 }
 
-template<typename T, T Max, T Min>
-bool operator< (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator< (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return static_cast<T>(a) < static_cast<T>(b);
 }
 
-template<typename T, T Max, T Min>
-bool operator!= (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator!= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return !(a==b);
 }
 
-template<typename T, T Max, T Min>
-bool operator> (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator> (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return b < a;
 }
 
-template<typename T, T Max, T Min>
-bool operator<= (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator<= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return !(b<a);
 }
 
-template<typename T, T Max, T Min>
-bool operator>= (range<T, Max, Min> a, range<T, Max, Min> b) noexcept
+template<template<typename, typename, typename> class R,
+	typename T, typename Max, typename Min>
+RANGER_EN_IF_RANGE(bool)
+operator>= (R<T, Max, Min> a, R<T, Max, Min> b) noexcept
 {
 	return !(a<b);
 }
+
+
+
+// some convinient aliases
+template<typename T = int,
+	T Max = std::numeric_limits<T>::max(),
+	T Min = std::numeric_limits<T>::min()>
+using integral = range<T, ic<T, Max>, ic<T, Min>, void>;
+
+template<typename T = double,
+	typename Max = ratio<std::numeric_limits<intmax_t>::max()>,
+	typename Min = ratio<std::numeric_limits<intmax_t>::min()>>
+using floating_point = range<T, Max, Min>;
 
 } // namespace ranger

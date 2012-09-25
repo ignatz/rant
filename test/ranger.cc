@@ -6,9 +6,9 @@ using namespace ranger;
 
 TEST(Ranger, Basics)
 {
-	range<int> r;
+	integral<int> r;
 
-	typedef range<int, 64, 0> t;
+	typedef integral<int, 64, 0> t;
 #ifndef NDEBUG
 	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(64), std::overflow_error);
@@ -21,7 +21,7 @@ TEST(Ranger, Basics)
 
 TEST(Ranger, Addition)
 {
-	typedef range<int> r;
+	typedef integral<int> r;
 	r a(2);
 	r b(1);
 	r c = a + b;
@@ -35,9 +35,15 @@ TEST(Ranger, Addition)
 
 TEST(Ranger, Division)
 {
-	typedef range<int> r;
+	typedef integral<int> r;
 	r a(42);
 	r b(2);
 	r c = a / b;
 	ASSERT_EQ(r(21), c);
+}
+
+TEST(Ranger, FloatingPoint)
+{
+	typedef range<double, std::ratio<10>, std::ratio<0>> t;
+	typedef floating_point<double, std::ratio<10>> t1;
 }
