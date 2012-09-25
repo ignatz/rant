@@ -15,7 +15,6 @@
 	RANT_OPERATOR_BINARY(-)                                   \
 	RANT_OPERATOR_BINARY(*)                                   \
 	RANT_OPERATOR_BINARY(/)                                   \
-	RANT_OPERATOR_BINARY(%)                                   \
 	RANT_OPERATOR_UNARY(+)                                    \
 	RANT_OPERATOR_UNARY(-)
 
@@ -23,8 +22,7 @@
 	RANT_OPERATOR_ASSIGNMENT(+)                               \
 	RANT_OPERATOR_ASSIGNMENT(-)                               \
 	RANT_OPERATOR_ASSIGNMENT(*)                               \
-	RANT_OPERATOR_ASSIGNMENT(/)                               \
-	RANT_OPERATOR_ASSIGNMENT(%)                               \
+	RANT_OPERATOR_ASSIGNMENT(/)
 
 #define RANT_SERIALIZATION                                    \
 	friend class boost::serialization::access;                \
@@ -36,6 +34,9 @@
 
 #define RANT_BASE                                             \
 protected:                                                    \
+	static_assert(value<T, Max>() >= value<T, Min>(),         \
+				  "Max must be >= Min");                      \
+                                                              \
 	T _val;                                                   \
 public:                                                       \
 	typedef range<T, Max, Min> self;                          \
@@ -49,6 +50,16 @@ public:                                                       \
 	{                                                         \
 		return _val;                                          \
 	}                                                         \
+                                                              \
+	static constexpr T min()                                  \
+	{                                                         \
+		return value<T, Min>();                               \
+	}                                                         \
+                                                              \
+	static constexpr T max()                                  \
+	{                                                         \
+		return value<T, Max>();                               \
+	}
 
 #define RANT_OPERATOR_BINARY(OP)                              \
 	inline                                                    \
@@ -92,7 +103,7 @@ class range;
 
 template<typename T, typename Max, typename Min>
 class range<T, Max, Min,
-		typename std::enable_if<std::is_integral<T>::value>::type>
+	typename std::enable_if<std::is_integral<T>::value>::type>
 {
 private:
 	static_assert(std::is_integral<T>::value,
@@ -106,6 +117,10 @@ public:
 	RANT_BASE
 	RANT_ARITHMETIC_OPS
 	RANT_ASSIGNMENT_OPS
+
+	// arithmetic operations
+	RANT_OPERATOR_BINARY(%)                                   \
+	RANT_OPERATOR_ASSIGNMENT(%)                               \
 
 	// logical operations
 	RANT_OPERATOR_UNARY(!)
@@ -155,7 +170,7 @@ private:
 
 template<typename T, typename Max, typename Min>
 class range<T, Max, Min,
-		typename std::enable_if<std::is_floating_point<T>::value>::type>
+	typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
 private:
 	static_assert(std::is_floating_point<T>::value,

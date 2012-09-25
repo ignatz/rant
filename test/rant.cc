@@ -38,6 +38,12 @@ TEST(Rant, FloatingPoint)
 #endif
 }
 
+TEST(Rant, MinMax)
+{
+	ASSERT_EQ( 4, (integral<int, 4, -1>::max()));
+	ASSERT_EQ(-1, (integral<int, 4, -1>::min()));
+}
+
 TEST(Rant, Addition)
 {
 	_int c = _int(2) + _int(1);
@@ -48,6 +54,7 @@ TEST(Rant, Addition)
 	ASSERT_EQ(_int(3), ++x);
 	ASSERT_EQ(_int(3), x++);
 	ASSERT_EQ(_int(4), x);
+	ASSERT_EQ(+(-4), (int)(+_int(-4)));
 
 	_d y(3.141);
 	ASSERT_DOUBLE_EQ(4.141, y + _d(1.0));
@@ -63,6 +70,10 @@ TEST(Rant, Substraction)
 	ASSERT_EQ(_int(3), --x);
 	ASSERT_EQ(_int(3), x--);
 	ASSERT_EQ(_int(2), x);
+	ASSERT_EQ(-4, (int)(-_int(4)));
+
+	_d y(3.141);
+	ASSERT_DOUBLE_EQ(2.141, y - _d(1.0));
 }
 
 TEST(Rant, Multiplication)

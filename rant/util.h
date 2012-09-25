@@ -35,4 +35,21 @@ struct is_ratio<std::ratio<Num, Den>> :
 template<typename T>
 using limit = std::numeric_limits<T>;
 
+
+template<typename T, typename Val>
+constexpr
+typename std::enable_if<std::is_integral<T>::value, T>::type
+value()
+{
+	return Val::value;
+}
+
+template<typename T, typename Val>
+constexpr
+typename std::enable_if<std::is_floating_point<T>::value, T>::type
+value()
+{
+	return static_cast<T>(Val::num) / Val::den;
+}
+
 } // namespace rant

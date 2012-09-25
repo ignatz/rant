@@ -42,28 +42,13 @@ overflow(T val, T max)
 }
 
 template<typename T, typename Max, typename Min>
-typename std::enable_if<std::is_integral<T>::value>::type
-check(T val)
+inline
+void check(T val)
 {
-	static_assert(Max::value >= Min::value, "Max must be >= Min");
-
-	if (!(val >= Min::value))
-		throw RANT_UNDERFLOW_ERROR(val, Min::value);
-	else if (!(val < Max::value))
-		throw RANT_OVERFLOW_ERROR(val, Max::value);
-}
-
-template<typename T, typename Max, typename Min>
-typename std::enable_if<std::is_floating_point<T>::value>::type
-check(T val)
-{
-	static_assert(std::ratio_greater_equal<Max, Min>::value,
-		"Max must be >= Min");
-
-	if (!(val >= static_cast<T>(Min::num) / Min::den))
-		throw RANT_UNDERFLOW_ERROR(val, static_cast<T>(Min::num) / Min::den);
-	else if (!(val < static_cast<T>(Max::num) / Max::den))
-		throw RANT_OVERFLOW_ERROR(val, static_cast<T>(Max::num) / Max::den);
+	if (!(val >= value<T, Min>()))
+		throw RANT_UNDERFLOW_ERROR(val, (value<T, Min>()));
+	else if (!(val < value<T, Max>()))
+		throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
 }
 
 } // namespace rant
