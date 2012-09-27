@@ -11,7 +11,14 @@
 #include "rant/util.h"
 #include "rant/check.h"
 
-#define RANT_VALUE __val
+#define RANT_CLASS_NAME range
+
+#define RANT_MAX        Max
+#define RANT_MIN        Min
+#define RANT_VALUE      __val
+
+#define ADD_QUOTES(STR) #STR
+#define STRINGIZE(STR) ADD_QUOTES(STR)
 
 #define RANT_ARITHMETIC_OPS                                   \
 	RANT_OPERATOR_BINARY(self, +)                             \
@@ -40,15 +47,15 @@ private:                                                      \
 #define RANT_SERIALIZATION
 #endif // RANT_DISABLE_SERIALIZATION
 
-#define RANT_OPERATORS(...)                                   \
+#define RANT_DEFAULT                                          \
 protected:                                                    \
 	T RANT_VALUE;                                             \
 public:                                                       \
-	typedef range<T, Max, Min> self;                          \
+	typedef range<T, RANT_MAX, RANT_MIN> self;                \
                                                               \
 	range(T v = T()) : RANT_VALUE(v)                          \
 	{                                                         \
-		check<T, Max, Min>(RANT_VALUE);                       \
+		check<T, RANT_MAX, RANT_MIN>(RANT_VALUE);             \
 	}                                                         \
                                                               \
 	inline operator T () const noexcept                       \
@@ -56,20 +63,19 @@ public:                                                       \
 		return RANT_VALUE;                                    \
 	}                                                         \
                                                               \
-	static constexpr T min() noexcept                         \
-	{                                                         \
-		return value<T, Min>();                               \
-	}                                                         \
+	RANT_LIMIT(min, RANT_MIN)                                 \
+	RANT_LIMIT(max, RANT_MAX)                                 \
                                                               \
-	static constexpr T max() noexcept                         \
-	{                                                         \
-		return value<T, Max>();                               \
-	}                                                         \
 	static_assert(max() >= min(), "Max must be >= Min");      \
                                                               \
 	RANT_ARITHMETIC_OPS                                       \
-	RANT_ASSIGNMENT_OPS                                       \
-	__VA_ARGS__
+	RANT_ASSIGNMENT_OPS
+
+#define RANT_LIMIT(NAME, MEMBER)                              \
+	static constexpr T NAME () noexcept                       \
+	{                                                         \
+		return value<T, MEMBER>();                            \
+	}                                                         \
 
 #define RANT_OPERATOR_UNARY(RET, OP)                          \
 	inline RET operator OP () const                           \
@@ -86,7 +92,7 @@ public:                                                       \
 #define RANT_OPERATOR_ASSIGNMENT(OP)                          \
 	inline self& operator OP##= (self x)                      \
 	{                                                         \
-		check<T, Max, Min>(RANT_VALUE OP x);                  \
+		check<T, RANT_MAX, RANT_MIN>(RANT_VALUE OP x);        \
 		RANT_VALUE OP##= x;                                   \
 		return *this;                                         \
 	}
@@ -112,64 +118,61 @@ public:                                                       \
 		return static_cast<T>(a) OP static_cast<T>(b);        \
 	}
 
+#define RANT_FWD                                              \
+	template<typename T, typename RANT_MAX,                   \
+		typename RANT_MIN,typename Enable = void>             \
+	class RANT_CLASS_NAME;
+
+#define RANT(TYPE, ...)                                       \
+template<typename T, typename RANT_MAX, typename RANT_MIN>    \
+	class RANT_CLASS_NAME <T, RANT_MAX, RANT_MIN, typename    \
+		std::enable_if<std::is_##TYPE <T>::value>::type>      \
+	{                                                         \
+		static_assert(std::is_##TYPE <T>::value,              \
+					  "T must be " STRINGIZE(TYPE) " type");  \
+		RANT_DEFAULT                                          \
+		RANT_SERIALIZATION                                    \
+	public:                                                   \
+		__VA_ARGS__                                           \
+	};
+
 
 namespace rant {
 
-// the actual ranged value class
-template<typename T, typename Max, typename Min, typename Enable = void>
-class range;
+RANT_FWD
 
-template<typename T, typename Max, typename Min>
-class range<T, Max, Min,
-	typename std::enable_if<std::is_integral<T>::value>::type>
-{
-	static_assert(std::is_integral<T>::value,
-				  "T must be integral type");
-	static_assert(is_integral_constant<Max>::value,
+RANT(floating_point,
+	static_assert(is_ratio<RANT_MAX>::value,
+				  "Max must be std::ratio type");
+	static_assert(is_ratio<RANT_MIN>::value,
+				  "Min must be std::ratio type");
+)
+
+RANT(integral,
+	static_assert(is_integral_constant<RANT_MAX>::value,
 				  "Max must be std::integral_constant type");
-	static_assert(is_integral_constant<Min>::value,
+	static_assert(is_integral_constant<RANT_MIN>::value,
 				  "Min must be std::integral_constant type");
 
-	RANT_OPERATORS
-	(
-		// integral arithmetic operations
-		RANT_OPERATOR_BINARY(self, %)
-		RANT_OPERATOR_ASSIGNMENT(%)
-		RANT_OPERATOR_INCREMENTAL(+)
-		RANT_OPERATOR_INCREMENTAL(-)
+	// integral arithmetic operations
+	RANT_OPERATOR_BINARY(self, %)
+	RANT_OPERATOR_ASSIGNMENT(%)
+	RANT_OPERATOR_INCREMENTAL(+)
+	RANT_OPERATOR_INCREMENTAL(-)
 
-		// integral logical operations
-		RANT_OPERATOR_UNARY(bool, !)
-		RANT_OPERATOR_BINARY(bool, &&)
-		RANT_OPERATOR_BINARY(bool, ||)
+	// integral logical operations
+	RANT_OPERATOR_UNARY(bool, !)
+	RANT_OPERATOR_BINARY(bool, &&)
+	RANT_OPERATOR_BINARY(bool, ||)
 
-		// integral bitwise operations
-		RANT_OPERATOR_UNARY(self, ~)
-		RANT_OPERATOR_BINARY(self, &)
-		RANT_OPERATOR_BINARY(self, |)
-		RANT_OPERATOR_BINARY(self, ^)
-		RANT_OPERATOR_BINARY(self, <<)
-		RANT_OPERATOR_BINARY(self, >>)
-	)
-	RANT_SERIALIZATION
-};
-
-
-template<typename T, typename Max, typename Min>
-class range<T, Max, Min,
-	typename std::enable_if<std::is_floating_point<T>::value>::type>
-{
-	static_assert(std::is_floating_point<T>::value,
-				  "T must be floating point type");
-	static_assert(is_ratio<Max>::value,
-				  "Max must be std::ratio type");
-	static_assert(is_ratio<Min>::value,
-				  "Min must be std::ratio type");
-
-	RANT_OPERATORS()
-	RANT_SERIALIZATION
-};
-
+	// integral bitwise operations
+	RANT_OPERATOR_UNARY(self, ~)
+	RANT_OPERATOR_BINARY(self, &)
+	RANT_OPERATOR_BINARY(self, |)
+	RANT_OPERATOR_BINARY(self, ^)
+	RANT_OPERATOR_BINARY(self, <<)
+	RANT_OPERATOR_BINARY(self, >>)
+)
 
 // comparison operators
 RANT_OPERATOR_COMPARE_FF(bool, ==)
@@ -181,11 +184,21 @@ RANT_OPERATOR_COMPARE_FF(bool, >=)
 
 } // namespace rant
 
+#undef RANT_MAX
+#undef RANT_MIN
+#undef RANT_VALUE
+#undef ADD_QUOTES
+#undef STRINGIZE
 #undef RANT_ARITHMETIC_OPS
 #undef RANT_ASSIGNMENT_OPS
 #undef RANT_SERIALIZATION
 #undef RANT_OPERATORS
-#undef RANT_OPERATOR_BINARY
+#undef RANT_DEFAULT
+#undef RANT_LIMIT
 #undef RANT_OPERATOR_UNARY
+#undef RANT_OPERATOR_BINARY
 #undef RANT_OPERATOR_ASSIGNMENT
+#undef RANT_OPERATOR_INCREMENTAL
 #undef RANT_OPERATOR_COMPARE_FF
+#undef RANT_FWD
+#undef RANT

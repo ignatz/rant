@@ -42,8 +42,10 @@ TEST(Rant, FloatingPoint)
 
 TEST(Rant, MinMax)
 {
+#ifndef RANT_DISABLE
 	ASSERT_EQ( 4, (integral<int, 4, -1>::max()));
 	ASSERT_EQ(-1, (integral<int, 4, -1>::min()));
+#endif
 }
 
 TEST(Rant, Addition)
