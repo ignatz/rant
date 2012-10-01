@@ -3,6 +3,9 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/cat.hpp>
+
 #include "rant/util.h"
 
 #ifndef RANT_DISABLE
@@ -17,6 +20,12 @@ template<typename T,
 	typename Enable = void>
 using range = T;
 
+template<typename T,
+	typename Max    = void,
+	typename Min    = void,
+	typename Enable = void>
+using clip = T;
+
 } // namespace rant
 #endif // RANT_DISABLE
 
@@ -27,11 +36,24 @@ namespace rant {
 template<typename T = int,
 	T Max = limit<T>::max(),
 	T Min = limit<T>::min()>
-using integral = range<T, ic<T, Max>, ic<T, Min>, void>;
+using irange = range<T, ic<T, Max>, ic<T, Min>>;
 
 template<typename T = double,
 	typename Max = std::ratio< limit<intmax_t>::max()>,
 	typename Min = std::ratio<-limit<intmax_t>::max()>>
-using floating_point = range<T, Max, Min>;
+using frange = range<T, Max, Min>;
 
+template<typename T = int,
+	T Max = limit<T>::max(),
+	T Min = limit<T>::min()>
+using iclip = range<T, ic<T, Max>, ic<T, Min>,
+	clip_on_error<T, ic<T, Max>, ic<T, Min>>>;
+
+template<typename T = double,
+	typename Max = std::ratio< limit<intmax_t>::max()>,
+	typename Min = std::ratio<-limit<intmax_t>::max()>>
+using fclip = range<T, Max, Min, clip_on_error<T, Max, Min>>;
 } // namespace rant
+
+#undef SEQ
+#undef MACRO

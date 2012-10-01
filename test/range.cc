@@ -10,45 +10,48 @@
 
 using namespace rant;
 
-typedef integral<int>          _int;
-typedef floating_point<double> _d;
+typedef irange<int>     _int;
+typedef frange<double>  _d;
 
 
-TEST(Rant, Integral)
+TEST(Range, Integral)
 {
-	typedef integral<int, 64, 0> t;
+	typedef irange<int, 64, 0> t;
 #ifndef RANT_DISABLE
 	ASSERT_THROW(t(-1), std::underflow_error);
-	ASSERT_THROW(t(64), std::overflow_error);
-	ASSERT_NO_THROW(t(63)+t(0));
+	ASSERT_THROW(t(65), std::overflow_error);
+	ASSERT_NO_THROW(t(64)+t(0));
 
 	ASSERT_THROW(t(1)-t(2), std::underflow_error);
 	ASSERT_THROW(t(0)--, std::underflow_error);
+	ASSERT_THROW(t(64)+=t(1), std::overflow_error);
+	ASSERT_THROW(t(0) -=t(1), std::underflow_error);
 #endif
 }
 
 
-TEST(Rant, FloatingPoint)
+TEST(Range, FloatingPoint)
 {
 	typedef range<double, std::ratio<10>, std::ratio<0>> t0;
-	typedef floating_point<double, std::ratio<10>>       t1;
+	typedef frange<double, std::ratio<10>> t1;
 
 #ifndef RANT_DISABLE
 	ASSERT_THROW(t0(-0.1), std::underflow_error);
 	ASSERT_THROW(t0(10.1), std::overflow_error);
 	ASSERT_NO_THROW(t0(0.1)-t0(0.1));
+	ASSERT_NO_THROW(t0(10.0));
 #endif
 }
 
-TEST(Rant, MinMax)
+TEST(Range, MinMax)
 {
 #ifndef RANT_DISABLE
-	ASSERT_EQ( 4, (integral<int, 4, -1>::max()));
-	ASSERT_EQ(-1, (integral<int, 4, -1>::min()));
+	ASSERT_EQ( 4, (irange<int, 4, -1>::max()));
+	ASSERT_EQ(-1, (irange<int, 4, -1>::min()));
 #endif
 }
 
-TEST(Rant, Addition)
+TEST(Range, Addition)
 {
 	_int c = _int(2) + _int(1);
 	ASSERT_EQ(3, c);
@@ -64,7 +67,7 @@ TEST(Rant, Addition)
 	ASSERT_DOUBLE_EQ(4.141, y + _d(1.0));
 }
 
-TEST(Rant, Substraction)
+TEST(Range, Substraction)
 {
 	_int c = _int(3) - _int(1);
 	ASSERT_EQ(2, c);
@@ -80,7 +83,7 @@ TEST(Rant, Substraction)
 	ASSERT_DOUBLE_EQ(2.141, y - _d(1.0));
 }
 
-TEST(Rant, Multiplication)
+TEST(Range, Multiplication)
 {
 	_int c = _int(42) / _int(2);
 	ASSERT_EQ(_int(21), c);
@@ -88,7 +91,7 @@ TEST(Rant, Multiplication)
 	ASSERT_EQ(_int(63), c);
 }
 
-TEST(Rant, Division)
+TEST(Range, Division)
 {
 	_int c = _int(21) *_int(2);
 	ASSERT_EQ(_int(42), c);
@@ -96,7 +99,7 @@ TEST(Rant, Division)
 	ASSERT_EQ(_int(6), c);
 }
 
-TEST(Rant, ModuloDivision)
+TEST(Range, ModuloDivision)
 {
 	for (int ii = -10; ii<10; ++ii) {
 		for (int jj = 1; jj<10; ++jj) {
@@ -105,7 +108,7 @@ TEST(Rant, ModuloDivision)
 	}
 }
 
-TEST(Rant, Logic)
+TEST(Range, Logic)
 {
 	ASSERT_FALSE(!_int(5));
 	ASSERT_TRUE(!_int(0));
@@ -121,7 +124,7 @@ TEST(Rant, Logic)
 	ASSERT_TRUE(_int(0) || _int(4));
 }
 
-TEST(Rant, Bit)
+TEST(Range, Bit)
 {
 	ASSERT_EQ(~0xff, ~_int(0xff));
 
@@ -133,15 +136,15 @@ TEST(Rant, Bit)
 }
 
 #ifndef RANT_DISABLE_SERIALIZATION
-TEST(Rant, Serialization)
+TEST(Range, Serialization)
 {
 	std::stringstream s;
 	boost::archive::text_oarchive oa(s);
 
-	integral<int> a(42);
+	irange<int> a(42);
 	oa << a;
 
-	floating_point<double> d(3.141);
+	frange<double> d(3.141);
 	oa << d;
 }
 #endif // RANT_DISABLE_SERIALIZATION
