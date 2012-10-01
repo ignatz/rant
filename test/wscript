@@ -30,6 +30,7 @@ def build(bld):
         cxxflags        = [
                 '-g',
                 '-O1',
+                '-std=c++0x',
                 '-Wall',
                 '-Wextra',
                 '-pedantic',
