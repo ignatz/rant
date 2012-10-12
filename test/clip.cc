@@ -17,21 +17,27 @@ constexpr bool disable =
 
 using namespace rant;
 
-typedef iclip<int>     _int;
-typedef fclip<double>  _d;
+typedef iclip<int>::type     _int;
+typedef fclip<double>::type  _d;
 
 TEST(Clip, Integral)
 {
-	typedef iclip<int, 64, 0> t;
-	ASSERT_EQ(disable ? t(-1) : t(0), t(-1));
-	ASSERT_EQ(disable ? t(65) : t(64), t(65));
-	ASSERT_EQ(disable ? t(111) : t(354), t(111));
+	typedef iclip<int, 64, 0>::type t;
+	ASSERT_EQ(t(-1), t(-1));
+	ASSERT_EQ(t(0), t(-1));
+	ASSERT_EQ(t( 65), t( 64));
+	ASSERT_EQ(t(111), t(354));
+
+	typedef opt::iclip<int, 64, 0>::type to;
+	ASSERT_EQ(disable ? to( -1) : to(  0), to( -1));
+	ASSERT_EQ(disable ? to( 65) : to( 64), to( 65));
+	ASSERT_EQ(disable ? to(111) : to(354), to(111));
 }
 
 
 TEST(Clip, FloatingPoint)
 {
-	typedef fclip<double, std::ratio<10>, std::ratio<0>> t;
+	typedef fclip<double, std::ratio<10>, std::ratio<0>>::type t;
 
 	ASSERT_EQ(t(0), t(-0.0));
 	ASSERT_EQ(disable ? t(-0.1) : t(0), t(-0.1));
@@ -41,10 +47,8 @@ TEST(Clip, FloatingPoint)
 
 TEST(Clip, MinMax)
 {
-#ifndef RANT_DISABLE
-	ASSERT_EQ( 4, (iclip<int, 4, -1>::max()));
-	ASSERT_EQ(-1, (iclip<int, 4, -1>::min()));
-#endif // RANT_DISABLE
+	ASSERT_EQ( 4, (iclip<int, 4, -1>::type::max()));
+	ASSERT_EQ(-1, (iclip<int, 4, -1>::type::min()));
 }
 
 TEST(Clip, Addition)
@@ -137,10 +141,10 @@ TEST(Clip, Serialization)
 	std::stringstream s;
 	boost::archive::text_oarchive oa(s);
 
-	irange<int> a(42);
+	iclip<int>::type a(42);
 	oa << a;
 
-	frange<double> d(3.141);
+	fclip<double>::type d(3.141);
 	oa << d;
 }
 #endif // RANT_DISABLE_SERIALIZATION

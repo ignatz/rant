@@ -10,14 +10,13 @@
 
 using namespace rant;
 
-typedef irange<int>     _int;
-typedef frange<double>  _d;
+typedef irange<int>::type     _int;
+typedef frange<double>::type  _d;
 
 
 TEST(Range, Integral)
 {
-	typedef irange<int, 64, 0> t;
-#ifndef RANT_DISABLE
+	typedef irange<int, 64, 0>::type t;
 	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(65), std::overflow_error);
 	ASSERT_NO_THROW(t(64)+t(0));
@@ -26,29 +25,40 @@ TEST(Range, Integral)
 	ASSERT_THROW(t(0)--, std::underflow_error);
 	ASSERT_THROW(t(64)+=t(1), std::overflow_error);
 	ASSERT_THROW(t(0) -=t(1), std::underflow_error);
-#endif
+
+#ifndef RANT_DISABLE
+	typedef opt::irange<int, 64, 0>::type to;
+	ASSERT_THROW(to(-1), std::underflow_error);
+	ASSERT_THROW(to(65), std::overflow_error);
+	ASSERT_NO_THROW(to(64)+to(0));
+
+	ASSERT_THROW(to(1)-to(2), std::underflow_error);
+	ASSERT_THROW(to(0)--, std::underflow_error);
+	ASSERT_THROW(to(64)+=to(1), std::overflow_error);
+	ASSERT_THROW(to(0) -=to(1), std::underflow_error);
+#endif // DISABLE_RANT
 }
 
 
 TEST(Range, FloatingPoint)
 {
-	typedef range<double, std::ratio<10>, std::ratio<0>> t0;
-	typedef frange<double, std::ratio<10>> t1;
+	typedef range<double, std::ratio<10>, std::ratio<0>>::type t0;
+	typedef frange<double, std::ratio<10>>::type t1;
 
-#ifndef RANT_DISABLE
+//#ifndef RANT_DISABLE
 	ASSERT_THROW(t0(-0.1), std::underflow_error);
 	ASSERT_THROW(t0(10.1), std::overflow_error);
 	ASSERT_NO_THROW(t0(0.1)-t0(0.1));
 	ASSERT_NO_THROW(t0(10.0));
-#endif
+//#endif
 }
 
 TEST(Range, MinMax)
 {
-#ifndef RANT_DISABLE
-	ASSERT_EQ( 4, (irange<int, 4, -1>::max()));
-	ASSERT_EQ(-1, (irange<int, 4, -1>::min()));
-#endif
+//#ifndef RANT_DISABLE
+	ASSERT_EQ( 4, (irange<int, 4, -1>::type::max()));
+	ASSERT_EQ(-1, (irange<int, 4, -1>::type::min()));
+//#endif
 }
 
 TEST(Range, Addition)
@@ -141,10 +151,10 @@ TEST(Range, Serialization)
 	std::stringstream s;
 	boost::archive::text_oarchive oa(s);
 
-	irange<int> a(42);
+	irange<int>::type a(42);
 	oa << a;
 
-	frange<double> d(3.141);
+	frange<double>::type d(3.141);
 	oa << d;
 }
 #endif // RANT_DISABLE_SERIALIZATION

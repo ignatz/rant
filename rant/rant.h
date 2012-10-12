@@ -6,11 +6,20 @@
 #include "rant/util.h"
 #include "rant/check.h"
 
-#ifndef RANT_DISABLE
 #include "rant/impl.h"
-#else
-#pragma message "RANT_DISABLE is set => no range checking"
+
 namespace rant {
+namespace opt {
+
+#ifndef RANT_DISABLE
+using namespace rant;
+#else
+
+#if __cplusplus != 201103L
+#error disabling rant requires a newer compiler
+#endif
+
+#pragma message "RANT_DISABLE is set"
 
 template<
 	typename T,
@@ -26,32 +35,58 @@ template<typename T,
 	T(*Check)(T)    = throw_on_error<T, Max, Min>,
 	typename Enable = void>
 using clip = T;
-
-} // namespace rant
 #endif // RANT_DISABLE
 
-
-// some convinient aliases
-namespace rant {
-
-template<typename T = int,
-	T Max = limit<T>::max(),
-	T Min = limit<T>::min()>
-using irange = range<T, ic<T, Max>, ic<T, Min>>;
-
-template<typename T = double,
-	typename Max = std::ratio< limit<intmax_t>::max()>,
-	typename Min = std::ratio<-limit<intmax_t>::max()>>
-using frange = range<T, Max, Min>;
-
-template<typename T = int,
-	T Max = limit<T>::max(),
-	T Min = limit<T>::min()>
-using iclip = range<T, ic<T, Max>, ic<T, Min>,
-	clip_on_error<T, ic<T, Max>, ic<T, Min>>>;
-
-template<typename T = double,
-	typename Max = std::ratio< limit<intmax_t>::max()>,
-	typename Min = std::ratio<-limit<intmax_t>::max()>>
-using fclip = range<T, Max, Min, clip_on_error<T, Max, Min>>;
+} // namespace opt
 } // namespace rant
+
+
+#define RANT_CONVINIENCE_TRAITS                                                   \
+template<typename T = int,                                                        \
+	T Max = numeric_limits<T>::max(),                                             \
+	T Min = numeric_limits<T>::min()>                                             \
+struct irange                                                                     \
+{                                                                                 \
+	typedef range<T,                                                              \
+		integral_constant<T, Max>,                                                \
+		integral_constant<T, Min>> type;                                          \
+};                                                                                \
+                                                                                  \
+template<typename T = double,                                                     \
+	typename Max = std::ratio< numeric_limits<intmax_t>::max()>,                  \
+	typename Min = std::ratio<-numeric_limits<intmax_t>::max()>>                  \
+struct frange                                                                     \
+{                                                                                 \
+	typedef range<T, Max, Min> type;                                              \
+};                                                                                \
+                                                                                  \
+template<typename T = int,                                                        \
+	T Max = numeric_limits<T>::max(),                                             \
+	T Min = numeric_limits<T>::min()>                                             \
+struct iclip                                                                      \
+{                                                                                 \
+	typedef range<T,                                                              \
+		integral_constant<T, Max>,                                                \
+		integral_constant<T, Min>,                                                \
+		clip_on_error<T, integral_constant<T, Max>, integral_constant<T, Min>>    \
+	> type;                                                                       \
+};                                                                                \
+                                                                                  \
+template<typename T = double,                                                     \
+	typename Max = std::ratio< numeric_limits<intmax_t>::max()>,                  \
+	typename Min = std::ratio<-numeric_limits<intmax_t>::max()>>                  \
+struct fclip                                                                      \
+{                                                                                 \
+	typedef range<T, Max, Min, clip_on_error<T, Max, Min>> type;                  \
+};
+
+
+// some convinience aliases
+namespace rant {
+	RANT_CONVINIENCE_TRAITS
+namespace opt {
+	RANT_CONVINIENCE_TRAITS
+} // namespace opt
+} // namespace rant
+
+#undef RANT_CONVINIENCE_TRAITS

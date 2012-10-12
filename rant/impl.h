@@ -8,9 +8,6 @@
 #include <boost/serialization/nvp.hpp>
 #endif // RANT_DISABLE_SERIALIZATION
 
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/elem.hpp>
-
 #include "rant/util.h"
 #include "rant/check.h"
 
@@ -21,12 +18,12 @@
 #define STRINGIZE(STR) ADD_QUOTES(STR)
 
 #define RANT_ARITHMETIC_OPS                                        \
-	RANT_OPERATOR_BINARY(self, +)                                  \
-	RANT_OPERATOR_BINARY(self, -)                                  \
-	RANT_OPERATOR_BINARY(self, *)                                  \
-	RANT_OPERATOR_BINARY(self, /)                                  \
-	RANT_OPERATOR_UNARY(self, +)                                   \
-	RANT_OPERATOR_UNARY(self, -)
+	RANT_OPERATOR_BINARY(type, +)                                  \
+	RANT_OPERATOR_BINARY(type, -)                                  \
+	RANT_OPERATOR_BINARY(type, *)                                  \
+	RANT_OPERATOR_BINARY(type, /)                                  \
+	RANT_OPERATOR_UNARY(type, +)                                   \
+	RANT_OPERATOR_UNARY(type, -)
 
 #define RANT_ASSIGNMENT_OPS                                        \
 	RANT_OPERATOR_ASSIGNMENT(+)                                    \
@@ -51,7 +48,7 @@ private:                                                           \
 protected:                                                         \
 	T RANT_VALUE;                                                  \
 public:                                                            \
-	typedef CLASS_NAME <T, Max, Min, Check, void> self;            \
+	typedef CLASS_NAME <T, Max, Min, Check, void> type;            \
                                                                    \
 	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v))        \
 	{                                                              \
@@ -65,10 +62,15 @@ public:                                                            \
 	RANT_LIMIT(min, Min)                                           \
 	RANT_LIMIT(max, Max)                                           \
                                                                    \
-	static_assert(max() >= min(), "Max must be >= Min");           \
-                                                                   \
 	RANT_ARITHMETIC_OPS                                            \
 	RANT_ASSIGNMENT_OPS
+
+#if __cplusplus != 201103L
+#define RANT_STATIC_ASSERT
+#else
+#define RANT_STATIC_ASSERT                                         \
+	static_assert(max() >= min(), "Max must be >= Min");
+#endif
 
 #define RANT_LIMIT(NAME, MEMBER)                                   \
 	static constexpr T NAME () noexcept                            \
@@ -83,26 +85,26 @@ public:                                                            \
 	}
 
 #define RANT_OPERATOR_BINARY(RET, OP)                              \
-	inline RET operator OP (self x) const                          \
+	inline RET operator OP (type x) const                          \
 	{                                                              \
 		return RET(RANT_VALUE OP x);                               \
 	}
 
 #define RANT_OPERATOR_ASSIGNMENT(OP)                               \
-	inline self& operator OP##= (self x)                           \
+	inline type& operator OP##= (type x)                           \
 	{                                                              \
 		RANT_VALUE = Check(RANT_VALUE OP x);                       \
 		return *this;                                              \
 	}
 
 #define RANT_OPERATOR_INCREMENTAL(OP)                              \
-	inline self& operator OP##OP ()                                \
+	inline type& operator OP##OP ()                                \
 	{                                                              \
 		return *this OP##= 1;                                      \
 	}                                                              \
-	inline self operator OP##OP (int)                              \
+	inline type operator OP##OP (int)                              \
 	{                                                              \
-		self t(*this);                                             \
+		type t(*this);                                             \
 		*this OP##= 1;                                             \
 		return t;                                                  \
 	}
@@ -122,7 +124,7 @@ public:                                                            \
 		typename Enable = void>                                    \
 	class CLASS_NAME;
 
-#define RANT_IMPL(TYPE, CLASS_NAME, ...)                    \
+#define RANT_IMPL(TYPE, CLASS_NAME, ...)                           \
 	template<typename T, typename Max, typename Min, T(*Check)(T)> \
 	class CLASS_NAME<T, Max, Min, Check, typename                  \
 		std::enable_if<std::is_##TYPE <T>::value>::type>           \
@@ -130,6 +132,7 @@ public:                                                            \
 		static_assert(std::is_##TYPE <T>::value,                   \
 					  "T must be " STRINGIZE(TYPE) " type");       \
 		RANT_DEFAULT(CLASS_NAME)                                   \
+		RANT_STATIC_ASSERT                                         \
 		RANT_SERIALIZATION                                         \
 	public:                                                        \
 		__VA_ARGS__                                                \
@@ -153,7 +156,7 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	static_assert(is_integral_constant<Min>::value,
 				  "Min must be std::integral_constant type");
 
-	RANT_OPERATOR_BINARY(self, %)
+	RANT_OPERATOR_BINARY(type, %)
 	RANT_OPERATOR_ASSIGNMENT(%)
 	RANT_OPERATOR_INCREMENTAL(+)
 	RANT_OPERATOR_INCREMENTAL(-)
@@ -162,12 +165,12 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	RANT_OPERATOR_BINARY(bool, &&)
 	RANT_OPERATOR_BINARY(bool, ||)
 
-	RANT_OPERATOR_UNARY(self, ~)
-	RANT_OPERATOR_BINARY(self, &)
-	RANT_OPERATOR_BINARY(self, |)
-	RANT_OPERATOR_BINARY(self, ^)
-	RANT_OPERATOR_BINARY(self, <<)
-	RANT_OPERATOR_BINARY(self, >>)
+	RANT_OPERATOR_UNARY(type, ~)
+	RANT_OPERATOR_BINARY(type, &)
+	RANT_OPERATOR_BINARY(type, |)
+	RANT_OPERATOR_BINARY(type, ^)
+	RANT_OPERATOR_BINARY(type, <<)
+	RANT_OPERATOR_BINARY(type, >>)
 )
 
 RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, ==)
