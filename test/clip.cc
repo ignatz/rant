@@ -8,6 +8,13 @@
 
 #include "rant/rant.h"
 
+constexpr bool disable =
+#ifndef RANT_DISABLE
+	false;
+#else
+	true;
+#endif // RANT_DISABLE
+
 using namespace rant;
 
 typedef iclip<int>     _int;
@@ -16,10 +23,9 @@ typedef fclip<double>  _d;
 TEST(Clip, Integral)
 {
 	typedef iclip<int, 64, 0> t;
-
-	ASSERT_EQ(  t(0), t(-1));
-	ASSERT_EQ( t(64), t(65));
-	ASSERT_EQ(t(354), t(111));
+	ASSERT_EQ(disable ? t(-1) : t(0), t(-1));
+	ASSERT_EQ(disable ? t(65) : t(64), t(65));
+	ASSERT_EQ(disable ? t(111) : t(354), t(111));
 }
 
 
@@ -28,16 +34,17 @@ TEST(Clip, FloatingPoint)
 	typedef fclip<double, std::ratio<10>, std::ratio<0>> t;
 
 	ASSERT_EQ(t(0), t(-0.0));
-	ASSERT_EQ(t(0), t(-0.1));
-
+	ASSERT_EQ(disable ? t(-0.1) : t(0), t(-0.1));
 	ASSERT_EQ(t(10.0), t(10.0));
-	ASSERT_EQ(t(10.0), t(10.1));
+	ASSERT_EQ(disable ? t(10.1) : t(10.0), t(10.1));
 }
 
 TEST(Clip, MinMax)
 {
+#ifndef RANT_DISABLE
 	ASSERT_EQ( 4, (iclip<int, 4, -1>::max()));
 	ASSERT_EQ(-1, (iclip<int, 4, -1>::min()));
+#endif // RANT_DISABLE
 }
 
 TEST(Clip, Addition)

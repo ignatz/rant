@@ -53,7 +53,7 @@ protected:                                                         \
 public:                                                            \
 	typedef CLASS_NAME <T, Max, Min, Check, void> self;            \
                                                                    \
-	CLASS_NAME (T v = T()) : RANT_VALUE(Check(v))                  \
+	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v))        \
 	{                                                              \
 	}                                                              \
                                                                    \

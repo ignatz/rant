@@ -3,10 +3,8 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/cat.hpp>
-
 #include "rant/util.h"
+#include "rant/check.h"
 
 #ifndef RANT_DISABLE
 #include "rant/impl.h"
@@ -14,15 +12,18 @@
 #pragma message "RANT_DISABLE is set => no range checking"
 namespace rant {
 
-template<typename T,
+template<
+	typename T,
 	typename Max    = void,
 	typename Min    = void,
+	T(*Check)(T)    = throw_on_error<T, Max, Min>,
 	typename Enable = void>
 using range = T;
 
 template<typename T,
 	typename Max    = void,
 	typename Min    = void,
+	T(*Check)(T)    = throw_on_error<T, Max, Min>,
 	typename Enable = void>
 using clip = T;
 
@@ -54,6 +55,3 @@ template<typename T = double,
 	typename Min = std::ratio<-limit<intmax_t>::max()>>
 using fclip = range<T, Max, Min, clip_on_error<T, Max, Min>>;
 } // namespace rant
-
-#undef SEQ
-#undef MACRO
