@@ -18,18 +18,12 @@
 #define STRINGIZE(STR) ADD_QUOTES(STR)
 
 #define RANT_ARITHMETIC_OPS                                        \
-	RANT_OPERATOR_BINARY(type, +)                                  \
-	RANT_OPERATOR_BINARY(type, -)                                  \
-	RANT_OPERATOR_BINARY(type, *)                                  \
-	RANT_OPERATOR_BINARY(type, /)                                  \
+	RANT_OPERATOR_BINARY(+)                                        \
+	RANT_OPERATOR_BINARY(-)                                        \
+	RANT_OPERATOR_BINARY(*)                                        \
+	RANT_OPERATOR_BINARY(/)                                        \
 	RANT_OPERATOR_UNARY(type, +)                                   \
 	RANT_OPERATOR_UNARY(type, -)
-
-#define RANT_ASSIGNMENT_OPS                                        \
-	RANT_OPERATOR_ASSIGNMENT(+)                                    \
-	RANT_OPERATOR_ASSIGNMENT(-)                                    \
-	RANT_OPERATOR_ASSIGNMENT(*)                                    \
-	RANT_OPERATOR_ASSIGNMENT(/)
 
 #ifndef RANT_DISABLE_SERIALIZATION
 #define RANT_SERIALIZATION                                         \
@@ -63,7 +57,6 @@ public:                                                            \
 	RANT_LIMIT(max, Max)                                           \
                                                                    \
 	RANT_ARITHMETIC_OPS                                            \
-	RANT_ASSIGNMENT_OPS
 
 #if __cplusplus != 201103L
 #define RANT_STATIC_ASSERT
@@ -84,18 +77,22 @@ public:                                                            \
 		return RET(OP RANT_VALUE);                                 \
 	}
 
-#define RANT_OPERATOR_BINARY(RET, OP)                              \
-	inline RET operator OP (type x) const                          \
-	{                                                              \
-		return RET(RANT_VALUE OP x);                               \
-	}
-
 #define RANT_OPERATOR_ASSIGNMENT(OP)                               \
 	inline type& operator OP##= (type x)                           \
 	{                                                              \
 		RANT_VALUE = Check(RANT_VALUE OP x);                       \
 		return *this;                                              \
 	}
+
+#define RANT_OPERATOR_BINARY_RET(RET, OP)                          \
+	inline RET operator OP (type x) const                          \
+	{                                                              \
+		return RET(RANT_VALUE OP x);                               \
+	}                                                              \
+
+#define RANT_OPERATOR_BINARY(OP)                                   \
+	RANT_OPERATOR_BINARY_RET(type, OP)                             \
+	RANT_OPERATOR_ASSIGNMENT(OP)                                   \
 
 #define RANT_OPERATOR_INCREMENTAL(OP)                              \
 	inline type& operator OP##OP ()                                \
@@ -156,27 +153,20 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	static_assert(is_integral_constant<Min>::value,
 				  "Min must be std::integral_constant type");
 
-	RANT_OPERATOR_BINARY(type, %)
-	RANT_OPERATOR_ASSIGNMENT(%)
+	RANT_OPERATOR_BINARY(%)
 	RANT_OPERATOR_INCREMENTAL(+)
 	RANT_OPERATOR_INCREMENTAL(-)
 
 	RANT_OPERATOR_UNARY(bool, !)
-	RANT_OPERATOR_BINARY(bool, &&)
-	RANT_OPERATOR_BINARY(bool, ||)
+	RANT_OPERATOR_BINARY_RET(bool, &&)
+	RANT_OPERATOR_BINARY_RET(bool, ||)
 
 	RANT_OPERATOR_UNARY(type, ~)
-	RANT_OPERATOR_BINARY(type, &)
-	RANT_OPERATOR_BINARY(type, |)
-	RANT_OPERATOR_BINARY(type, ^)
-	RANT_OPERATOR_BINARY(type, <<)
-	RANT_OPERATOR_BINARY(type, >>)
-
-	RANT_OPERATOR_ASSIGNMENT(&)
-	RANT_OPERATOR_ASSIGNMENT(|)
-	RANT_OPERATOR_ASSIGNMENT(^)
-	RANT_OPERATOR_ASSIGNMENT(<<)
-	RANT_OPERATOR_ASSIGNMENT(>>)
+	RANT_OPERATOR_BINARY(&)
+	RANT_OPERATOR_BINARY(|)
+	RANT_OPERATOR_BINARY(^)
+	RANT_OPERATOR_BINARY(<<)
+	RANT_OPERATOR_BINARY(>>)
 )
 
 RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, ==)
@@ -192,13 +182,13 @@ RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >=)
 #undef ADD_QUOTES
 #undef STRINGIZE
 #undef RANT_ARITHMETIC_OPS
-#undef RANT_ASSIGNMENT_OPS
 #undef RANT_SERIALIZATION
 #undef RANT_OPERATORS
 #undef RANT_DEFAULT
 #undef RANT_LIMIT
 #undef RANT_OPERATOR_UNARY
 #undef RANT_OPERATOR_BINARY
+#undef RANT_OPERATOR_BINARY_RET
 #undef RANT_OPERATOR_ASSIGNMENT
 #undef RANT_OPERATOR_INCREMENTAL
 #undef RANT_OPERATOR_COMPARE_FF
