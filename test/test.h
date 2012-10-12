@@ -10,7 +10,7 @@ void test_disable()
 #ifdef RANT_DISABLE
 	ASSERT_TRUE((std::is_arithmetic<Opt>::value));
 #else
-	ASSERT_False((std::is_arithmetic<Opt>::value));
+	ASSERT_FALSE((std::is_arithmetic<Opt>::value));
 #endif
 }
 
@@ -145,42 +145,42 @@ void test_serialization()
 		test_disable<_int, opt::irange<int>::type>();   \
 		test_disable<_d, opt::frange<double>::type>();  \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, MinMax)                                  \
 	{                                                   \
 		test_minmax<irange<int, 4, -1>::type>();        \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Addition)                                \
 	{                                                   \
 		test_addition<_int, _d>();                      \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Subtraction)                             \
 	{                                                   \
 		test_subtraction<_int, _d>();                   \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Multiplication)                          \
 	{                                                   \
 		test_multiplication<_int, _d>();                \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Division)                                \
 	{                                                   \
 		test_division<_int, _d>();                      \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Modulo)                                  \
 	{                                                   \
 		test_modulo<_int>();                            \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Logic)                                   \
 	{                                                   \
 		test_logic<_int>();                             \
 	}                                                   \
-														\
+	                                                    \
 	TEST(NAME, Bitwise)                                 \
 	{                                                   \
 		test_bitwise<_int>();                           \
