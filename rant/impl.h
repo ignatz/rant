@@ -22,8 +22,8 @@
 	RANT_OPERATOR_BINARY(-)                                        \
 	RANT_OPERATOR_BINARY(*)                                        \
 	RANT_OPERATOR_BINARY(/)                                        \
-	RANT_OPERATOR_UNARY(type, +)                                   \
-	RANT_OPERATOR_UNARY(type, -)
+	RANT_OPERATOR_UNARY(+)                                         \
+	RANT_OPERATOR_UNARY(-)
 
 #ifndef RANT_DISABLE_SERIALIZATION
 #define RANT_SERIALIZATION                                         \
@@ -71,11 +71,14 @@ public:                                                            \
 		return value<T, MEMBER>();                                 \
 	}                                                              \
 
-#define RANT_OPERATOR_UNARY(RET, OP)                               \
+#define RANT_OPERATOR_UNARY_RET(RET, OP)                           \
 	inline RET operator OP () const                                \
 	{                                                              \
 		return RET(OP RANT_VALUE);                                 \
 	}
+
+#define RANT_OPERATOR_UNARY(OP)                                    \
+	RANT_OPERATOR_UNARY_RET(type, OP)
 
 #define RANT_OPERATOR_ASSIGNMENT(OP)                               \
 	inline type& operator OP##= (type x)                           \
@@ -157,11 +160,11 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	RANT_OPERATOR_INCREMENTAL(+)
 	RANT_OPERATOR_INCREMENTAL(-)
 
-	RANT_OPERATOR_UNARY(bool, !)
+	RANT_OPERATOR_UNARY_RET(bool, !)
 	RANT_OPERATOR_BINARY_RET(bool, &&)
 	RANT_OPERATOR_BINARY_RET(bool, ||)
 
-	RANT_OPERATOR_UNARY(type, ~)
+	RANT_OPERATOR_UNARY(~)
 	RANT_OPERATOR_BINARY(&)
 	RANT_OPERATOR_BINARY(|)
 	RANT_OPERATOR_BINARY(^)
@@ -187,6 +190,7 @@ RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >=)
 #undef RANT_DEFAULT
 #undef RANT_LIMIT
 #undef RANT_OPERATOR_UNARY
+#undef RANT_OPERATOR_UNARY_RET
 #undef RANT_OPERATOR_BINARY
 #undef RANT_OPERATOR_BINARY_RET
 #undef RANT_OPERATOR_ASSIGNMENT

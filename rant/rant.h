@@ -19,7 +19,7 @@ using namespace rant;
 #error disabling rant requires a newer compiler
 #endif
 
-#pragma message "RANT_DISABLE is set"
+#pragma message "rant opt::ranges are disabled"
 
 template<
 	typename T,
