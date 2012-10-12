@@ -143,6 +143,13 @@ TEST(Range, Bit)
 	ASSERT_EQ(42 ^ 23, _int(42) ^ _int(23));
 	ASSERT_EQ(42 << 23, _int(42) << _int(23));
 	ASSERT_EQ(42 >> 2, _int(42) >> _int(2));
+
+	int i;
+	ASSERT_EQ((i=42) <<= 2, _int(42) <<= 2);
+	ASSERT_EQ((i=42) >>= 2, _int(42) >>= 2);
+	ASSERT_EQ((i=42) ^= 0xff, _int(42) ^= 0xff);
+	ASSERT_EQ((i=42) &= 0x07, _int(42) &= 0x07);
+	ASSERT_EQ((i=42) |= 0x07, _int(42) |= 0x07);
 }
 
 #ifndef RANT_DISABLE_SERIALIZATION
