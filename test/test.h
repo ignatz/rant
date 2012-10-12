@@ -59,23 +59,23 @@ void test_subtraction()
 }
 
 
-template<typename Int, typename Float>
+template<typename Type>
 void test_multiplication()
 {
-	Int c = Int(3) * Int(7);
-	ASSERT_EQ(Int(21), c);
+	Type c = Type(3) * Type(7);
+	ASSERT_EQ(3*7, c);
 	c*=3;
-	ASSERT_EQ(Int(63), c);
+	ASSERT_EQ(Type(63), c);
 }
 
 
-template<typename Int, typename Float>
+template<typename Type>
 void test_division()
 {
-	Int c = Int(84) / Int(2);
-	ASSERT_EQ(Int(42), c);
+	Type c = Type(84) / Type(2);
+	ASSERT_EQ(Type(42), c);
 	c/=7;
-	ASSERT_EQ(Int(6), c);
+	ASSERT_EQ(Type(6), c);
 }
 
 
@@ -163,12 +163,14 @@ void test_serialization()
 	                                                    \
 	TEST(NAME, Multiplication)                          \
 	{                                                   \
-		test_multiplication<_int, _d>();                \
+		test_multiplication<_int>();                    \
+		test_multiplication<_d>();                      \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Division)                                \
 	{                                                   \
-		test_division<_int, _d>();                      \
+		test_division<_int>();                          \
+		test_division<_d>();                            \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Modulo)                                  \
