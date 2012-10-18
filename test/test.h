@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 #include <sstream>
+#include <iostream>
+
+#include "rant/rant.h"
 
 template<typename NoOpt, typename Opt>
 void test_disable()
@@ -18,8 +21,13 @@ void test_disable()
 template<typename T>
 void test_minmax()
 {
-	ASSERT_EQ( 4, (T::max()));
-	ASSERT_EQ(-1, (T::min()));
+#ifndef RANT_DISABLE
+	ASSERT_EQ( 4, (rant::numeric_limits<T>::max()));
+	ASSERT_EQ(-1, (rant::numeric_limits<T>::lowest()));
+#else
+	ASSERT_EQ((std::numeric_limits<T>::max()), (rant::numeric_limits<T>::max()));
+	ASSERT_EQ((std::numeric_limits<T>::lowest()), (rant::numeric_limits<T>::lowest()));
+#endif
 }
 
 
@@ -148,7 +156,12 @@ void test_serialization()
 	                                                    \
 	TEST(NAME, MinMax)                                  \
 	{                                                   \
-		test_minmax<irange<int, 4, -1>::type>();        \
+		test_minmax<opt::irange<int, 4, -1>::type>();   \
+                                                        \
+		typedef typename opt::frange<double,            \
+				std::ratio<4, 1>,                       \
+				std::ratio<-1, 1>>::type __d;           \
+		test_minmax<__d>();                             \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Addition)                                \

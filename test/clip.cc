@@ -5,7 +5,6 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
-#include "rant/rant.h"
 #include "test/test.h"
 
 constexpr bool disable =

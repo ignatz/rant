@@ -53,23 +53,15 @@ public:                                                            \
 		return RANT_VALUE;                                         \
 	}                                                              \
                                                                    \
-	RANT_LIMIT(min, Min)                                           \
-	RANT_LIMIT(max, Max)                                           \
-                                                                   \
 	RANT_ARITHMETIC_OPS                                            \
 
 #if __cplusplus != 201103L
 #define RANT_STATIC_ASSERT
 #else
 #define RANT_STATIC_ASSERT                                         \
-	static_assert(max() >= min(), "Max must be >= Min");
+	static_assert(                                                 \
+		value<T, Max>() >= value<T, Min>(), "Max must be >= Min");
 #endif
-
-#define RANT_LIMIT(NAME, MEMBER)                                   \
-	static constexpr T NAME () noexcept                            \
-	{                                                              \
-		return value<T, MEMBER>();                                 \
-	}                                                              \
 
 #define RANT_OPERATOR_UNARY_RET(RET, OP)                           \
 	inline RET operator OP () const                                \
@@ -188,7 +180,6 @@ RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >=)
 #undef RANT_SERIALIZATION
 #undef RANT_OPERATORS
 #undef RANT_DEFAULT
-#undef RANT_LIMIT
 #undef RANT_OPERATOR_UNARY
 #undef RANT_OPERATOR_UNARY_RET
 #undef RANT_OPERATOR_BINARY

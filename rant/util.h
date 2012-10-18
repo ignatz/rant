@@ -11,7 +11,6 @@ namespace rant {
 
 using std::integral_constant;
 using std::intmax_t;
-using std::numeric_limits;
 
 
 template<typename T>
@@ -37,6 +36,8 @@ constexpr
 typename std::enable_if<std::is_integral<T>::value, T>::type
 value()
 {
+	static_assert(is_integral_constant<Val>::value,
+				  "limit must be of type integral_constant");
 	return Val::value;
 }
 
@@ -45,7 +46,24 @@ constexpr
 typename std::enable_if<std::is_floating_point<T>::value, T>::type
 value()
 {
+	static_assert(is_ratio<Val>::value, "limit must be of type ratio");
 	return static_cast<T>(Val::num) / Val::den;
 }
+
+
+template<typename T>
+struct numeric_limits
+{
+	static constexpr T max()    { return std::numeric_limits<T>::max(); }
+	static constexpr T lowest() { return std::numeric_limits<T>::lowest(); }
+};
+
+template<typename T, typename Max, typename Min, T(*Check)(T), typename Enable,
+	template<typename, typename, typename, T(*)(T), typename> class Range>
+struct numeric_limits<Range<T, Max, Min, Check, Enable>>
+{
+	static constexpr T max() { return value<T, Max>(); }
+	static constexpr T lowest() { return value<T, Min>(); }
+};
 
 } // namespace rant
