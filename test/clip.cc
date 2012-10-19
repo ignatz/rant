@@ -33,6 +33,16 @@ TEST(Clip, Integral)
 	ASSERT_EQ(disable ? to(111) : to(354), to(111));
 }
 
+TEST(Clip, UnsignedIntegral)
+{
+	typedef iclip<unsigned int, 5, 0>::type _t;
+	ASSERT_EQ(_t(5), _t(-1));
+	ASSERT_EQ(_t(5), _t(6));
+
+	typedef iclip<unsigned char, 5, 1>::type _u;
+	ASSERT_EQ(_u(1), _u(0));
+	ASSERT_EQ(_u(5), _u(6));
+}
 
 TEST(Clip, FloatingPoint)
 {

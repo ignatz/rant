@@ -43,7 +43,8 @@ overflow(T val, T max)
 
 template<typename T, typename Max, typename Min>
 inline
-T throw_on_error(T val)
+typename std::enable_if<!std::is_unsigned<T>::value || (value<T, Min>() > 0), T>::type
+throw_on_error(T val)
 {
 	if (val < value<T, Min>())
 		throw RANT_UNDERFLOW_ERROR(val, (value<T, Min>()));
@@ -54,10 +55,30 @@ T throw_on_error(T val)
 
 template<typename T, typename Max, typename Min>
 inline
-T clip_on_error(T val) noexcept
+typename std::enable_if<std::is_unsigned<T>::value && (value<T, Min>() == 0), T>::type
+throw_on_error(T val)
+{
+	if (val > value<T, Max>())
+		throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
+	return val;
+}
+
+template<typename T, typename Max, typename Min>
+inline
+typename std::enable_if<!std::is_unsigned<T>::value || (value<T, Min>() > 0), T>::type
+clip_on_error(T val) noexcept
 {
 	val = (val < value<T, Min>()) ? value<T, Min>() :
 		(val > value<T, Max>()) ? value<T, Max>() : val;
+	return val;
+}
+
+template<typename T, typename Max, typename Min>
+inline
+typename std::enable_if<std::is_unsigned<T>::value && (value<T, Min>() == 0), T>::type
+clip_on_error(T val) noexcept
+{
+	val = (val > value<T, Max>()) ? value<T, Max>() : val;
 	return val;
 }
 

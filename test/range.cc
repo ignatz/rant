@@ -35,6 +35,19 @@ TEST(Range, Integral)
 #endif // DISABLE_RANT
 }
 
+TEST(Range, UnsignedIntegral)
+{
+	typedef irange<unsigned int, 5, 0>::type _t;
+	ASSERT_NO_THROW(_t(5));
+	ASSERT_THROW(_t(-1), std::overflow_error);
+	ASSERT_THROW(_t(6), std::overflow_error);
+
+	typedef irange<unsigned char, 5, 1>::type _u;
+	ASSERT_NO_THROW(_u(5));
+	ASSERT_THROW(_u(0), std::underflow_error);
+	ASSERT_THROW(_u(6), std::overflow_error);
+}
+
 TEST(Range, FloatingPoint)
 {
 	typedef range<double, std::ratio<10>, std::ratio<0>>::type t0;
