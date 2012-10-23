@@ -58,12 +58,4 @@ struct numeric_limits
 	static constexpr T lowest() { return std::numeric_limits<T>::lowest(); }
 };
 
-template<typename T, typename Max, typename Min, T(*Check)(T), typename Enable,
-	template<typename, typename, typename, T(*)(T), typename> class Range>
-struct numeric_limits<Range<T, Max, Min, Check, Enable>>
-{
-	static constexpr T max() { return value<T, Max>(); }
-	static constexpr T lowest() { return value<T, Min>(); }
-};
-
 } // namespace rant

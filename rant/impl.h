@@ -171,6 +171,14 @@ RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >)
 RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, <=)
 RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >=)
 
+
+template<typename T, typename Max, typename Min, T(*Check)(T), typename Enable>
+struct numeric_limits<range<T, Max, Min, Check, Enable>>
+{
+	static constexpr T max() { return value<T, Max>(); }
+	static constexpr T lowest() { return value<T, Min>(); }
+};
+
 } // namespace rant
 
 #undef RANT_VALUE
