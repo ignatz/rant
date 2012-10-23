@@ -48,7 +48,7 @@ public:                                                            \
 	{                                                              \
 	}                                                              \
                                                                    \
-	inline operator T () const noexcept                            \
+	inline explicit operator T () const noexcept                   \
 	{                                                              \
 		return RANT_VALUE;                                         \
 	}                                                              \
@@ -66,7 +66,7 @@ public:                                                            \
 #define RANT_OPERATOR_UNARY_RET(RET, OP)                           \
 	inline RET operator OP () const                                \
 	{                                                              \
-		return RET(OP RANT_VALUE);                                 \
+		return OP RANT_VALUE;                                      \
 	}
 
 #define RANT_OPERATOR_UNARY(OP)                                    \
@@ -75,6 +75,11 @@ public:                                                            \
 #define RANT_OPERATOR_ASSIGNMENT(OP)                               \
 	inline type& operator OP##= (type x)                           \
 	{                                                              \
+		RANT_VALUE = Check(RANT_VALUE OP static_cast<T>(x));       \
+		return *this;                                              \
+	}                                                              \
+	inline type& operator OP##= (T x)                              \
+	{                                                              \
 		RANT_VALUE = Check(RANT_VALUE OP x);                       \
 		return *this;                                              \
 	}
@@ -82,8 +87,12 @@ public:                                                            \
 #define RANT_OPERATOR_BINARY_RET(RET, OP)                          \
 	inline RET operator OP (type x) const                          \
 	{                                                              \
-		return RET(RANT_VALUE OP x);                               \
+		return RANT_VALUE OP static_cast<T>(x);                    \
 	}                                                              \
+	inline RET operator OP (T x) const                             \
+	{                                                              \
+		return RANT_VALUE OP x;                                    \
+	}
 
 #define RANT_OPERATOR_BINARY(OP)                                   \
 	RANT_OPERATOR_BINARY_RET(type, OP)                             \
@@ -101,13 +110,33 @@ public:                                                            \
 		return t;                                                  \
 	}
 
-#define RANT_OPERATOR_COMPARE_FF(CLASS_NAME, RET, OP)              \
-	template<typename T, typename Max, typename Min>               \
+#define RANT_OPERATOR_BINARY_FF_RET(CLASS_NAME, RET, OP)           \
+	template<typename T, typename Max, typename Min, T(*Check)(T)> \
 	inline RET operator OP (                                       \
-		CLASS_NAME<T, Max, Min> a,                                 \
-		CLASS_NAME<T, Max, Min> b) noexcept                        \
+		CLASS_NAME<T, Max, Min, Check> a,                          \
+		CLASS_NAME<T, Max, Min, Check> b) noexcept                 \
 	{                                                              \
 		return static_cast<T>(a) OP static_cast<T>(b);             \
+	}                                                              \
+	template<typename U, typename T,                               \
+		typename Max, typename Min, T(*Check)(T)>                  \
+	inline typename                                                \
+	std::enable_if<std::is_arithmetic<U>::value, RET>::type        \
+	operator OP (                                                  \
+		CLASS_NAME<T, Max, Min, Check> a,                          \
+		U b) noexcept                                              \
+	{                                                              \
+		return static_cast<T>(a) OP b;                             \
+	}                                                              \
+	template<typename U, typename T,                               \
+		typename Max, typename Min, T(*Check)(T)>                  \
+	inline typename                                                \
+	std::enable_if<std::is_arithmetic<U>::value, RET>::type        \
+	operator OP (                                                  \
+		U a,                                                       \
+		CLASS_NAME<T, Max, Min, Check> b) noexcept                 \
+	{                                                              \
+		return a OP static_cast<T>(b);                             \
 	}
 
 #define RANT_FWD(CLASS_NAME)                                       \
@@ -148,6 +177,7 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	static_assert(is_integral_constant<Min>::value,
 				  "Min must be std::integral_constant type");
 
+
 	RANT_OPERATOR_BINARY(%)
 	RANT_OPERATOR_INCREMENTAL(+)
 	RANT_OPERATOR_INCREMENTAL(-)
@@ -164,12 +194,19 @@ RANT_IMPL(integral, RANT_CLASS_NAME,
 	RANT_OPERATOR_BINARY(>>)
 )
 
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, ==)
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, !=)
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, <)
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >)
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, <=)
-RANT_OPERATOR_COMPARE_FF(RANT_CLASS_NAME, bool, >=)
+#define RANT_TEMPLATE_TYPE RANT_CLASS_NAME<T, Max, Min, Check>
+
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_TEMPLATE_TYPE, +)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_TEMPLATE_TYPE, -)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_TEMPLATE_TYPE, *)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_TEMPLATE_TYPE, /)
+
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, ==)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, !=)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, <)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, >)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, <=)
+RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, >=)
 
 
 template<typename T, typename Max, typename Min, T(*Check)(T), typename Enable>
@@ -180,6 +217,7 @@ struct numeric_limits<range<T, Max, Min, Check, Enable>>
 };
 
 } // namespace rant
+
 
 #undef RANT_VALUE
 #undef ADD_QUOTES
@@ -194,6 +232,7 @@ struct numeric_limits<range<T, Max, Min, Check, Enable>>
 #undef RANT_OPERATOR_BINARY_RET
 #undef RANT_OPERATOR_ASSIGNMENT
 #undef RANT_OPERATOR_INCREMENTAL
-#undef RANT_OPERATOR_COMPARE_FF
+#undef RANT_OPERATOR_BINARY_FF_RET
+#undef RANT_TEMPLATE_TYPE
 #undef RANT_FWD
 #undef RANT_IMPL
