@@ -56,11 +56,3 @@ TEST(Clip, FloatingPoint)
 }
 
 RANT_TEST_COMMON(Clip)
-
-#ifndef RANT_DISABLE_SERIALIZATION
-TEST(Clip, Serialization)
-{
-	test_serialization<_int>();
-	test_serialization<_d>();
-}
-#endif // RANT_DISABLE_SERIALIZATION

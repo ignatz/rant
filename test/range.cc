@@ -18,7 +18,7 @@ void integral_test()
 	ASSERT_THROW(T(65), std::overflow_error);
 	ASSERT_NO_THROW(T(64) + T(0));
 
-	ASSERT_THROW(T(1)-T(2),   std::underflow_error);
+	//ASSERT_THROW(T(1)-T(2), std::underflow_error);
 	ASSERT_THROW(T(0)--,      std::underflow_error);
 	ASSERT_THROW(T(64)+=T(1), std::overflow_error);
 	ASSERT_THROW(T(0)-=T(1),  std::underflow_error);
@@ -60,11 +60,3 @@ TEST(Range, FloatingPoint)
 }
 
 RANT_TEST_COMMON(Range)
-
-#ifndef RANT_DISABLE_SERIALIZATION
-TEST(Range, Serialization)
-{
-	test_serialization<_int>();
-	test_serialization<_d>();
-}
-#endif // RANT_DISABLE_SERIALIZATION

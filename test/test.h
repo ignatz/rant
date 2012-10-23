@@ -155,17 +155,6 @@ void test_bitwise()
 }
 
 
-template<typename Type>
-void test_serialization()
-{
-	std::stringstream s;
-	boost::archive::text_oarchive oa(s);
-
-	Type a(42);
-	oa << a;
-}
-
-
 #define RANT_TEST_COMMON(NAME)                          \
 	TEST(NAME, Disable)                                 \
 	{                                                   \
