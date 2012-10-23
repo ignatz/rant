@@ -9,8 +9,14 @@
 #define RANT_CLASS_NAME range
 #define RANT_VALUE      __val
 
-#define ADD_QUOTES(STR) #STR
-#define STRINGIZE(STR) ADD_QUOTES(STR)
+#ifdef RANT_EXPLICIT_DOWNCAST
+#define RANT_EXPLICIT explicit
+#else
+#define RANT_EXPLICIT
+#endif // RANT_EXPLICIT_DOWNCAST
+
+#define RANT_ADD_QUOTES(STR) #STR
+#define RANT_STRINGIZE(STR) RANT_ADD_QUOTES(STR)
 
 #define RANT_OPERATOR_UNARY_RET(RET, OP)                           \
 	inline RET operator OP () const                                \
@@ -89,10 +95,11 @@ protected:                                                         \
 	T RANT_VALUE;                                                  \
 public:                                                            \
 	typedef CLASS_NAME <T, Max, Min, Check, void> type;            \
+	typedef T                                     value_type;      \
                                                                    \
 	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v)) {}     \
                                                                    \
-	inline explicit operator T () const noexcept                   \
+	inline RANT_EXPLICIT operator T () const noexcept              \
 	{                                                              \
 		return RANT_VALUE;                                         \
 	}                                                              \
@@ -110,7 +117,7 @@ public:                                                            \
 		std::enable_if<std::is_##TYPE <T>::value>::type>           \
 	{                                                              \
 		static_assert(std::is_##TYPE <T>::value,                   \
-					  "T must be " STRINGIZE(TYPE) " type");       \
+					  "T must be " RANT_STRINGIZE(TYPE) " type");  \
 		RANT_DEFAULT_BODY(CLASS_NAME)                              \
 		RANT_STATIC_ASSERT                                         \
 	public:                                                        \
@@ -149,8 +156,8 @@ RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, >=)
 #include "rant/detail/float.h"
 
 #undef RANT_VALUE
-#undef ADD_QUOTES
-#undef STRINGIZE
+#undef RANT_ADD_QUOTES
+#undef RANT_STRINGIZE
 #undef RANT_DEFAULT_BODY
 #undef RANT_STATIC_ASSERT
 #undef RANT_OPERATOR_UNARY_RET

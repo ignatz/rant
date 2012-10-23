@@ -17,6 +17,19 @@ void test_disable()
 #endif
 }
 
+template<typename T>
+void test_cast()
+{
+	T t(42);
+
+	typename T::value_type a = static_cast<typename T::value_type>(t);
+	static_cast<void>(a);
+#ifndef RANT_EXPLICIT_DOWNCAST
+	typename T::value_type b = t;
+	static_cast<void>(b);
+#endif
+}
+
 
 template<typename T>
 void test_minmax()
@@ -160,6 +173,12 @@ void test_bitwise()
 	{                                                   \
 		test_disable<_int, opt::irange<int>::type>();   \
 		test_disable<_d, opt::frange<double>::type>();  \
+	}                                                   \
+	                                                    \
+	TEST(NAME, Cast)                                    \
+	{                                                   \
+		test_cast<_int>();                              \
+		test_cast<_d>();                                \
 	}                                                   \
 	                                                    \
 	TEST(NAME, MinMax)                                  \
