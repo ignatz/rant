@@ -12,39 +12,6 @@
 #define ADD_QUOTES(STR) #STR
 #define STRINGIZE(STR) ADD_QUOTES(STR)
 
-#define RANT_ARITHMETIC_OPS                                        \
-	RANT_OPERATOR_ASSIGNMENT(+)                                    \
-	RANT_OPERATOR_ASSIGNMENT(-)                                    \
-	RANT_OPERATOR_ASSIGNMENT(*)                                    \
-	RANT_OPERATOR_ASSIGNMENT(/)                                    \
-	RANT_OPERATOR_UNARY_RET(type, +)                               \
-	RANT_OPERATOR_UNARY_RET(type, -)
-
-#define RANT_DEFAULT_BODY(CLASS_NAME)                              \
-protected:                                                         \
-	T RANT_VALUE;                                                  \
-public:                                                            \
-	typedef CLASS_NAME <T, Max, Min, Check, void> type;            \
-                                                                   \
-	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v))        \
-	{                                                              \
-	}                                                              \
-                                                                   \
-	inline explicit operator T () const noexcept                   \
-	{                                                              \
-		return RANT_VALUE;                                         \
-	}                                                              \
-                                                                   \
-	RANT_ARITHMETIC_OPS                                            \
-
-#if __cplusplus != 201103L
-#define RANT_STATIC_ASSERT
-#else
-#define RANT_STATIC_ASSERT                                         \
-	static_assert(                                                 \
-		value<T, Max>() >= value<T, Min>(), "Max must be >= Min");
-#endif
-
 #define RANT_OPERATOR_UNARY_RET(RET, OP)                           \
 	inline RET operator OP () const                                \
 	{                                                              \
@@ -109,6 +76,34 @@ public:                                                            \
 		typename Enable = void>                                    \
 	class CLASS_NAME;
 
+#if __cplusplus != 201103L
+#define RANT_STATIC_ASSERT
+#else
+#define RANT_STATIC_ASSERT                                         \
+	static_assert(value<T, Max>() >= value<T, Min>(),              \
+				  "Max must be >= Min");
+#endif
+
+#define RANT_DEFAULT_BODY(CLASS_NAME)                              \
+protected:                                                         \
+	T RANT_VALUE;                                                  \
+public:                                                            \
+	typedef CLASS_NAME <T, Max, Min, Check, void> type;            \
+                                                                   \
+	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v)) {}     \
+                                                                   \
+	inline explicit operator T () const noexcept                   \
+	{                                                              \
+		return RANT_VALUE;                                         \
+	}                                                              \
+                                                                   \
+	RANT_OPERATOR_ASSIGNMENT(+)                                    \
+	RANT_OPERATOR_ASSIGNMENT(-)                                    \
+	RANT_OPERATOR_ASSIGNMENT(*)                                    \
+	RANT_OPERATOR_ASSIGNMENT(/)                                    \
+	RANT_OPERATOR_UNARY_RET(type, +)                               \
+	RANT_OPERATOR_UNARY_RET(type, -)
+
 #define RANT_IMPL(TYPE, CLASS_NAME, ...)                           \
 	template<typename T, typename Max, typename Min, T(*Check)(T)> \
 	class CLASS_NAME<T, Max, Min, Check, typename                  \
@@ -122,60 +117,24 @@ public:                                                            \
 		__VA_ARGS__                                                \
 	};
 
+#define RANT_RETURN_TYPE RANT_CLASS_NAME<T, Max, Min, Check>
 
 namespace rant {
 
 RANT_FWD(RANT_CLASS_NAME)
 
-RANT_IMPL(floating_point, RANT_CLASS_NAME,
-	static_assert(is_ratio<Max>::value,
-				  "Max must be std::ratio type");
-	static_assert(is_ratio<Min>::value,
-				  "Min must be std::ratio type");
-)
-
-RANT_IMPL(integral, RANT_CLASS_NAME,
-	static_assert(is_integral_constant<Max>::value,
-				  "Max must be std::integral_constant type");
-	static_assert(is_integral_constant<Min>::value,
-				  "Min must be std::integral_constant type");
-
-
-	RANT_OPERATOR_ASSIGNMENT(%)
-	RANT_OPERATOR_INCREMENTAL(+)
-	RANT_OPERATOR_INCREMENTAL(-)
-
-	RANT_OPERATOR_UNARY_RET(bool, !)
-	RANT_OPERATOR_UNARY_RET(type, ~)
-
-	RANT_OPERATOR_ASSIGNMENT(&)
-	RANT_OPERATOR_ASSIGNMENT(|)
-	RANT_OPERATOR_ASSIGNMENT(^)
-	RANT_OPERATOR_ASSIGNMENT(<<)
-	RANT_OPERATOR_ASSIGNMENT(>>)
-)
-
-#define RANT_RETURN_TYPE RANT_CLASS_NAME<T, Max, Min, Check>
-#define RANT_RETURN_TYPE_INT \
-	typename std::enable_if<std::is_integral<T>::value, RANT_CLASS_NAME<T, Max, Min, Check>>::type
-#define RANT_RETURN_TYPE_INT_BOOL \
-	typename std::enable_if<std::is_integral<T>::value, bool>::type
+template<typename T, typename Max,
+	typename Min, T(*Check)(T), typename Enable>
+struct numeric_limits<range<T, Max, Min, Check, Enable>>
+{
+	static constexpr T max() { return value<T, Max>(); }
+	static constexpr T lowest() { return value<T, Min>(); }
+};
 
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE, +)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE, -)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE, *)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE, /)
-
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, %)
-
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, &)
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, |)
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, ^)
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, <<)
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT, >>)
-
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT_BOOL, &&)
-RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, RANT_RETURN_TYPE_INT_BOOL, ||)
 
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, ==)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, !=)
@@ -184,19 +143,14 @@ RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, >)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, <=)
 RANT_OPERATOR_BINARY_FF_RET(RANT_CLASS_NAME, bool, >=)
 
-template<typename T, typename Max, typename Min, T(*Check)(T), typename Enable>
-struct numeric_limits<range<T, Max, Min, Check, Enable>>
-{
-	static constexpr T max() { return value<T, Max>(); }
-	static constexpr T lowest() { return value<T, Min>(); }
-};
-
 } // namespace rant
+
+#include "rant/detail/int.h"
+#include "rant/detail/float.h"
 
 #undef RANT_VALUE
 #undef ADD_QUOTES
 #undef STRINGIZE
-#undef RANT_ARITHMETIC_OPS
 #undef RANT_DEFAULT_BODY
 #undef RANT_STATIC_ASSERT
 #undef RANT_OPERATOR_UNARY_RET
@@ -206,5 +160,3 @@ struct numeric_limits<range<T, Max, Min, Check, Enable>>
 #undef RANT_FWD
 #undef RANT_IMPL
 #undef RANT_RETURN_TYPE
-#undef RANT_RETURN_TYPE_INT
-#undef RANT_RETURN_TYPE_INT_BOOL

@@ -6,7 +6,7 @@
 #include "rant/util.h"
 #include "rant/check.h"
 
-#include "rant/impl.h"
+#include "rant/detail/range.h"
 
 namespace rant {
 namespace opt {
