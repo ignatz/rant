@@ -27,7 +27,7 @@
 #define RANT_OPERATOR_ASSIGNMENT(OP)                               \
 	inline type& operator OP##= (T x)                              \
 	{                                                              \
-		RANT_VALUE = Check(RANT_VALUE OP x);                       \
+		RANT_VALUE = Check() (RANT_VALUE OP x);                    \
 		return *this;                                              \
 	}                                                              \
 	inline type& operator OP##= (type x)                           \
@@ -48,15 +48,16 @@
 	}
 
 #define RANT_OPERATOR_BINARY_FF_RET(CLASS_NAME, RET, OP)           \
-	template<typename T, typename Max, typename Min, T(*Check)(T)> \
+	template<typename T, typename Max,                             \
+		typename Min, typename Check>                              \
 	inline RET operator OP (                                       \
 		CLASS_NAME<T, Max, Min, Check> a,                          \
 		CLASS_NAME<T, Max, Min, Check> b) noexcept                 \
 	{                                                              \
 		return static_cast<T>(a) OP static_cast<T>(b);             \
 	}                                                              \
-	template<typename U, typename T,                               \
-		typename Max, typename Min, T(*Check)(T)>                  \
+	template<typename U, typename T, typename Max,                 \
+		typename Min, typename Check>                              \
 	inline typename                                                \
 	std::enable_if<std::is_arithmetic<U>::value, RET>::type        \
 	operator OP (                                                  \
@@ -65,8 +66,8 @@
 	{                                                              \
 		return static_cast<T>(a) OP b;                             \
 	}                                                              \
-	template<typename U, typename T,                               \
-		typename Max, typename Min, T(*Check)(T)>                  \
+	template<typename U, typename T, typename Max,                 \
+		typename Min, typename Check>                              \
 	inline typename                                                \
 	std::enable_if<std::is_arithmetic<U>::value, RET>::type        \
 	operator OP (                                                  \
@@ -78,7 +79,7 @@
 
 #define RANT_FWD(CLASS_NAME)                                       \
 	template<typename T, typename Max, typename Min,               \
-		T(*Check)(T) = throw_on_error<T, Max, Min>,                \
+		typename Check = throw_on_error<T, Max, Min>,              \
 		typename Enable = void>                                    \
 	class CLASS_NAME;
 
@@ -97,7 +98,7 @@ public:                                                            \
 	typedef CLASS_NAME <T, Max, Min, Check, void> type;            \
 	typedef T                                     value_type;      \
                                                                    \
-	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check(v)) {}     \
+	constexpr CLASS_NAME (T v = T()) : RANT_VALUE(Check() (v)) {}  \
                                                                    \
 	inline RANT_EXPLICIT operator T () const noexcept              \
 	{                                                              \
@@ -112,7 +113,8 @@ public:                                                            \
 	RANT_OPERATOR_UNARY_RET(type, -)
 
 #define RANT_IMPL(TYPE, CLASS_NAME, ...)                           \
-	template<typename T, typename Max, typename Min, T(*Check)(T)> \
+	template<typename T, typename Max,                             \
+		typename Min, typename Check>                              \
 	class CLASS_NAME<T, Max, Min, Check, typename                  \
 		std::enable_if<std::is_##TYPE <T>::value>::type>           \
 	{                                                              \
@@ -131,7 +133,7 @@ namespace rant {
 RANT_FWD(RANT_CLASS_NAME)
 
 template<typename T, typename Max,
-	typename Min, T(*Check)(T), typename Enable>
+	typename Min, typename Check, typename Enable>
 struct numeric_limits<range<T, Max, Min, Check, Enable>>
 {
 	static constexpr T max() { return value<T, Max>(); }

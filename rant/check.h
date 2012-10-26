@@ -16,7 +16,6 @@
 #define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
 
-
 namespace rant {
 
 template<typename T>
@@ -41,46 +40,67 @@ overflow(T val, T max)
 	return std::overflow_error(s);
 }
 
-template<typename T, typename Max, typename Min>
-inline
-typename std::enable_if<!std::is_unsigned<T>::value || (value<T, Min>() > 0), T>::type
-throw_on_error(T val)
-{
-	if (val < value<T, Min>())
-		throw RANT_UNDERFLOW_ERROR(val, (value<T, Min>()));
-	else if (val > value<T, Max>())
-		throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
-	return val;
-}
+
+template<typename T, typename Max, typename Min,
+	typename Enable = void>
+struct throw_on_error;
 
 template<typename T, typename Max, typename Min>
-inline
-typename std::enable_if<std::is_unsigned<T>::value && (value<T, Min>() == 0), T>::type
-throw_on_error(T val)
+struct throw_on_error<T, Max, Min, typename std::enable_if<
+	!std::is_unsigned<T>::value ||
+	(value<T, Min>() > 0)>::type>
 {
-	if (val > value<T, Max>())
-		throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
-	return val;
-}
+	T operator() (T val)
+	{
+		if (val < value<T, Min>())
+			throw RANT_UNDERFLOW_ERROR(val, (value<T, Min>()));
+		else if (val > value<T, Max>())
+			throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
+		return val;
+	}
+};
 
 template<typename T, typename Max, typename Min>
-inline
-typename std::enable_if<!std::is_unsigned<T>::value || (value<T, Min>() > 0), T>::type
-clip_on_error(T val) noexcept
+struct throw_on_error<T, Max, Min, typename std::enable_if<
+	std::is_unsigned<T>::value &&
+	(value<T, Min>() == 0)>::type>
 {
-	val = (val < value<T, Min>()) ? value<T, Min>() :
-		(val > value<T, Max>()) ? value<T, Max>() : val;
-	return val;
-}
+	T operator() (T val)
+	{
+		if (val > value<T, Max>())
+			throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
+		return val;
+	}
+};
+
+
+template<typename T, typename Max, typename Min,
+	typename Enable = void>
+struct clip_on_error;
 
 template<typename T, typename Max, typename Min>
-inline
-typename std::enable_if<std::is_unsigned<T>::value && (value<T, Min>() == 0), T>::type
-clip_on_error(T val) noexcept
+struct clip_on_error<T, Max, Min, typename std::enable_if<
+	!std::is_unsigned<T>::value ||
+	(value<T, Min>() > 0)>::type>
 {
-	val = (val > value<T, Max>()) ? value<T, Max>() : val;
-	return val;
-}
+	T operator() (T val)
+	{
+		val = (val < value<T, Min>()) ? value<T, Min>() :
+			(val > value<T, Max>()) ? value<T, Max>() : val;
+		return val;
+	}
+};
+
+template<typename T, typename Max, typename Min>
+struct clip_on_error<T, Max, Min, typename std::enable_if<
+	std::is_unsigned<T>::value &&
+	(value<T, Min>() == 0)>::type>
+{
+	T operator() (T val)
+	{
+		return (val > value<T, Max>()) ? value<T, Max>() : val;
+	}
+};
 
 } // namespace rant
 

@@ -25,14 +25,14 @@ template<
 	typename T,
 	typename Max    = void,
 	typename Min    = void,
-	T(*Check)(T)    = throw_on_error<T, Max, Min>,
+	typename Check  = throw_on_error<T, Max, Min>,
 	typename Enable = void>
 using range = T;
 
 template<typename T,
 	typename Max    = void,
 	typename Min    = void,
-	T(*Check)(T)    = throw_on_error<T, Max, Min>,
+	typename Check  = clip_on_error<T, Max, Min>,
 	typename Enable = void>
 using clip = T;
 #endif // RANT_DISABLE
@@ -53,16 +53,16 @@ struct irange                                                                   
 };                                                                                \
                                                                                   \
 template<typename T = double,                                                     \
-	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,                  \
-	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>                  \
+	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,             \
+	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>             \
 struct frange                                                                     \
 {                                                                                 \
 	typedef range<T, Max, Min> type;                                              \
 };                                                                                \
                                                                                   \
 template<typename T = int,                                                        \
-	T Max = std::numeric_limits<T>::max(),                                             \
-	T Min = std::numeric_limits<T>::min()>                                             \
+	T Max = std::numeric_limits<T>::max(),                                        \
+	T Min = std::numeric_limits<T>::min()>                                        \
 struct iclip                                                                      \
 {                                                                                 \
 	typedef range<T,                                                              \
@@ -73,8 +73,8 @@ struct iclip                                                                    
 };                                                                                \
                                                                                   \
 template<typename T = double,                                                     \
-	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,                  \
-	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>                  \
+	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,             \
+	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>             \
 struct fclip                                                                      \
 {                                                                                 \
 	typedef range<T, Max, Min, clip_on_error<T, Max, Min>> type;                  \
