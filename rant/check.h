@@ -52,9 +52,9 @@ struct throw_on_error<T, Max, Min, typename std::enable_if<
 {
 	T operator() (T val)
 	{
-		if (val < value<T, Min>())
+		if RANT_UNLIKELY((val < value<T, Min>()))
 			throw RANT_UNDERFLOW_ERROR(val, (value<T, Min>()));
-		else if (val > value<T, Max>())
+		else if RANT_UNLIKELY((val > value<T, Max>()))
 			throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
 		return val;
 	}
@@ -67,7 +67,7 @@ struct throw_on_error<T, Max, Min, typename std::enable_if<
 {
 	T operator() (T val)
 	{
-		if (val > value<T, Max>())
+		if RANT_UNLIKELY((val > value<T, Max>()))
 			throw RANT_OVERFLOW_ERROR(val, (value<T, Max>()));
 		return val;
 	}
@@ -85,8 +85,8 @@ struct clip_on_error<T, Max, Min, typename std::enable_if<
 {
 	T operator() (T val)
 	{
-		val = (val < value<T, Min>()) ? value<T, Min>() :
-			(val > value<T, Max>()) ? value<T, Max>() : val;
+		val = RANT_UNLIKELY((val < value<T, Min>())) ? value<T, Min>() :
+			RANT_UNLIKELY((val > value<T, Max>())) ? value<T, Max>() : val;
 		return val;
 	}
 };
@@ -98,7 +98,7 @@ struct clip_on_error<T, Max, Min, typename std::enable_if<
 {
 	T operator() (T val)
 	{
-		return (val > value<T, Max>()) ? value<T, Max>() : val;
+		return RANT_UNLIKELY((val > value<T, Max>())) ? value<T, Max>() : val;
 	}
 };
 

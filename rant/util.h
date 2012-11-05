@@ -7,6 +7,14 @@
 #include <type_traits>
 #include <ratio>
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define RANT_LIKELY(x) (__builtin_expect((x), 1))
+#define RANT_UNLIKELY(x) (__builtin_expect((x), 0))
+#else
+#define RANT_LIKELY(x) (x)
+#define RANT_UNLIKELY(x) (x)
+#endif
+
 namespace rant {
 
 using std::integral_constant;
