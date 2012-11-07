@@ -134,7 +134,8 @@ RANT_FWD(RANT_CLASS_NAME)
 
 template<typename T, typename Max,
 	typename Min, typename Check, typename Enable>
-struct numeric_limits<range<T, Max, Min, Check, Enable>>
+struct numeric_limits<range<T, Max, Min, Check, Enable>> :
+	public std::numeric_limits<T>
 {
 	static constexpr T max() { return value<T, Max>(); }
 	static constexpr T lowest() { return value<T, Min>(); }

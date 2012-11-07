@@ -60,10 +60,8 @@ value()
 
 
 template<typename T>
-struct numeric_limits
-{
-	static constexpr T max()    { return std::numeric_limits<T>::max(); }
-	static constexpr T lowest() { return std::numeric_limits<T>::lowest(); }
-};
+struct numeric_limits :
+	public std::numeric_limits<T>
+{};
 
 } // namespace rant
