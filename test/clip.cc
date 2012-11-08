@@ -21,7 +21,9 @@ template<typename T = int, \
 struct iclip \
 { \
 	typedef integral_range<T, Max, Min, \
-		clip_on_error<T, integral_constant<T, Max>, integral_constant<T, Min>> \
+		clip_on_error<T, \
+			std::integral_constant<T, Max>, \
+			std::integral_constant<T, Min>> \
 	> type; \
 }; \
 \
@@ -30,7 +32,8 @@ template<typename T = double, \
 	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>> \
 struct fclip \
 { \
-	typedef floating_point_range<T, Max, Min, clip_on_error<T, Max, Min>> type; \
+	typedef floating_point_range<T, Max, Min, \
+		clip_on_error<T, Max, Min>> type; \
 };
 
 

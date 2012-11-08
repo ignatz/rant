@@ -27,26 +27,13 @@
 
 namespace rant {
 
-using std::integral_constant;
-using std::intmax_t;
-
-
-template<typename T>
-struct is_integral_constant :
-	public integral_constant<bool, false> {};
-
-template<typename T, T Val>
-struct is_integral_constant<std::integral_constant<T, Val>> :
-	public integral_constant<bool, true> {};
-
-
 template<typename T>
 struct is_ratio :
-	public integral_constant<bool, false> {};
+	public std::integral_constant<bool, false> {};
 
 template<intmax_t Num, intmax_t Den>
 struct is_ratio<std::ratio<Num, Den>> :
-	public integral_constant<bool, true> {};
+	public std::integral_constant<bool, true> {};
 
 
 template<typename T, typename Val>

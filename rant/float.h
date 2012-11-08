@@ -8,8 +8,8 @@
 namespace rant {
 
 template<typename T,
-	typename Max   = std::ratio< std::numeric_limits<intmax_t>::max()>,
-	typename Min   = std::ratio<-std::numeric_limits<intmax_t>::max()>,
+	typename Max   = std::ratio< std::numeric_limits<std::intmax_t>::max()>,
+	typename Min   = std::ratio<-std::numeric_limits<std::intmax_t>::max()>,
 	typename Check = throw_on_error<T, Max, Min>>
 class floating_point_range
 {
