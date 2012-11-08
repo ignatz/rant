@@ -38,7 +38,7 @@ std::overflow_error
 overflow(T val, T max)
 {
 	std::string s(RANT_OVERFLOW_MESSAGE ": ");
-	s += std::to_string(val) + " >= max(";
+	s += std::to_string(val) + " > max(";
 	s += std::to_string(max) + ")";
 	return std::overflow_error(s);
 }
