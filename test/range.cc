@@ -6,10 +6,15 @@
 
 #include "test/test.h"
 
-using namespace rant;
+typedef ::rant::integral_range<int>          _int;
+typedef ::rant::floating_point_range<double> _d;
 
-typedef integral_range<int>          _int;
-typedef floating_point_range<double> _d;
+namespace _debug {
+	typedef ::rant::debug::integral_range<int>          _int;
+	typedef ::rant::debug::floating_point_range<double> _d;
+}
+
+using namespace rant;
 
 template<typename T>
 void integral_test()
@@ -55,6 +60,16 @@ TEST(Range, FloatingPoint)
 	ASSERT_THROW(t0(10.1), std::overflow_error);
 	ASSERT_NO_THROW(static_cast<void>(t0(0.1)-t0(0.1)));
 	ASSERT_NO_THROW(t0(10.0));
+}
+
+TEST(Range, MinMax)
+{
+	test_minmax<debug::integral_range<int, 4, -1>>(4, -1);
+
+	typedef typename debug::floating_point_range<double,
+			std::ratio<4, 1>,
+			std::ratio<-1, 1>> __d;
+	test_minmax<__d>(4, -1);
 }
 
 RANT_TEST_COMMON(Range)

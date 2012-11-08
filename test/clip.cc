@@ -14,36 +14,38 @@ constexpr bool disable =
 	true;
 #endif // RANT_DISABLE
 
-namespace rant {
-template<typename T = int,
-	T Max = std::numeric_limits<T>::max(),
-	T Min = std::numeric_limits<T>::min()>
-struct iclip
-{
-	typedef integral_range<T, Max, Min,
-		clip_on_error<T, integral_constant<T, Max>, integral_constant<T, Min>>
-	> type;
+#define ALIASES \
+template<typename T = int, \
+	T Max = std::numeric_limits<T>::max(), \
+	T Min = std::numeric_limits<T>::min()> \
+struct iclip \
+{ \
+	typedef integral_range<T, Max, Min, \
+		clip_on_error<T, integral_constant<T, Max>, integral_constant<T, Min>> \
+	> type; \
+}; \
+\
+template<typename T = double, \
+	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>, \
+	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>> \
+struct fclip \
+{ \
+	typedef floating_point_range<T, Max, Min, clip_on_error<T, Max, Min>> type; \
 };
 
-template<typename T = double,
-	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,
-	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>
-struct fclip
-{
-	typedef floating_point_range<T, Max, Min, clip_on_error<T, Max, Min>> type;
-};
 
-namespace debug {
-using rant::iclip;
-using rant::fclip;
+namespace _debug {
+using namespace rant::debug;
+ALIASES
+typedef typename iclip<int>::type     _int;
+typedef typename fclip<double>::type  _d;
 } // debug
-} // rant
 
 using namespace rant;
+ALIASES
 
-
-typedef iclip<int>::type     _int;
-typedef fclip<double>::type  _d;
+typedef typename iclip<int>::type     _int;
+typedef typename fclip<double>::type  _d;
 
 TEST(Clip, Integral)
 {
@@ -53,7 +55,7 @@ TEST(Clip, Integral)
 	ASSERT_EQ(t( 65), t( 64));
 	ASSERT_EQ(t(111), t(354));
 
-	typedef debug::iclip<int, 64, 0>::type to;
+	typedef _debug::iclip<int, 64, 0>::type to;
 	ASSERT_EQ(disable ? to( -1) : to(  0), to( -1));
 	ASSERT_EQ(disable ? to( 65) : to( 64), to( 65));
 	ASSERT_EQ(disable ? to(111) : to(354), to(111));
@@ -73,12 +75,22 @@ TEST(Clip, UnsignedIntegral)
 TEST(Clip, FloatingPoint)
 {
 	typedef fclip<double, std::ratio<10>, std::ratio<0>>::type      t;
-	typedef debug::fclip<double, std::ratio<10>, std::ratio<0>>::type to;
+	typedef _debug::fclip<double, std::ratio<10>, std::ratio<0>>::type to;
 
 	ASSERT_EQ(t(0), t(-0.0));
 	ASSERT_EQ(disable ? to(-0.1) : to(0), to(-0.1));
 	ASSERT_EQ(t(10.0), t(10.0));
 	ASSERT_EQ(disable ? to(10.1) : to(10.0), to(10.1));
+}
+
+TEST(Clip, MinMax)
+{
+	test_minmax<typename _debug::iclip<int, 4, -1>::type>(4, -1);
+
+	typedef typename _debug::fclip<double,
+			std::ratio<4, 1>,
+			std::ratio<-1, 1>>::type __d;
+	test_minmax<__d>(4, -1);
 }
 
 RANT_TEST_COMMON(Clip)

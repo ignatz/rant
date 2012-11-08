@@ -26,7 +26,8 @@ public:
 	typedef floating_point_range<T, Max, Min, Check> type;
 	typedef T value_type;
 
-	floating_point_range(T v = T()) : RANT_VALUE_NAME(Check() (v)) {}
+	RANT_CONSTEXPR floating_point_range(T v = T()) :
+		RANT_VALUE_NAME(Check() (v)) {}
 
 	inline
 	RANT_EXPLICIT operator T () const noexcept

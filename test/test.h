@@ -32,11 +32,11 @@ void test_cast()
 
 
 template<typename T>
-void test_minmax()
+void test_minmax(int max, int min)
 {
 #ifndef RANT_DISABLE
-	ASSERT_EQ( 4, (std::numeric_limits<T>::max()));
-	ASSERT_EQ(-1, (std::numeric_limits<T>::lowest()));
+	ASSERT_EQ(max, (std::numeric_limits<T>::max()));
+	ASSERT_EQ(min, (std::numeric_limits<T>::lowest()));
 #endif
 }
 
@@ -168,24 +168,14 @@ void test_bitwise()
 #define RANT_TEST_COMMON(NAME)                          \
 	TEST(NAME, Disable)                                 \
 	{                                                   \
-		test_disable<_int, debug::integral_range<int>>();   \
-		test_disable<_d, debug::floating_point_range<double>>();  \
+		test_disable<_int, _debug::_int>();             \
+		test_disable<_d, _debug::_d>();                 \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Cast)                                    \
 	{                                                   \
 		test_cast<_int>();                              \
 		test_cast<_d>();                                \
-	}                                                   \
-	                                                    \
-	TEST(NAME, MinMax)                                  \
-	{                                                   \
-		test_minmax<debug::integral_range<int, 4, -1>>();     \
-                                                        \
-		typedef typename debug::floating_point_range<double,  \
-				std::ratio<4, 1>,                       \
-				std::ratio<-1, 1>> __d;                 \
-		test_minmax<__d>();                             \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Addition)                                \

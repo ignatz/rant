@@ -35,7 +35,8 @@ public:
 	typedef integral_range<T, Max, Min, Check> type;
 	typedef T value_type;
 
-	integral_range(T v = T()) : RANT_VALUE_NAME(Check() (v)) {}
+	RANT_CONSTEXPR integral_range(T v = T()) :
+		RANT_VALUE_NAME(Check() (v)) {}
 
 	inline
 	RANT_EXPLICIT operator T () const noexcept
