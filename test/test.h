@@ -35,11 +35,8 @@ template<typename T>
 void test_minmax()
 {
 #ifndef RANT_DISABLE
-	ASSERT_EQ( 4, (rant::numeric_limits<T>::max()));
-	ASSERT_EQ(-1, (rant::numeric_limits<T>::lowest()));
-#else
-	ASSERT_EQ((std::numeric_limits<T>::max()), (rant::numeric_limits<T>::max()));
-	ASSERT_EQ((std::numeric_limits<T>::lowest()), (rant::numeric_limits<T>::lowest()));
+	ASSERT_EQ( 4, (std::numeric_limits<T>::max()));
+	ASSERT_EQ(-1, (std::numeric_limits<T>::lowest()));
 #endif
 }
 
@@ -171,8 +168,8 @@ void test_bitwise()
 #define RANT_TEST_COMMON(NAME)                          \
 	TEST(NAME, Disable)                                 \
 	{                                                   \
-		test_disable<_int, opt::irange<int>::type>();   \
-		test_disable<_d, opt::frange<double>::type>();  \
+		test_disable<_int, debug::integral_range<int>>();   \
+		test_disable<_d, debug::floating_point_range<double>>();  \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Cast)                                    \
@@ -183,11 +180,11 @@ void test_bitwise()
 	                                                    \
 	TEST(NAME, MinMax)                                  \
 	{                                                   \
-		test_minmax<opt::irange<int, 4, -1>::type>();   \
+		test_minmax<debug::integral_range<int, 4, -1>>();     \
                                                         \
-		typedef typename opt::frange<double,            \
+		typedef typename debug::floating_point_range<double,  \
 				std::ratio<4, 1>,                       \
-				std::ratio<-1, 1>>::type __d;           \
+				std::ratio<-1, 1>> __d;                 \
 		test_minmax<__d>();                             \
 	}                                                   \
 	                                                    \

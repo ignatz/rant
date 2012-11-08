@@ -11,10 +11,10 @@
 
 using namespace rant;
 
-typedef irange<int>::type        _int;
-typedef irange<char>::type       _char;
-typedef irange<long long>::type  _ll;
-typedef frange<double>::type     _d;
+typedef integral_range<int>          _int;
+typedef integral_range<char>         _char;
+typedef integral_range<long long>    _ll;
+typedef floating_point_range<double> _d;
 
 template<typename OArchive, typename IArchive, typename T>
 void test_serialization(T const& t)

@@ -14,7 +14,33 @@ constexpr bool disable =
 	true;
 #endif // RANT_DISABLE
 
+namespace rant {
+template<typename T = int,
+	T Max = std::numeric_limits<T>::max(),
+	T Min = std::numeric_limits<T>::min()>
+struct iclip
+{
+	typedef integral_range<T, Max, Min,
+		clip_on_error<T, integral_constant<T, Max>, integral_constant<T, Min>>
+	> type;
+};
+
+template<typename T = double,
+	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>,
+	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>>
+struct fclip
+{
+	typedef floating_point_range<T, Max, Min, clip_on_error<T, Max, Min>> type;
+};
+
+namespace debug {
+using rant::iclip;
+using rant::fclip;
+} // debug
+} // rant
+
 using namespace rant;
+
 
 typedef iclip<int>::type     _int;
 typedef fclip<double>::type  _d;
@@ -27,7 +53,7 @@ TEST(Clip, Integral)
 	ASSERT_EQ(t( 65), t( 64));
 	ASSERT_EQ(t(111), t(354));
 
-	typedef opt::iclip<int, 64, 0>::type to;
+	typedef debug::iclip<int, 64, 0>::type to;
 	ASSERT_EQ(disable ? to( -1) : to(  0), to( -1));
 	ASSERT_EQ(disable ? to( 65) : to( 64), to( 65));
 	ASSERT_EQ(disable ? to(111) : to(354), to(111));
@@ -47,7 +73,7 @@ TEST(Clip, UnsignedIntegral)
 TEST(Clip, FloatingPoint)
 {
 	typedef fclip<double, std::ratio<10>, std::ratio<0>>::type      t;
-	typedef opt::fclip<double, std::ratio<10>, std::ratio<0>>::type to;
+	typedef debug::fclip<double, std::ratio<10>, std::ratio<0>>::type to;
 
 	ASSERT_EQ(t(0), t(-0.0));
 	ASSERT_EQ(disable ? to(-0.1) : to(0), to(-0.1));

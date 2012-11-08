@@ -7,6 +7,16 @@
 #include <type_traits>
 #include <ratio>
 
+#define RANT_CONSTEXPR constexpr
+
+#ifdef __clang__
+#define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
+#define RANT_LESS(LHS, RHS) ::std::less<T>() (LHS, RHS)
+#else
+#define RANT_VALUE(VAL) ::rant::value<T, VAL>{} ()
+#define RANT_LESS(LHS, RHS) ::std::less<T>{} (LHS, RHS)
+#endif
+
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define RANT_LIKELY(x) (__builtin_expect((x), 1))
 #define RANT_UNLIKELY(x) (__builtin_expect((x), 0))
@@ -40,28 +50,30 @@ struct is_ratio<std::ratio<Num, Den>> :
 
 
 template<typename T, typename Val>
-constexpr
-typename std::enable_if<std::is_integral<T>::value, T>::type
-value()
+struct value
 {
-	static_assert(is_integral_constant<Val>::value,
-				  "limit must be of type integral_constant");
-	return Val::value;
-}
+	T const& operator() () const
+	{
+		return static_cast<T const&>(Val() ());
+	}
+};
 
-template<typename T, typename Val>
-constexpr
-typename std::enable_if<std::is_floating_point<T>::value, T>::type
-value()
+template<typename T, T Val>
+struct value<T, std::integral_constant<T, Val>>
 {
-	static_assert(is_ratio<Val>::value, "limit must be of type ratio");
-	return static_cast<T>(Val::num) / Val::den;
-}
+	RANT_CONSTEXPR T operator() () const
+	{
+		return Val;
+	}
+};
 
+template<typename T, intmax_t Num, intmax_t Den>
+struct value<T, std::ratio<Num, Den>>
+{
+	RANT_CONSTEXPR T operator() () const
+	{
+		return static_cast<T>(Num) / Den;
+	}
+};
 
-template<typename T>
-struct numeric_limits :
-	public std::numeric_limits<T>
-{};
-
-} // namespace rant
+} // rant
