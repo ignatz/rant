@@ -48,7 +48,7 @@ struct value
 template<typename T, T Val>
 struct value<T, std::integral_constant<T, Val>>
 {
-	RANT_CONSTEXPR T operator() () const
+	RANT_CONSTEXPR T operator() () const noexcept
 	{
 		return Val;
 	}
@@ -57,7 +57,7 @@ struct value<T, std::integral_constant<T, Val>>
 template<typename T, intmax_t Num, intmax_t Den>
 struct value<T, std::ratio<Num, Den>>
 {
-	RANT_CONSTEXPR T operator() () const
+	RANT_CONSTEXPR T operator() () const noexcept
 	{
 		return static_cast<T>(Num) / Den;
 	}

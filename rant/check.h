@@ -87,6 +87,8 @@ struct clip_on_error
 	template<typename ... Args>
 	inline
 	T operator() (Args&& ... args) const
+		noexcept(std::is_nothrow_constructible<T, Args...>::value &&
+				 std::is_nothrow_copy_constructible<T>::value)
 	{
 		T val(std::forward<Args>(args)...);
 
