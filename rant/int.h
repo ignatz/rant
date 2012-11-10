@@ -3,9 +3,11 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "rant/range.h"
+#include "rant/util.h"
+#include "rant/check.h"
+#include "rant/op.h"
 
-#define RANT_OPERATOR_INCREMENTAL(OP)                         \
+#define RANT_OP_INCREMENTAL(OP)                         \
 	inline type& operator OP##OP ()                           \
 	{                                                         \
 		return *this OP##= 1;                                 \
@@ -36,7 +38,7 @@ public:
 	typedef T value_type;
 
 	RANT_CONSTEXPR integral_range(T v = T()) :
-		RANT_VALUE_NAME(Check() (v)) {}
+		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
 	RANT_EXPLICIT operator T () const noexcept
@@ -44,57 +46,60 @@ public:
 		return RANT_VALUE_NAME;
 	}
 
-	RANT_OPERATOR_ASSIGNMENT(+)
-	RANT_OPERATOR_ASSIGNMENT(-)
-	RANT_OPERATOR_ASSIGNMENT(*)
-	RANT_OPERATOR_ASSIGNMENT(/)
-	RANT_OPERATOR_UNARY_RET(type, +)
-	RANT_OPERATOR_UNARY_RET(type, -)
+	RANT_OP_ASSIGNMENT(+)
+	RANT_OP_ASSIGNMENT(-)
+	RANT_OP_ASSIGNMENT(*)
+	RANT_OP_ASSIGNMENT(/)
+	RANT_OP_UNARY(type, +)
+	RANT_OP_UNARY(type, -)
 
 
-	RANT_OPERATOR_ASSIGNMENT(%)
-	RANT_OPERATOR_INCREMENTAL(+)
-	RANT_OPERATOR_INCREMENTAL(-)
+	RANT_OP_ASSIGNMENT(%)
+	RANT_OP_INCREMENTAL(+)
+	RANT_OP_INCREMENTAL(-)
 
-	RANT_OPERATOR_UNARY_RET(bool, !)
-	RANT_OPERATOR_UNARY_RET(type, ~)
+	RANT_OP_UNARY(bool, !)
+	RANT_OP_UNARY(type, ~)
 
-	RANT_OPERATOR_ASSIGNMENT(&)
-	RANT_OPERATOR_ASSIGNMENT(|)
-	RANT_OPERATOR_ASSIGNMENT(^)
-	RANT_OPERATOR_ASSIGNMENT(<<)
-	RANT_OPERATOR_ASSIGNMENT(>>)
+	RANT_OP_ASSIGNMENT(&)
+	RANT_OP_ASSIGNMENT(|)
+	RANT_OP_ASSIGNMENT(^)
+	RANT_OP_ASSIGNMENT(<<)
+	RANT_OP_ASSIGNMENT(>>)
 
 protected:
 	T RANT_VALUE_NAME;
 } __attribute__((packed));
 
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, ==)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, !=)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, <)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, >)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, <=)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, >=)
+#define RANT_INT_RET integral_range<T, Max, Min, Check>
 
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, +)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, -)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, *)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, /)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, ==)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, !=)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, <)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, >)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, <=)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, >=)
+
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, +)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, -)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, *)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, /)
 
 
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, %)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, %)
 
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, &)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, |)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, ^)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, <<)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, T, T, >>)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, &)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, |)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, ^)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, <<)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, >>)
 
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, &&)
-RANT_OPERATOR_BINARY_FF_RET(integral_range, bool, T, ||)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, &&)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, ||)
 
 } // rant
 
+RANT_OP_STREAM(rant::integral_range, T)
 
 namespace std {
 
@@ -109,4 +114,4 @@ struct numeric_limits<rant::integral_range<T, Max, Min, Check>> :
 
 } // std
 
-#undef RANT_OPERATOR_INCREMENTAL
+#undef RANT_OP_INCREMENTAL

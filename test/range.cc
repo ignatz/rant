@@ -26,6 +26,9 @@ void integral_test()
 	ASSERT_THROW(T(0)--,      std::underflow_error);
 	ASSERT_THROW(T(64)+=T(1), std::overflow_error);
 	ASSERT_THROW(T(0)-=T(1),  std::underflow_error);
+
+	testing::StaticAssertTypeEq<T, decltype(T(4) + 4)>();
+	testing::StaticAssertTypeEq<T, decltype(4 + T(4))>();
 }
 
 TEST(Range, Integral)

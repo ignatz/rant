@@ -3,7 +3,9 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "rant/range.h"
+#include "rant/util.h"
+#include "rant/check.h"
+#include "rant/op.h"
 
 namespace rant {
 
@@ -27,7 +29,7 @@ public:
 	typedef T value_type;
 
 	RANT_CONSTEXPR floating_point_range(T v = T()) :
-		RANT_VALUE_NAME(Check() (v)) {}
+		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
 	RANT_EXPLICIT operator T () const noexcept
@@ -35,28 +37,30 @@ public:
 		return RANT_VALUE_NAME;
 	}
 
-	RANT_OPERATOR_ASSIGNMENT(+)
-	RANT_OPERATOR_ASSIGNMENT(-)
-	RANT_OPERATOR_ASSIGNMENT(*)
-	RANT_OPERATOR_ASSIGNMENT(/)
-	RANT_OPERATOR_UNARY_RET(type, +)
-	RANT_OPERATOR_UNARY_RET(type, -)
+	RANT_OP_ASSIGNMENT(+)
+	RANT_OP_ASSIGNMENT(-)
+	RANT_OP_ASSIGNMENT(*)
+	RANT_OP_ASSIGNMENT(/)
+	RANT_OP_UNARY(type, +)
+	RANT_OP_UNARY(type, -)
 
 protected:
 	T RANT_VALUE_NAME;
 } __attribute__((packed));
 
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, ==)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, !=)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, <)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, >)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, <=)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, bool, typename, >=)
+#define RANT_FLOAT_RET floating_point_range<T, Max, Min, Check>
 
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, T, typename, +)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, T, typename, -)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, T, typename, *)
-RANT_OPERATOR_BINARY_FF_RET(floating_point_range, T, typename, /)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, ==)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, !=)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, <)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, >)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, <=)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, >=)
+
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, +)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, -)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, *)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, /)
 
 } // rant
 
@@ -73,3 +77,5 @@ struct numeric_limits<rant::floating_point_range<T, Max, Min, Check>> :
 };
 
 } // std
+
+RANT_OP_STREAM(rant::floating_point_range, typename)

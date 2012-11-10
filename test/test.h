@@ -22,8 +22,11 @@ void test_cast()
 {
 	T t(42);
 
+	// expclicit casting
 	typename T::value_type a = static_cast<typename T::value_type>(t);
 	static_cast<void>(a);
+
+	// implicit casting
 #ifndef RANT_EXPLICIT_DOWNCAST
 	typename T::value_type b = t;
 	static_cast<void>(b);

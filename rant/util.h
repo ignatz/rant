@@ -8,13 +8,22 @@
 #include <ratio>
 
 #define RANT_CONSTEXPR constexpr
+#define RANT_VALUE_NAME_NAME __val
+
+#ifdef RANT_EXPLICIT_DOWNCAST
+#define RANT_EXPLICIT explicit
+#else
+#define RANT_EXPLICIT
+#endif // RANT_EXPLICIT_DOWNCAST
 
 #ifdef __clang__
 #define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
 #define RANT_LESS(LHS, RHS) ::std::less<T>() (LHS, RHS)
+#define RANT_CHECK(VAL) Check () (VAL)
 #else
 #define RANT_VALUE(VAL) ::rant::value<T, VAL>{} ()
 #define RANT_LESS(LHS, RHS) ::std::less<T>{} (LHS, RHS)
+#define RANT_CHECK(VAL) Check {} (VAL)
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 4

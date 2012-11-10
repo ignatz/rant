@@ -5,62 +5,43 @@
 
 #include "rant/util.h"
 #include "rant/check.h"
+#include "rant/op.h"
 
-#define RANT_VALUE_NAME_NAME __val
-
-#ifdef RANT_EXPLICIT_DOWNCAST
-#define RANT_EXPLICIT explicit
-#else
-#define RANT_EXPLICIT
-#endif // RANT_EXPLICIT_DOWNCAST
-
-#define RANT_OPERATOR_UNARY_RET(RET, OP)                        \
-	inline RET operator OP () const                             \
-	{                                                           \
-		return OP RANT_VALUE_NAME;                              \
-	}
-
-#define RANT_OPERATOR_ASSIGNMENT(OP)                            \
-	inline type& operator OP##= (T x)                           \
-	{                                                           \
-		RANT_VALUE_NAME = Check() (RANT_VALUE_NAME OP x);       \
-		return *this;                                           \
-	}                                                           \
-	inline type& operator OP##= (type x)                        \
-	{                                                           \
-		return operator OP##=(static_cast<T>(x));               \
-	}
-
-#define RANT_OPERATOR_BINARY_FF_RET(CLASS_NAME, RET, ARG, OP)   \
-	template<typename T, ARG Max,                               \
-		ARG Min, typename Check>                                \
+#define RANT_OP_BINARY_FF(RET, OP)                              \
+	template<typename T, typename Max,                          \
+		typename Min, typename Check>                           \
 	inline RET operator OP (                                    \
-		CLASS_NAME<T, Max, Min, Check> a,                       \
-		CLASS_NAME<T, Max, Min, Check> b) noexcept              \
+		range<T, Max, Min, Check> const& a,                     \
+		range<T, Max, Min, Check> const& b)                     \
+			noexcept(std::is_nothrow_constructible<RET>::value) \
 	{                                                           \
-		return static_cast<T>(a) OP static_cast<T>(b);          \
+		return RET(static_cast<T const&>(a) OP                  \
+				   static_cast<T const&>(b));                   \
 	}                                                           \
-	template<typename U, typename T, ARG Max,                   \
-		ARG Min, typename Check>                                \
-	inline typename                                             \
-	std::enable_if<std::is_arithmetic<U>::value, RET>::type     \
+	template<typename U, typename T, typename Max,              \
+		typename Min, typename Check>                           \
+	inline                                                      \
+	typename std::enable_if<                                    \
+		std::is_same<U, T>::value, RET>::type                   \
 	operator OP (                                               \
-		CLASS_NAME<T, Max, Min, Check> a,                       \
-		U b) noexcept                                           \
+		U const& a,                                             \
+		range<T, Max, Min, Check> const& b)                     \
+			noexcept(std::is_nothrow_constructible<RET>::value) \
 	{                                                           \
-		return static_cast<T>(a) OP b;                          \
+		return RET(a OP static_cast<T const&>(b));              \
 	}                                                           \
-	template<typename U, typename T, ARG Max,                   \
-		ARG Min, typename Check>                                \
-	inline typename                                             \
-	std::enable_if<std::is_arithmetic<U>::value, RET>::type     \
+	template<typename U, typename T, typename Max,              \
+		typename Min, typename Check>                           \
+	inline                                                      \
+	typename std::enable_if<                                    \
+		std::is_same<U, T>::value, RET>::type                   \
 	operator OP (                                               \
-		U a,                                                    \
-		CLASS_NAME<T, Max, Min, Check> b) noexcept              \
+		range<T, Max, Min, Check> const& a,                     \
+		U const& b)                                             \
+			noexcept(std::is_nothrow_constructible<RET>::value) \
 	{                                                           \
-		return a OP static_cast<T>(b);                          \
+		return RET(static_cast<T const&>(a) OP b);              \
 	}
-
 
 namespace rant {
 
@@ -82,9 +63,9 @@ struct range : public T
 
 	template<typename ... Args>
 	range(Args&& ... args) :
-		T(Check() (std::forward<Args>(args)...)) {}
+		T(RANT_CHECK(std::forward<Args>(args)...)) {}
 } __attribute__((packed));
 
-RANT_OPERATOR_BINARY_FF_RET(range, bool, typename, <)
+RANT_OP_BINARY_FF(bool, <)
 
 } // rant
