@@ -3,12 +3,10 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "rant/util.h"
-#include "rant/check.h"
-
 #include "rant/range.h"
 #include "rant/int.h"
 #include "rant/float.h"
+#include "rant/check.h"
 
 namespace rant {
 namespace debug {

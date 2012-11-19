@@ -7,7 +7,7 @@
 #include "rant/check.h"
 #include "rant/op.h"
 
-#define RANT_OP_INCREMENTAL(OP)                         \
+#define RANT_OP_INCREMENTAL(OP)                               \
 	inline type& operator OP##OP ()                           \
 	{                                                         \
 		return *this OP##= 1;                                 \
