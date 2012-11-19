@@ -8,7 +8,7 @@
 #include <ratio>
 
 #define RANT_CONSTEXPR constexpr
-#define RANT_VALUE_NAME_NAME __val
+#define RANT_VALUE_NAME __val
 
 #ifdef RANT_EXPLICIT_DOWNCAST
 #define RANT_EXPLICIT explicit
