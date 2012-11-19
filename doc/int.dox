@@ -1,0 +1,151 @@
+/**
+@file: int.h
+@brief implementation of rant::integral_range
+*/
+
+/**
+@defgroup integral_range Integral Range
+*/
+
+/**
+@class rant::integral_range
+@brief A drop-in limited range class for integral types
+@ingroup integral_range
+
+@a Integral range, is supposed to be a drop in replacement of any built-in
+integral type but with support for limited ranges.
+
+@note uses packed attribute to enforce same memory footprint as handled integral
+type.
+
+@property T rant::integral_range::RANT_VALUE_NAME
+@protected
+@brief internal representation of type @a T
+@note the member is protected to avoid direct manipulations by the user. Its
+value can only be manipulated and copies of it accessed via the class interface.
+
+
+@fn type  rant::integral_range::integral_range(T v)
+@brief Constructor
+
+
+@fn type  rant::integral_range::operator T  () const
+@brief base-type down cast operator
+
+
+@fn type& rant::integral_range::operator+=  (type x)
+@brief addition compound assignment operator
+
+@fn type& rant::integral_range::operator-=  (type x)
+@brief subtraction compound assignment operator
+
+@fn type& rant::integral_range::operator*=  (type x)
+@brief multiplicative compound assignment operator
+
+@fn type& rant::integral_range::operator/=  (type x)
+@brief division compound assignment operator
+
+@fn type& rant::integral_range::operator%=  (type x)
+@brief modulo compound assignment operator
+
+
+@fn type  rant::integral_range::operator+   () const
+@brief positive unary operator
+
+@fn type  rant::integral_range::operator-   () const
+@brief negative unary operator
+
+
+@fn type& rant::integral_range::operator++  ()
+@brief pre increment operator
+
+@fn type  rant::integral_range::operator++  (int)
+@brief post increment operator
+
+@fn type& rant::integral_range::operator--  ()
+@brief pre decrement operator
+
+@fn type  rant::integral_range::operator--  (int)
+@brief post decrement operator
+
+
+@fn bool  rant::integral_range::operator!   () const
+@brief boolean != 0 operator
+
+@fn type  rant::integral_range::operator~   () const
+@brief bitwise NOT (complement) operator
+
+@fn type& rant::integral_range::operator^=  (type x)
+@brief bitwise XOR compound assignment operator
+
+@fn type& rant::integral_range::operator|=  (type x)
+@brief bitwise OR compound assignment operator
+
+@fn type& rant::integral_range::operator&=  (type x)
+@brief bitwise AND compound assignment operator
+
+@fn type& rant::integral_range::operator<<= (type x)
+@brief shift left compound assignment operator
+
+@fn type& rant::integral_range::operator>>= (type x)
+@brief shift right compound assignment operator
+
+*/
+
+/**
+@fn rant::integral_range<T, Max, Min, Check> rant::operator+(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator-(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator*(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator/(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator%(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator==(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator!=(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator<(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator>(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator<=(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator>=(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator&&(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator||(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator^(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator<<(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator>>(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator&(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+
+@fn rant::integral_range<T, Max, Min, Check> rant::operator|(rant::integral_range<T, Max, Min, Check> const, rant::integral_range<T, Max, Min, Check> const)
+@ingroup integral_range
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

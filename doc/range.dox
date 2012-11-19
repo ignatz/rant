@@ -1,0 +1,16 @@
+/**
+@file: range.h
+@brief ranged values for custom types
+*/
+
+/**
+@defgroup range Custom Range
+*/
+
+/**
+@class rant::range
+@brief A drop-in limited range class for custom user types
+@ingroup range
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

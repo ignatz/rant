@@ -1,0 +1,53 @@
+/**
+@file: check.h
+@brief shipped sanitizing functions
+*/
+
+/**
+@struct rant::throw_on_error
+@brief generic throwing range checker implementation
+@tparam T return type
+@tparam Max Maximum of range
+@tparam Min Minimum of range
+
+@fn T rant::throw_on_error::operator() (Args&& ... args)
+@brief Constructs instance of @a T from @a args and returns this instance if
+       compatible with range
+@param args can be anything usable to either construct T or move into T.
+@exception std::underflow_error underflow for @a T(args) < @a Min
+@exception std::overflow_error overflow for @a T(args) > @a Max
+
+@return instance of type T moved, copied or constructed from @a args if no range
+        violation occurs.
+*/
+
+/**
+@struct rant::clip_on_error
+@brief generic clipping functor implementation
+@tparam T return type
+@tparam Max Maximum of range
+@tparam Min Minimum of range
+
+@fn T rant::clip_on_error::operator() (Args&& ... args)
+@brief Constructs instance of @a T from @a args and returns this instance
+       clipped to the range between @a Min @a Max.
+@param args can be anything usable to either construct T or move into T.
+@return instance of type T moved, copied or constructed from @a args. T's value
+        is guaranteed to be within @a Min and @a Max.
+@note Other than @ref rant::throw_on_error this functor doesn't throw by
+      itself. Still, the constructor of @a T might throw.
+*/
+
+/**
+@fn std::underflow_error rant::underflow(T,T)
+@brief stuff
+
+*/
+
+/**
+@fn std::overflow_error rant::overflow(T,T)
+@brief stuff
+
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

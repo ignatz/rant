@@ -1,0 +1,50 @@
+/**
+@file: float.h
+@brief implementation of rant::floating_point_range
+*/
+
+/**
+@defgroup floating_point_range Floating Point Range
+*/
+
+/**
+@class rant::floating_point_range
+@brief A drop-in limited range class for floating point types
+@ingroup floating_point_range
+*/
+
+
+/**
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator+(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator-(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator*(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator/(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator==(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator!=(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator<(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator>(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator<=(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+@fn rant::floating_point_range<T, Max, Min, Check> rant::operator>=(rant::floating_point_range<T, Max, Min, Check> const, rant::floating_point_range<T, Max, Min, Check> const)
+@ingroup floating_point_range
+
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

@@ -1,0 +1,48 @@
+/**
+@file: util.h
+@brief small collection of utilities needed by ranges
+*/
+
+/**
+@def RANT_CONSTEXPR
+@brief Switch to turn off constexpr, since not all compiler fully support it yet
+
+@def RANT_VALUE_NAME
+@brief name of member internally holding the ranged value
+
+@def RANT_EXPLICIT
+@brief Switch to turn on/off implicit down casting to base type
+
+@def RANT_VALUE
+@brief get value of boundary @a VAL
+
+@def RANT_LESS
+@brief check whether @a LHS is smaller than @a RHS
+
+@def RANT_CHECK
+@brief Call type specific sanitizer for @a VAL
+
+@def RANT_LIKELY
+@brief tell branch prediction to expect this expression to be likely true
+
+@def RANT_UNLIKELY
+@brief tell branch prediction to expect this expression to be likely false
+*/
+
+/**
+@struct rant::is_ratio
+@brief a trait class to determine whether some type is of kind \a std::ratio
+
+*/
+
+/**
+@struct rant::value<T, Val>
+@brief wrapping functor get boundary values for different types of boundaries.
+
+Default implementation expects a call operator from the boundary type. But
+may be specialized to retrieve the value differently from a certain boundary
+type.
+
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

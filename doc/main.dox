@@ -1,0 +1,46 @@
+/**
+@mainpage
+
+@copydoc md_README
+@tableofcontents
+
+@section motivation Motivation & Scope
+
+Ranged types are supposed to be used by everyone, from novice to expert
+programmers. They can reduce the likeliness of certain types of errors without
+affecting the performance of your production code, while at the same time
+increasing the expressiveness of your code.
+Error handlers can be fully customized to handle violations by e.g.
+Sanitizing values or sending mails.
+
+
+Let's have a look at a short example:
+
+\code{.cpp}
+#include "rant/rant.h"
+
+using namespace rant;
+
+int main()
+{
+	typedef debug::integral_range<int, 5, -5>::type type;
+		// in release mode type will become bare int
+
+	type i(2);
+
+	i <<= 2;      // =4, ok.
+	i <<= 2;      // =8, error, throws exception
+
+	return 0;
+}
+\endcode
+
+Even without knowing all the details it becomes clear by looking at the code
+that the programmer intended @a i to be within [-5, 5]. Until today, common
+practice remains to state such intentions within comments rather than the code
+itself and ensure their invariance with occasional boundary checks spread across
+different locations.
+
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

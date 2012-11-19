@@ -1,0 +1,11 @@
+/**
+@file: op.h
+@brief shared operator macros
+*/
+
+/**
+@def RANT_OP_BINARY_FF(RET, OP)
+@brief non-intrusive operator macro.
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en

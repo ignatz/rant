@@ -1,0 +1,17 @@
+/**
+@file: rant.h
+@brief Ranged number types default include meta file
+*/
+
+/**
+@namespace rant
+@brief The Ranged Number Type namespace
+*/
+
+/**
+@namespace rant::debug
+@brief same range types as namespace rant, but depending on target release range
+types decay to corresponding base types
+*/
+
+// vim: ft=doxygen tw=80 smartindent spell spelllang=en
