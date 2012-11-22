@@ -62,7 +62,7 @@ overflow(T const&, T const&)
 }
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
 
-template<typename T, typename Max, typename Min>
+template<typename T, typename Max, typename Min, typename = void>
 struct throw_on_error
 {
 	template<typename ... Args>
@@ -80,8 +80,24 @@ struct throw_on_error
 	}
 };
 
-
 template<typename T, typename Max, typename Min>
+struct throw_on_error<T, Max, Min,
+	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
+{
+	template<typename ... Args>
+	inline
+	T operator() (Args&& ... args) const
+	{
+		T val(std::forward<Args>(args)...);
+
+		if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
+			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
+		return val;
+	}
+};
+
+
+template<typename T, typename Max, typename Min, typename = void>
 struct clip_on_error
 {
 	template<typename ... Args>
@@ -94,6 +110,22 @@ struct clip_on_error
 
 		return RANT_LESS(val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
 			RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+	}
+};
+
+template<typename T, typename Max, typename Min>
+struct clip_on_error<T, Max, Min,
+	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
+{
+	template<typename ... Args>
+	inline
+	T operator() (Args&& ... args) const
+		noexcept(std::is_nothrow_constructible<T, Args...>::value &&
+				 std::is_nothrow_copy_constructible<T>::value)
+	{
+		T val(std::forward<Args>(args)...);
+
+		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
 };
 
