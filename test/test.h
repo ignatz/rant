@@ -18,19 +18,11 @@ void test_disable()
 }
 
 template<typename T>
-void test_cast()
+void test_explicit_cast()
 {
 	T t(42);
-
-	// expclicit casting
 	typename T::value_type a = static_cast<typename T::value_type>(t);
 	static_cast<void>(a);
-
-	// implicit casting
-#ifndef RANT_EXPLICIT_DOWNCAST
-	typename T::value_type b = t;
-	static_cast<void>(b);
-#endif
 }
 
 
@@ -177,8 +169,8 @@ void test_bitwise()
 	                                                    \
 	TEST(NAME, Cast)                                    \
 	{                                                   \
-		test_cast<_int>();                              \
-		test_cast<_d>();                                \
+		test_explicit_cast<_int>();                     \
+		test_explicit_cast<_d>();                       \
 	}                                                   \
 	                                                    \
 	TEST(NAME, Addition)                                \

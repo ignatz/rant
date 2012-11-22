@@ -7,14 +7,15 @@
 #include <type_traits>
 #include <ratio>
 
+#ifndef RANT_CONSTEXPR
 #define RANT_CONSTEXPR constexpr
-#define RANT_VALUE_NAME __val
+#endif
 
-#ifdef RANT_EXPLICIT_DOWNCAST
+#ifndef RANT_EXPLICIT
 #define RANT_EXPLICIT explicit
-#else
-#define RANT_EXPLICIT
-#endif // RANT_EXPLICIT_DOWNCAST
+#endif
+
+#define RANT_VALUE_NAME __val
 
 #ifdef __clang__
 #define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
