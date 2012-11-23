@@ -6,6 +6,8 @@
 
 #include "rant/rant.h"
 
+#define UNUSED(X) static_cast<void>( X )
+
 template<typename NoOpt, typename Opt>
 void test_disable()
 {
@@ -22,7 +24,17 @@ void test_implicit_cast()
 {
 	T t(42);
 	typename T::value_type b = t;
-	static_cast<void>(b);
+	UNUSED(b);
+}
+
+
+template<typename T>
+void test_explicit_cast()
+{
+	T t(42);
+	typename T::value_type a =
+		static_cast<typename T::value_type>(t);
+	UNUSED(a);
 }
 
 
@@ -160,52 +172,65 @@ void test_bitwise()
 }
 
 
-#define RANT_TEST_COMMON(NAME)                          \
-	TEST(NAME, Disable)                                 \
-	{                                                   \
-		test_disable<_int, _debug::_int>();             \
-		test_disable<_d, _debug::_d>();                 \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Cast)                                    \
-	{                                                   \
-		test_implicit_cast<_int>();                     \
-		test_implicit_cast<_d>();                       \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Addition)                                \
-	{                                                   \
-		test_addition<_int, _d>();                      \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Subtraction)                             \
-	{                                                   \
-		test_subtraction<_int, _d>();                   \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Multiplication)                          \
-	{                                                   \
-		test_multiplication<_int>();                    \
-		test_multiplication<_d>();                      \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Division)                                \
-	{                                                   \
-		test_division<_int>();                          \
-		test_division<_d>();                            \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Modulo)                                  \
-	{                                                   \
-		test_modulo<_int>();                            \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Logic)                                   \
-	{                                                   \
-		test_logic<_int>();                             \
-	}                                                   \
-	                                                    \
-	TEST(NAME, Bitwise)                                 \
-	{                                                   \
-		test_bitwise<_int>();                           \
+#ifdef RANT_EXPLICIT_DOWNCAST
+#define RANT_TEST_IMPLICIT_CAST(NAME)
+#else
+#define RANT_TEST_IMPLICIT_CAST(NAME)          \
+	TEST(NAME, ImplicitCast)                   \
+	{                                          \
+		test_implicit_cast<_int>();            \
+		test_implicit_cast<_d>();              \
+	}
+#endif
+
+
+#define RANT_TEST_COMMON(NAME)                 \
+	TEST(NAME, Disable)                        \
+	{                                          \
+		test_disable<_int, _debug::_int>();    \
+		test_disable<_d, _debug::_d>();        \
+	}                                          \
+	                                           \
+	TEST(NAME, ExplicitCast)                   \
+	{                                          \
+		test_explicit_cast<_int>();            \
+		test_explicit_cast<_d>();              \
+	}                                          \
+	RANT_TEST_IMPLICIT_CAST(NAME)              \
+	                                           \
+	TEST(NAME, Addition)                       \
+	{                                          \
+		test_addition<_int, _d>();             \
+	}                                          \
+	                                           \
+	TEST(NAME, Subtraction)                    \
+	{                                          \
+		test_subtraction<_int, _d>();          \
+	}                                          \
+	                                           \
+	TEST(NAME, Multiplication)                 \
+	{                                          \
+		test_multiplication<_int>();           \
+		test_multiplication<_d>();             \
+	}                                          \
+	                                           \
+	TEST(NAME, Division)                       \
+	{                                          \
+		test_division<_int>();                 \
+		test_division<_d>();                   \
+	}                                          \
+	                                           \
+	TEST(NAME, Modulo)                         \
+	{                                          \
+		test_modulo<_int>();                   \
+	}                                          \
+	                                           \
+	TEST(NAME, Logic)                          \
+	{                                          \
+		test_logic<_int>();                    \
+	}                                          \
+	                                           \
+	TEST(NAME, Bitwise)                        \
+	{                                          \
+		test_bitwise<_int>();                  \
 	}
