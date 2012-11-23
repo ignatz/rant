@@ -32,7 +32,7 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_EXPLICIT operator T () const noexcept
+	RANT_CONSTEXPR RANT_EXPLICIT operator T () const noexcept
 	{
 		return RANT_VALUE_NAME;
 	}
