@@ -11,5 +11,4 @@ def build(bld):
     bld(
         target          = 'rant',
         export_includes = '.',
-        use             = ['RANT'],
     )
