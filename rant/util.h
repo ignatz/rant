@@ -11,9 +11,11 @@
 #define RANT_CONSTEXPR constexpr
 #endif
 
-#ifndef RANT_EXPLICIT
+#ifdef RANT_EXPLICIT_DOWNCAST
 #define RANT_EXPLICIT explicit
-#endif
+#else
+#define RANT_EXPLICIT
+#endif // RANT_EXPLICIT_DOWNCAST
 
 #define RANT_VALUE_NAME __val
 
