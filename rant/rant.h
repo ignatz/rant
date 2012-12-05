@@ -3,7 +3,6 @@
 // Copyright (c) 2012, Sebastian Jeltsch (sjeltsch@kip.uni-heidelberg.de)
 // Distributed under the terms of the GPLv2 or newer
 
-#include "rant/range.h"
 #include "rant/int.h"
 #include "rant/float.h"
 #include "rant/check.h"
@@ -32,12 +31,6 @@ template<typename T,
 	typename Min    = void,
 	typename Check  = void>
 using floating_point_range = T;
-
-template<typename T,
-	typename Max    = void,
-	typename Min    = void,
-	typename Check  = void>
-using range = T;
 #endif // RANT_DISABLE
 
 } // debug

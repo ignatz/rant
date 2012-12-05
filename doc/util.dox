@@ -36,7 +36,7 @@
 */
 
 /**
-@struct rant::value<T, Val>
+@struct rant::value
 @brief wrapping functor get boundary values for different types of boundaries.
 
 Default implementation expects a call operator from the boundary type. But

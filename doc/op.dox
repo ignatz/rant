@@ -4,7 +4,7 @@
 */
 
 /**
-@def RANT_OP_BINARY_FF(RET, OP)
+@def RANT_OP_BINARY_FF_BUILTIN(RET, OP)
 @brief non-intrusive operator macro.
 */
 

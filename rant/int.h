@@ -7,16 +7,18 @@
 #include "rant/check.h"
 #include "rant/op.h"
 
-#define RANT_OP_INCREMENTAL(OP)                               \
-	inline type& operator OP##OP ()                           \
-	{                                                         \
-		return *this OP##= 1;                                 \
-	}                                                         \
-	inline type operator OP##OP (int)                         \
-	{                                                         \
-		type t(*this);                                        \
-		*this OP##= 1;                                        \
-		return t;                                             \
+#define RANT_OP_INCREMENTAL(OP) \
+	inline type& operator OP##OP () \
+		noexcept(noexcept(type())) \
+	{ \
+		return *this OP##= 1; \
+	} \
+	inline type operator OP##OP (int) \
+		noexcept(noexcept(type())) \
+	{ \
+		type t(*this); \
+		*this OP##= 1; \
+		return t; \
 	}
 
 namespace rant {
@@ -38,7 +40,8 @@ private:
 	typedef T value_type;
 
 public:
-	RANT_CONSTEXPR integral_range(T v = T()) :
+	RANT_CONSTEXPR integral_range(T v = T())
+			noexcept(noexcept(RANT_CHECK(v))) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline

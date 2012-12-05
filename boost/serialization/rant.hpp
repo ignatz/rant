@@ -40,14 +40,5 @@ namespace serialization {
 RANT_ARITHMETIC_SERIALIZER(::rant::integral_range, T)
 RANT_ARITHMETIC_SERIALIZER(::rant::floating_point_range, typename)
 
-template<typename Archiver, typename T, typename Max,
-	typename Min, typename Check>
-void serialize(Archiver& ar,
-	rant::range<T, Max, Min, Check>& s,
-	unsigned int const)
-{
-	ar & make_nvp("base", base_object<T>(s));
-}
-
 } // serialization
 } // boost

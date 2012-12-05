@@ -29,7 +29,8 @@ private:
 	typedef T value_type;
 
 public:
-	RANT_CONSTEXPR floating_point_range(T v = T()) :
+	RANT_CONSTEXPR floating_point_range(T v = T())
+			noexcept(noexcept(RANT_CHECK(v))) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
