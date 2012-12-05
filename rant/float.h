@@ -47,7 +47,7 @@ public:
 
 protected:
 	T RANT_VALUE_NAME;
-} __attribute__((packed));
+} RANT_PACKED;
 
 #define RANT_FLOAT_RET floating_point_range<T, Max, Min, Check>
 

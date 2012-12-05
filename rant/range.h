@@ -64,7 +64,7 @@ struct range : public T
 	template<typename ... Args>
 	range(Args&& ... args) :
 		T(RANT_CHECK(std::forward<Args>(args)...)) {}
-} __attribute__((packed));
+} RANT_PACKED;
 
 RANT_OP_BINARY_FF(bool, <)
 

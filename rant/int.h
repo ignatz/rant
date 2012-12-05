@@ -70,7 +70,7 @@ public:
 
 protected:
 	T RANT_VALUE_NAME;
-} __attribute__((packed));
+} RANT_PACKED;
 
 #define RANT_INT_RET integral_range<T, Max, Min, Check>
 

@@ -21,10 +21,10 @@
 	}
 
 #define RANT_OP_ASSIGNMENT(OP)                                  \
-	inline type& operator OP##= (type x)                        \
+	inline type& operator OP##= (type const x)                  \
 	{                                                           \
 		RANT_VALUE_NAME =                                       \
-			RANT_CHECK(RANT_VALUE_NAME OP static_cast<T>(x));   \
+			RANT_CHECK(RANT_VALUE_NAME OP x.RANT_VALUE_NAME);   \
 		return *this;                                           \
 	}
 

@@ -18,6 +18,7 @@
 #endif // RANT_EXPLICIT_DOWNCAST
 
 #define RANT_VALUE_NAME __val
+#define RANT_PACKED __attribute__((packed))
 
 #ifdef __clang__
 #define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
