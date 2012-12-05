@@ -33,7 +33,7 @@
 		ARG Min, typename Check>                                \
 	inline RET operator OP (                                    \
 		CLASS_NAME<T, Max, Min, Check> const a,                 \
-		CLASS_NAME<T, Max, Min, Check> const b) noexcept        \
+		CLASS_NAME<T, Max, Min, Check> const b)                 \
 	{                                                           \
 		return RET(static_cast<T>(a) OP static_cast<T>(b));     \
 	}                                                           \
@@ -44,7 +44,7 @@
 		std::is_arithmetic<U>::value, RET>::type                \
 	operator OP (                                               \
 		U const a,                                              \
-		CLASS_NAME<T, Max, Min, Check> const b) noexcept        \
+		CLASS_NAME<T, Max, Min, Check> const b)                 \
 	{                                                           \
 		return RET(a OP static_cast<T>(b));                     \
 	}                                                           \
@@ -55,7 +55,7 @@
 		std::is_arithmetic<U>::value, RET>::type                \
 	operator OP (                                               \
 		CLASS_NAME<T, Max, Min, Check> const a,                 \
-		U const b) noexcept                                     \
+		U const b)                                              \
 	{                                                           \
 		return RET(static_cast<T>(a) OP b);                     \
 	}
