@@ -22,8 +22,9 @@ void test_disable()
 template<typename T>
 void test_implicit_cast()
 {
+	typedef typename rant::traits<T>::type type;
 	T t(42);
-	typename T::value_type b = t;
+	type b = t;
 	UNUSED(b);
 }
 
@@ -31,9 +32,9 @@ void test_implicit_cast()
 template<typename T>
 void test_explicit_cast()
 {
+	typedef typename rant::traits<T>::type type;
 	T t(42);
-	typename T::value_type a =
-		static_cast<typename T::value_type>(t);
+	type a = static_cast<type>(t);
 	UNUSED(a);
 }
 

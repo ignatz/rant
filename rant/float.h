@@ -15,6 +15,7 @@ template<typename T,
 	typename Check = throw_on_error<T, Max, Min>>
 class floating_point_range
 {
+private:
 	static_assert(std::is_floating_point<T>::value,
 				  "T must be floating point type");
 	static_assert(is_ratio<Max>::value,
@@ -24,10 +25,10 @@ class floating_point_range
 	static_assert(std::ratio_less_equal<Min, Max>::value,
 				  "Max must be >= Min");
 
-public:
 	typedef floating_point_range<T, Max, Min, Check> type;
 	typedef T value_type;
 
+public:
 	RANT_CONSTEXPR floating_point_range(T v = T()) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 

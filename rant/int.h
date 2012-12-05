@@ -29,14 +29,15 @@ template<typename T,
 		std::integral_constant<T, Min>>>
 class integral_range
 {
+private:
 	static_assert(std::is_integral<T>::value,
 				  "T must be integral type");
 	static_assert(Min <= Max, "Max must be >= Min");
 
-public:
 	typedef integral_range<T, Max, Min, Check> type;
 	typedef T value_type;
 
+public:
 	RANT_CONSTEXPR integral_range(T v = T()) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
