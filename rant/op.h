@@ -11,7 +11,7 @@
 	template<typename T, ARG Max, \
 		ARG Min, typename Check> \
 	std::ostream& operator<< (std::ostream& o, \
-		CLASS_NAME<T, Max, Min, Check> const a) \
+		CLASS_NAME<T, Max, Min, Check> const& a) \
 	{ \
 		return o << static_cast<T>(a); \
 	}
@@ -26,7 +26,7 @@
 
 
 #define RANT_OP_ASSIGNMENT(OP) \
-	inline type& operator OP##= (type const x) \
+	inline type& operator OP##= (type const& x) \
 		noexcept(noexcept(type())) \
 	{ \
 		RANT_VALUE_NAME = \
@@ -39,8 +39,8 @@
 	template<typename T, ARG Max, \
 		ARG Min, typename Check> \
 	inline RET operator OP ( \
-		CLASS_NAME<T, Max, Min, Check> const a, \
-		CLASS_NAME<T, Max, Min, Check> const b) \
+		CLASS_NAME<T, Max, Min, Check> const& a, \
+		CLASS_NAME<T, Max, Min, Check> const& b) \
 		noexcept(std::is_nothrow_constructible<RET>::value) \
 	{ \
 		return RET(static_cast<T>(a) OP static_cast<T>(b)); \
@@ -53,7 +53,7 @@
 		std::is_same<U, T>::value, RET>::type \
 	operator OP ( \
 		U const a, \
-		CLASS_NAME<T, Max, Min, Check> const b) \
+		CLASS_NAME<T, Max, Min, Check> const& b) \
 		noexcept(std::is_nothrow_constructible<RET>::value) \
 	{ \
 		return RET(a OP static_cast<T>(b)); \
@@ -65,7 +65,7 @@
 		std::is_arithmetic<U>::value || \
 		std::is_same<U, T>::value, RET>::type \
 	operator OP ( \
-		CLASS_NAME<T, Max, Min, Check> const a, \
+		CLASS_NAME<T, Max, Min, Check> const& a, \
 		U const b) \
 		noexcept(std::is_nothrow_constructible<RET>::value) \
 	{ \
