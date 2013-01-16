@@ -49,33 +49,6 @@ struct is_ratio<std::ratio<Num, Den>> :
 	public std::integral_constant<bool, true> {};
 
 
-template<typename T>
-struct traits;
-
-template<typename T, typename Max, typename Min, typename Check,
-	template<typename, typename, typename, typename> class Range>
-struct traits<Range<T, Max, Min, Check>>
-{
-	typedef T type;
-	typedef Check check_type;
-	typedef Min min;
-	typedef Max max;
-};
-
-template<typename T, T Max, T Min, typename Check,
-	template<typename, T, T, typename> class Range>
-struct traits<Range<T, Max, Min, Check>>
-{
-	typedef T type;
-	typedef Check check_type;
-
-	enum : T {
-			   min = Min,
-			   max = Max
-		   };
-};
-
-
 template<typename T, typename Val>
 struct value
 {

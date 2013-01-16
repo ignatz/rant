@@ -6,6 +6,7 @@
 #include "rant/int.h"
 #include "rant/float.h"
 #include "rant/check.h"
+#include "rant/trait.h"
 
 namespace rant {
 namespace debug {
