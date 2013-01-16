@@ -19,10 +19,11 @@ namespace rant {
 #else
 #define RANT_UNDERFLOW_ERROR(VAL, MIN) rant::underflow(VAL, MIN)
 #define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
-template<typename T, typename =
-	typename std::enable_if<std::is_arithmetic<T>::value>::type>
+template<typename T>
 inline
-std::underflow_error
+typename std::enable_if<
+	std::is_arithmetic<T>::value,
+	std::underflow_error>::type
 underflow(T val, T min)
 {
 	std::string s(RANT_UNDERFLOW_MESSAGE ": ");
@@ -31,10 +32,10 @@ underflow(T val, T min)
 	return std::underflow_error(s);
 }
 
-template<typename T, typename =
-	typename std::enable_if<std::is_arithmetic<T>::value>::type>
+template<typename T>
 inline
-std::overflow_error
+	typename std::enable_if<std::is_arithmetic<T>::value,
+	std::overflow_error>::type
 overflow(T val, T max)
 {
 	std::string s(RANT_OVERFLOW_MESSAGE ": ");
@@ -42,35 +43,14 @@ overflow(T val, T max)
 	s += std::to_string(max) + ")";
 	return std::overflow_error(s);
 }
-
-template<typename T, typename =
-	typename std::enable_if<!std::is_arithmetic<T>::value>::type>
-inline
-std::underflow_error
-underflow(T const&, T const&)
-{
-	return std::underflow_error("underflow error in range type");
-}
-
-template<typename T, typename =
-	typename std::enable_if<!std::is_arithmetic<T>::value>::type>
-inline
-std::overflow_error
-overflow(T const&, T const&)
-{
-	return std::overflow_error("overflow error in range type");
-}
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
 
 template<typename T, typename Max, typename Min, typename = void>
 struct throw_on_error
 {
-	template<typename ... Args>
 	inline
-	T operator() (Args&& ... args) const
+	T operator() (T val) const
 	{
-		T val(std::forward<Args>(args)...);
-
 		if RANT_UNLIKELY(RANT_LESS(val, RANT_VALUE(Min)))
 			throw RANT_UNDERFLOW_ERROR(val, RANT_VALUE(Min));
 
@@ -84,12 +64,9 @@ template<typename T, typename Max, typename Min>
 struct throw_on_error<T, Max, Min,
 	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
 {
-	template<typename ... Args>
 	inline
-	T operator() (Args&& ... args) const
+	T operator() (T val) const
 	{
-		T val(std::forward<Args>(args)...);
-
 		if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
 			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
 		return val;
@@ -100,14 +77,10 @@ struct throw_on_error<T, Max, Min,
 template<typename T, typename Max, typename Min, typename = void>
 struct clip_on_error
 {
-	template<typename ... Args>
 	inline
-	T operator() (Args&& ... args) const
-		noexcept(std::is_nothrow_constructible<T, Args...>::value &&
-				 std::is_nothrow_copy_constructible<T>::value)
+	T operator() (T val) const
+		noexcept(std::is_nothrow_constructible<T>::value)
 	{
-		T val(std::forward<Args>(args)...);
-
 		return RANT_LESS(val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
 			RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
@@ -117,14 +90,10 @@ template<typename T, typename Max, typename Min>
 struct clip_on_error<T, Max, Min,
 	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
 {
-	template<typename ... Args>
 	inline
-	T operator() (Args&& ... args) const
-		noexcept(std::is_nothrow_constructible<T, Args...>::value &&
-				 std::is_nothrow_copy_constructible<T>::value)
+	T operator() (T val) const
+		noexcept(std::is_nothrow_constructible<T>::value)
 	{
-		T val(std::forward<Args>(args)...);
-
 		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
 };

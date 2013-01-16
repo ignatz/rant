@@ -19,7 +19,7 @@
 
 #define RANT_OP_UNARY(RET, OP) \
 	inline RET operator OP () const \
-		noexcept(noexcept(type())) \
+		noexcept(std::is_nothrow_constructible<type>::value) \
 	{ \
 		return RET(OP RANT_VALUE_NAME); \
 	}
@@ -27,7 +27,7 @@
 
 #define RANT_OP_ASSIGNMENT(OP) \
 	inline type& operator OP##= (type const& x) \
-		noexcept(noexcept(type())) \
+		noexcept(std::is_nothrow_constructible<type>::value) \
 	{ \
 		RANT_VALUE_NAME = \
 			RANT_CHECK(RANT_VALUE_NAME OP x.RANT_VALUE_NAME); \

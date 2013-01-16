@@ -9,12 +9,12 @@
 
 #define RANT_OP_INCREMENTAL(OP) \
 	inline type& operator OP##OP () \
-		noexcept(noexcept(type())) \
+		noexcept(std::is_nothrow_constructible<type>::value) \
 	{ \
 		return *this OP##= 1; \
 	} \
 	inline type operator OP##OP (int) \
-		noexcept(noexcept(type())) \
+		noexcept(std::is_nothrow_constructible<type>::value) \
 	{ \
 		type t(*this); \
 		*this OP##= 1; \
@@ -22,7 +22,6 @@
 	}
 
 namespace rant {
-
 template<typename T,
 	T Max   = std::numeric_limits<T>::max(),
 	T Min   = std::numeric_limits<T>::min(),
