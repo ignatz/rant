@@ -12,26 +12,25 @@ namespace rant {
 namespace debug {
 
 #ifndef RANT_DISABLE
-using namespace rant;
+	using namespace rant;
 #else
+	#if __cplusplus < 201103L
+		#error disabling rant requires a newer compiler
+	#else
+		#pragma message "rant's debug::ranges are disabled"
+	#endif
 
-#if __cplusplus != 201103L
-#error disabling rant requires a newer compiler
-#endif
+	template<typename T,
+		T Max    = T(),
+		T Min    = T(),
+		typename Check  = void>
+	using integral_range = T;
 
-#pragma message "rant's debug::ranges are disabled"
-
-template<typename T,
-	T Max    = T(),
-	T Min    = T(),
-	typename Check  = void>
-using integral_range = T;
-
-template<typename T,
-	typename Max    = void,
-	typename Min    = void,
-	typename Check  = void>
-using floating_point_range = T;
+	template<typename T,
+		typename Max    = void,
+		typename Min    = void,
+		typename Check  = void>
+	using floating_point_range = T;
 #endif // RANT_DISABLE
 
 } // debug

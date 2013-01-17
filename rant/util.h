@@ -8,13 +8,13 @@
 #include <ratio>
 
 #ifndef RANT_CONSTEXPR
-#define RANT_CONSTEXPR constexpr
+	#define RANT_CONSTEXPR constexpr
 #endif
 
 #ifdef RANT_EXPLICIT_DOWNCAST
-#define RANT_EXPLICIT explicit
+	#define RANT_EXPLICIT explicit
 #else
-#define RANT_EXPLICIT
+	#define RANT_EXPLICIT
 #endif // RANT_EXPLICIT_DOWNCAST
 
 #define RANT_VALUE_NAME __val
@@ -22,26 +22,28 @@
 #define RANT_PACKED __attribute__((packed))
 
 #ifdef __clang__
-#define RANT_LESS(LHS, RHS) ::std::less<T> () (LHS, RHS)
+	#define RANT_LESS(LHS, RHS) ::std::less<T> () (LHS, RHS)
 #else
-#define RANT_LESS(LHS, RHS) ::std::less<T> {} (LHS, RHS)
+	#define RANT_LESS(LHS, RHS) ::std::less<T> {} (LHS, RHS)
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define RANT_LIKELY(x) (__builtin_expect((x), 1))
-#define RANT_UNLIKELY(x) (__builtin_expect((x), 0))
+	#define RANT_LIKELY(x) (__builtin_expect((x), 1))
+	#define RANT_UNLIKELY(x) (__builtin_expect((x), 0))
 #else
-#define RANT_LIKELY(x) (x)
-#define RANT_UNLIKELY(x) (x)
+	#define RANT_LIKELY(x) (x)
+	#define RANT_UNLIKELY(x) (x)
 #endif
 
+#define RANT_NOEXCEPT_SPECIFIER noexcept
+#define RANT_NOEXCEPT_OP noexcept
 #define RANT_NOEXCEPT_COND(...) \
-	noexcept(noexcept(__VA_ARGS__))
+	RANT_NOEXCEPT_SPECIFIER(RANT_NOEXCEPT_OP(__VA_ARGS__))
 #if __cplusplus >= 201103L
-#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...) \
+	#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...) \
 	RANT_NOEXCEPT_COND( __VA_ARGS__() )
 #else
-#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...)
+	#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...)
 #endif
 
 
@@ -62,7 +64,8 @@ struct value;
 template<typename T, T Val>
 struct value<T, std::integral_constant<T, Val>>
 {
-	RANT_CONSTEXPR T operator() () const noexcept
+	RANT_CONSTEXPR T operator() () const
+		RANT_NOEXCEPT_COND(T())
 	{
 		return Val;
 	}
@@ -71,7 +74,8 @@ struct value<T, std::integral_constant<T, Val>>
 template<typename T, intmax_t Num, intmax_t Den>
 struct value<T, std::ratio<Num, Den>>
 {
-	RANT_CONSTEXPR T operator() () const noexcept
+	RANT_CONSTEXPR T operator() () const
+		RANT_NOEXCEPT_COND(T())
 	{
 		return static_cast<T>(Num) / Den;
 	}

@@ -34,7 +34,8 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_CONSTEXPR RANT_EXPLICIT operator T () const noexcept
+	RANT_CONSTEXPR RANT_EXPLICIT operator T () const
+		RANT_NOEXCEPT_SPECIFIER
 	{
 		return RANT_VALUE_NAME;
 	}
@@ -66,6 +67,8 @@ RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, /, RANT_FLOAT_RET)
 
 } // rant
 
+RANT_OP_STREAM(rant::floating_point_range, typename)
+
 
 namespace std {
 
@@ -79,5 +82,3 @@ struct numeric_limits<rant::floating_point_range<T, Max, Min, Check>> :
 };
 
 } // std
-
-RANT_OP_STREAM(rant::floating_point_range, typename)

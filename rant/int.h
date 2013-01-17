@@ -44,7 +44,8 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_CONSTEXPR RANT_EXPLICIT operator T () const noexcept
+	RANT_CONSTEXPR RANT_EXPLICIT operator T () const
+		RANT_NOEXCEPT_SPECIFIER
 	{
 		return RANT_VALUE_NAME;
 	}
@@ -103,6 +104,7 @@ RANT_OP_BINARY_FF_BUILTIN(integral_range, T, ||, bool)
 } // rant
 
 RANT_OP_STREAM(rant::integral_range, T)
+
 
 namespace std {
 

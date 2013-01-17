@@ -10,8 +10,8 @@
 
 #define RANT_CHECK(VAL) Check () (VAL)
 
-#define RANT_UNDERFLOW_MESSAGE "underflow error in range type"
-#define RANT_OVERFLOW_MESSAGE "overflow error in range type"
+#define RANT_UNDERFLOW_MESSAGE "range underflow"
+#define RANT_OVERFLOW_MESSAGE "range overflow"
 
 namespace rant {
 
@@ -22,7 +22,6 @@ namespace rant {
 #define RANT_UNDERFLOW_ERROR(VAL, MIN) rant::underflow(VAL, MIN)
 #define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
 template<typename T>
-inline
 typename std::enable_if<
 	std::is_arithmetic<T>::value,
 	std::underflow_error>::type
@@ -35,8 +34,8 @@ underflow(T val, T min)
 }
 
 template<typename T>
-inline
-	typename std::enable_if<std::is_arithmetic<T>::value,
+typename std::enable_if<
+	std::is_arithmetic<T>::value,
 	std::overflow_error>::type
 overflow(T val, T max)
 {
@@ -65,7 +64,7 @@ struct throw_on_error
 
 template<typename T, typename Max, typename Min>
 struct throw_on_error<T, Max, Min,
-	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
+	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
 {
 	inline
 	T operator() (T val) const
@@ -91,7 +90,7 @@ struct clip_on_error
 
 template<typename T, typename Max, typename Min>
 struct clip_on_error<T, Max, Min,
-	typename std::enable_if<!Min::value && std::is_unsigned<T>::value>::type>
+	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
 {
 	inline
 	T operator() (T val) const
