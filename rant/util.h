@@ -18,16 +18,13 @@
 #endif // RANT_EXPLICIT_DOWNCAST
 
 #define RANT_VALUE_NAME __val
+#define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
 #define RANT_PACKED __attribute__((packed))
 
 #ifdef __clang__
-#define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
-#define RANT_LESS(LHS, RHS) ::std::less<T>() (LHS, RHS)
-#define RANT_CHECK(VAL) Check () (VAL)
+#define RANT_LESS(LHS, RHS) ::std::less<T> () (LHS, RHS)
 #else
-#define RANT_VALUE(VAL) ::rant::value<T, VAL>{} ()
-#define RANT_LESS(LHS, RHS) ::std::less<T>{} (LHS, RHS)
-#define RANT_CHECK(VAL) Check {} (VAL)
+#define RANT_LESS(LHS, RHS) ::std::less<T> {} (LHS, RHS)
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 4
@@ -50,13 +47,7 @@ struct is_ratio<std::ratio<Num, Den>> :
 
 
 template<typename T, typename Val>
-struct value
-{
-	T const& operator() () const
-	{
-		return static_cast<T const&>(Val() ());
-	}
-};
+struct value;
 
 template<typename T, T Val>
 struct value<T, std::integral_constant<T, Val>>

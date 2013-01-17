@@ -8,6 +8,8 @@
 
 #include "rant/util.h"
 
+#define RANT_CHECK(VAL) Check () (VAL)
+
 #define RANT_UNDERFLOW_MESSAGE "underflow error in range type"
 #define RANT_OVERFLOW_MESSAGE "overflow error in range type"
 
@@ -44,6 +46,7 @@ overflow(T val, T max)
 	return std::overflow_error(s);
 }
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
+
 
 template<typename T, typename Max, typename Min, typename = void>
 struct throw_on_error

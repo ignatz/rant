@@ -40,15 +40,15 @@ struct fclip \
 namespace _debug {
 using namespace rant::debug;
 ALIASES
-typedef typename iclip<int>::type     _int;
-typedef typename fclip<double>::type  _d;
+typedef iclip<int>::type     _int;
+typedef fclip<double>::type  _d;
 } // debug
 
 using namespace rant;
 ALIASES
 
-typedef typename iclip<int>::type     _int;
-typedef typename fclip<double>::type  _d;
+typedef iclip<int>::type     _int;
+typedef fclip<double>::type  _d;
 
 TEST(Clip, Integral)
 {
@@ -90,7 +90,7 @@ TEST(Clip, MinMax)
 {
 	test_minmax<typename _debug::iclip<int, 4, -1>::type>(4, -1);
 
-	typedef typename _debug::fclip<double,
+	typedef _debug::fclip<double,
 			std::ratio<4, 1>,
 			std::ratio<-1, 1>>::type __d;
 	test_minmax<__d>(4, -1);

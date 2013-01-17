@@ -69,7 +69,7 @@ TEST(Range, MinMax)
 {
 	test_minmax<debug::integral_range<int, 4, -1>>(4, -1);
 
-	typedef typename debug::floating_point_range<double,
+	typedef debug::floating_point_range<double,
 			std::ratio<4, 1>,
 			std::ratio<-1, 1>> __d;
 	test_minmax<__d>(4, -1);
