@@ -35,6 +35,16 @@
 #define RANT_UNLIKELY(x) (x)
 #endif
 
+#define RANT_NOEXCEPT_COND(...) \
+	noexcept(noexcept(__VA_ARGS__))
+#if __cplusplus >= 201103L
+#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...) \
+	RANT_NOEXCEPT_COND( __VA_ARGS__() )
+#else
+#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...)
+#endif
+
+
 namespace rant {
 
 template<typename T>

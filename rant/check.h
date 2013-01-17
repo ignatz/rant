@@ -82,7 +82,7 @@ struct clip_on_error
 {
 	inline
 	T operator() (T val) const
-		noexcept(std::is_nothrow_constructible<T>::value)
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		return RANT_LESS(val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
 			RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
@@ -95,7 +95,7 @@ struct clip_on_error<T, Max, Min,
 {
 	inline
 	T operator() (T val) const
-		noexcept(std::is_nothrow_constructible<T>::value)
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}

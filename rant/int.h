@@ -9,12 +9,12 @@
 
 #define RANT_OP_INCREMENTAL(OP) \
 	inline type& operator OP##OP () \
-		noexcept(std::is_nothrow_constructible<type>::value) \
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(type) \
 	{ \
 		return *this OP##= 1; \
 	} \
 	inline type operator OP##OP (int) \
-		noexcept(std::is_nothrow_constructible<type>::value) \
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(type) \
 	{ \
 		type t(*this); \
 		*this OP##= 1; \
@@ -40,7 +40,7 @@ private:
 
 public:
 	RANT_CONSTEXPR integral_range(T v = T())
-			noexcept(noexcept(RANT_CHECK(v))) :
+			RANT_NOEXCEPT_COND(RANT_CHECK(v)) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
@@ -53,16 +53,16 @@ public:
 	RANT_OP_ASSIGNMENT(-)
 	RANT_OP_ASSIGNMENT(*)
 	RANT_OP_ASSIGNMENT(/)
-	RANT_OP_UNARY(type, +)
-	RANT_OP_UNARY(type, -)
+	RANT_OP_UNARY(+, type)
+	RANT_OP_UNARY(-, type)
 
 
 	RANT_OP_ASSIGNMENT(%)
 	RANT_OP_INCREMENTAL(+)
 	RANT_OP_INCREMENTAL(-)
 
-	RANT_OP_UNARY(bool, !)
-	RANT_OP_UNARY(type, ~)
+	RANT_OP_UNARY(!, bool)
+	RANT_OP_UNARY(~, type)
 
 	RANT_OP_ASSIGNMENT(&)
 	RANT_OP_ASSIGNMENT(|)
@@ -76,29 +76,29 @@ protected:
 
 #define RANT_INT_RET integral_range<T, Max, Min, Check>
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, ==)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, !=)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, <)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, >)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, <=)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, >=)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, ==, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, !=, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  <, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  >, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, <=, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, >=, bool)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, +)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, -)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, *)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, /)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, +, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, -, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, *, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, /, RANT_INT_RET)
 
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, %)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, %, RANT_INT_RET)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, &)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, |)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, ^)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, <<)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, RANT_INT_RET, T, >>)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  &, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  |, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  ^, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, <<, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, >>, RANT_INT_RET)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, &&)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, bool, T, ||)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, &&, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, T, ||, bool)
 
 } // rant
 

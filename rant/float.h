@@ -30,7 +30,7 @@ private:
 
 public:
 	RANT_CONSTEXPR floating_point_range(T v = T())
-			noexcept(noexcept(RANT_CHECK(v))) :
+			RANT_NOEXCEPT_COND(RANT_CHECK(v)) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
@@ -43,8 +43,8 @@ public:
 	RANT_OP_ASSIGNMENT(-)
 	RANT_OP_ASSIGNMENT(*)
 	RANT_OP_ASSIGNMENT(/)
-	RANT_OP_UNARY(type, +)
-	RANT_OP_UNARY(type, -)
+	RANT_OP_UNARY(+, type)
+	RANT_OP_UNARY(-, type)
 
 protected:
 	T RANT_VALUE_NAME;
@@ -52,17 +52,17 @@ protected:
 
 #define RANT_FLOAT_RET floating_point_range<T, Max, Min, Check>
 
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, ==)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, !=)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, <)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, >)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, <=)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, bool, typename, >=)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, ==, bool)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, !=, bool)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename,  <, bool)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename,  >, bool)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, <=, bool)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, >=, bool)
 
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, +)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, -)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, *)
-RANT_OP_BINARY_FF_BUILTIN(floating_point_range, RANT_FLOAT_RET, typename, /)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, +, RANT_FLOAT_RET)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, -, RANT_FLOAT_RET)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, *, RANT_FLOAT_RET)
+RANT_OP_BINARY_FF_BUILTIN(floating_point_range, typename, /, RANT_FLOAT_RET)
 
 } // rant
 

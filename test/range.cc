@@ -75,4 +75,10 @@ TEST(Range, MinMax)
 	test_minmax<__d>(4, -1);
 }
 
+TEST(Range, MixedTypes)
+{
+	// this MUST not compile, therefore commented out
+	//rant::integral_range<int, 7, -1>(5) + rant::integral_range<char, 7, -1>(2);
+}
+
 RANT_TEST_COMMON(Range)
