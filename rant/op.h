@@ -4,7 +4,9 @@
 // Distributed under the terms of the GPLv2 or newer
 
 #include <ostream>
-#include <type_traits>
+#include <boost/static_assert.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 
 #define RANT_OP_STREAM(CLASS_NAME, ARG) \
@@ -48,9 +50,9 @@
 	template<typename U, typename T, ARG Max, \
 		ARG Min, typename Check> \
 	inline \
-	typename std::enable_if< \
-		std::is_arithmetic<U>::value || \
-		std::is_same<U, T>::value, __VA_ARGS__>::type \
+	typename boost::enable_if_c< \
+		boost::is_arithmetic<U>::type::value || \
+		boost::is_same<U, T>::type::value, __VA_ARGS__>::type \
 	operator OP ( \
 		U const a, \
 		CLASS_NAME<T, Max, Min, Check> const& b) \
@@ -61,9 +63,9 @@
 	template<typename U, typename T, ARG Max, \
 		ARG Min, typename Check> \
 	inline \
-	typename std::enable_if< \
-		std::is_arithmetic<U>::value || \
-		std::is_same<U, T>::value, __VA_ARGS__>::type \
+	typename boost::enable_if_c< \
+		boost::is_arithmetic<U>::type::value || \
+		boost::is_same<U, T>::type::value, __VA_ARGS__>::type \
 	operator OP ( \
 		CLASS_NAME<T, Max, Min, Check> const& a, \
 		U const b) \
@@ -79,9 +81,9 @@
 		Range<T1, Max1, Min1, Check1> const) \
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(__VA_ARGS__) \
 	{ \
-		static_assert(std::is_same< \
+		BOOST_STATIC_ASSERT_MSG((boost::is_same< \
 			CLASS_NAME<T, Max, Min, Check>, \
-			Range<T1, Max1, Min1, Check1>>::value, \
+			Range<T1, Max1, Min1, Check1> >::type::value), \
 			"ranged types must be of same type"); \
 		return __VA_ARGS__(); \
 	}

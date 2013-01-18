@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <boost/utility/enable_if.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "rant/util.h"
 
@@ -22,26 +24,26 @@ namespace rant {
 #define RANT_UNDERFLOW_ERROR(VAL, MIN) rant::underflow(VAL, MIN)
 #define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
 template<typename T>
-typename std::enable_if<
-	std::is_arithmetic<T>::value,
+typename boost::enable_if_c<
+	boost::is_arithmetic<T>::type::value,
 	std::underflow_error>::type
 underflow(T val, T min)
 {
 	std::string s(RANT_UNDERFLOW_MESSAGE ": ");
-	s += std::to_string(val) + " < min(";
-	s += std::to_string(min) + ")";
+	s += boost::lexical_cast<std::string>(val) + " < min(";
+	s += boost::lexical_cast<std::string>(min) + ")";
 	return std::underflow_error(s);
 }
 
 template<typename T>
-typename std::enable_if<
-	std::is_arithmetic<T>::value,
+typename boost::enable_if_c<
+	boost::is_arithmetic<T>::type::value,
 	std::overflow_error>::type
 overflow(T val, T max)
 {
 	std::string s(RANT_OVERFLOW_MESSAGE ": ");
-	s += std::to_string(val) + " > max(";
-	s += std::to_string(max) + ")";
+	s += boost::lexical_cast<std::string>(val) + " > max(";
+	s += boost::lexical_cast<std::string>(max) + ")";
 	return std::overflow_error(s);
 }
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
@@ -64,7 +66,8 @@ struct throw_on_error
 
 template<typename T, typename Max, typename Min>
 struct throw_on_error<T, Max, Min,
-	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
+	typename boost::enable_if_c<
+		boost::is_unsigned<T>::type::value && !value<T, Min>::value>::type>
 {
 	inline
 	T operator() (T val) const
@@ -90,7 +93,8 @@ struct clip_on_error
 
 template<typename T, typename Max, typename Min>
 struct clip_on_error<T, Max, Min,
-	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
+	typename boost::enable_if_c<
+		boost::is_unsigned<T>::type::value && !value<T, Min>::value>::type>
 {
 	inline
 	T operator() (T val) const

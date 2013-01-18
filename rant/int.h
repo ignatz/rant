@@ -7,6 +7,8 @@
 #include "rant/check.h"
 #include "rant/op.h"
 
+#include <boost/static_assert.hpp>
+
 #define RANT_OP_INCREMENTAL(OP) \
 	inline type& operator OP##OP () \
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(type) \
@@ -23,17 +25,17 @@
 
 namespace rant {
 template<typename T,
-	T Max   = std::numeric_limits<T>::max(),
-	T Min   = std::numeric_limits<T>::min(),
+	T Max   = boost::integer_traits<T>::const_max,
+	T Min   = boost::integer_traits<T>::const_min,
 	typename Check = throw_on_error<T,
-		std::integral_constant<T, Max>,
-		std::integral_constant<T, Min>>>
+		integral_constant<T, Max>,
+		integral_constant<T, Min> > >
 class integral_range
 {
 private:
-	static_assert(std::is_integral<T>::value,
+	BOOST_STATIC_ASSERT_MSG((boost::is_integral<T>::type::value),
 				  "T must be integral type");
-	static_assert(Min <= Max, "Max must be >= Min");
+	BOOST_STATIC_ASSERT_MSG(Min <= Max, "Max must be >= Min");
 
 	typedef integral_range<T, Max, Min, Check> type;
 	typedef T value_type;
@@ -44,7 +46,7 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_CONSTEXPR RANT_EXPLICIT operator T () const
+	RANT_CONSTEXPR operator T () const
 		RANT_NOEXCEPT_SPECIFIER
 	{
 		return RANT_VALUE_NAME;
@@ -110,7 +112,7 @@ namespace std {
 
 template<typename T, T Max,
 	T Min, typename Check>
-struct numeric_limits<rant::integral_range<T, Max, Min, Check>> :
+struct numeric_limits<rant::integral_range<T, Max, Min, Check> > :
 	public std::numeric_limits<T>
 {
 	static RANT_CONSTEXPR T max() { return Max; }

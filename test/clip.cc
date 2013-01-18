@@ -7,7 +7,7 @@
 
 #include "test/test.h"
 
-constexpr bool disable =
+const bool disable =
 #ifndef RANT_DISABLE
 	false;
 #else
@@ -16,24 +16,24 @@ constexpr bool disable =
 
 #define ALIASES \
 template<typename T = int, \
-	T Max = std::numeric_limits<T>::max(), \
-	T Min = std::numeric_limits<T>::min()> \
+	T Max = boost::integer_traits<T>::const_max, \
+	T Min = boost::integer_traits<T>::const_min> \
 struct iclip \
 { \
 	typedef integral_range<T, Max, Min, \
 		clip_on_error<T, \
-			std::integral_constant<T, Max>, \
-			std::integral_constant<T, Min>> \
+			rant::integral_constant<T, Max>, \
+			rant::integral_constant<T, Min> > \
 	> type; \
 }; \
 \
 template<typename T = double, \
-	typename Max = std::ratio< std::numeric_limits<intmax_t>::max()>, \
-	typename Min = std::ratio<-std::numeric_limits<intmax_t>::max()>> \
+	typename Max = boost::ratio< boost::integer_traits<intmax_t>::const_max-1>, \
+	typename Min = boost::ratio<-boost::integer_traits<intmax_t>::const_max+1> > \
 struct fclip \
 { \
 	typedef floating_point_range<T, Max, Min, \
-		clip_on_error<T, Max, Min>> type; \
+		clip_on_error<T, Max, Min> > type; \
 };
 
 
@@ -77,8 +77,8 @@ TEST(Clip, UnsignedIntegral)
 
 TEST(Clip, FloatingPoint)
 {
-	typedef fclip<double, std::ratio<10>, std::ratio<0>>::type      t;
-	typedef _debug::fclip<double, std::ratio<10>, std::ratio<0>>::type to;
+	typedef fclip<double, boost::ratio<10>, boost::ratio<0> >::type      t;
+	typedef _debug::fclip<double, boost::ratio<10>, boost::ratio<0> >::type to;
 
 	ASSERT_EQ(t(0), t(-0.0));
 	ASSERT_EQ(disable ? to(-0.1) : to(0), to(-0.1));
@@ -88,11 +88,11 @@ TEST(Clip, FloatingPoint)
 
 TEST(Clip, MinMax)
 {
-	test_minmax<typename _debug::iclip<int, 4, -1>::type>(4, -1);
+	test_minmax<_debug::iclip<int, 4, -1>::type>(4, -1);
 
 	typedef _debug::fclip<double,
-			std::ratio<4, 1>,
-			std::ratio<-1, 1>>::type __d;
+			boost::ratio<4, 1>,
+			boost::ratio<-1, 1> >::type __d;
 	test_minmax<__d>(4, -1);
 }
 

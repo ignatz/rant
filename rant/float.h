@@ -7,22 +7,24 @@
 #include "rant/check.h"
 #include "rant/op.h"
 
+#include <boost/static_assert.hpp>
+
 namespace rant {
 
 template<typename T,
-	typename Max   = std::ratio< std::numeric_limits<std::intmax_t>::max()>,
-	typename Min   = std::ratio<-std::numeric_limits<std::intmax_t>::max()>,
-	typename Check = throw_on_error<T, Max, Min>>
+	typename Max   = boost::ratio< boost::integer_traits<boost::intmax_t>::const_max-1>,
+	typename Min   = boost::ratio<-boost::integer_traits<boost::intmax_t>::const_max+1>,
+	typename Check = throw_on_error<T, Max, Min> >
 class floating_point_range
 {
 private:
-	static_assert(std::is_floating_point<T>::value,
+	BOOST_STATIC_ASSERT_MSG(boost::is_floating_point<T>::type::value,
 				  "T must be floating point type");
-	static_assert(is_ratio<Max>::value,
+	BOOST_STATIC_ASSERT_MSG(is_ratio<Max>::value,
 				  "Max must be std::ratio type");
-	static_assert(is_ratio<Min>::value,
+	BOOST_STATIC_ASSERT_MSG(is_ratio<Min>::value,
 				  "Min must be std::ratio type");
-	static_assert(std::ratio_less_equal<Min, Max>::value,
+	BOOST_STATIC_ASSERT_MSG((boost::ratio_less_equal<Min, Max>::type::value),
 				  "Max must be >= Min");
 
 	typedef floating_point_range<T, Max, Min, Check> type;
@@ -34,7 +36,7 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_CONSTEXPR RANT_EXPLICIT operator T () const
+	RANT_CONSTEXPR operator T () const
 		RANT_NOEXCEPT_SPECIFIER
 	{
 		return RANT_VALUE_NAME;
@@ -74,7 +76,7 @@ namespace std {
 
 template<typename T, typename Max,
 	typename Min, typename Check>
-struct numeric_limits<rant::floating_point_range<T, Max, Min, Check>> :
+struct numeric_limits<rant::floating_point_range<T, Max, Min, Check> > :
 	public std::numeric_limits<T>
 {
 	static RANT_CONSTEXPR T max() { return RANT_VALUE(Max); }

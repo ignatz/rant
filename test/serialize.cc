@@ -13,7 +13,6 @@ using namespace rant;
 
 typedef integral_range<int>          _int;
 typedef integral_range<char>         _char;
-typedef integral_range<long long>    _ll;
 typedef floating_point_range<double> _d;
 
 template<typename OArchive, typename IArchive, typename T>
@@ -39,7 +38,6 @@ TEST(Serialization, XML)
 
 	test_serialization<xml_oarchive, xml_iarchive>( _int(-42));
 	test_serialization<xml_oarchive, xml_iarchive>(_char(-42));
-	test_serialization<xml_oarchive, xml_iarchive>(  _ll(-42));
 	test_serialization<xml_oarchive, xml_iarchive>(   _d(-42));
 }
 
@@ -48,6 +46,5 @@ TEST(Serialization, Binary)
 	using namespace boost::archive;
 	test_serialization<binary_oarchive, binary_iarchive>( _int(-42));
 	test_serialization<binary_oarchive, binary_iarchive>(_char(-42));
-	test_serialization<binary_oarchive, binary_iarchive>(  _ll(-42));
 	test_serialization<binary_oarchive, binary_iarchive>(   _d(-42));
 }

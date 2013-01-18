@@ -11,11 +11,11 @@
 template<typename NoOpt, typename Opt>
 void test_disable()
 {
-	ASSERT_FALSE((std::is_arithmetic<NoOpt>::value));
+	ASSERT_FALSE((boost::is_arithmetic<NoOpt>::type::value));
 #ifdef RANT_DISABLE
-	ASSERT_TRUE((std::is_arithmetic<Opt>::value));
+	ASSERT_TRUE((boost::is_arithmetic<Opt>::type::value));
 #else
-	ASSERT_FALSE((std::is_arithmetic<Opt>::value));
+	ASSERT_FALSE((boost::is_arithmetic<Opt>::type::value));
 #endif
 }
 
