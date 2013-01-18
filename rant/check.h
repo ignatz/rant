@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <cmath>
 
 #include "rant/util.h"
 
@@ -97,6 +98,46 @@ struct clip_on_error<T, Max, Min,
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+	}
+};
+
+
+template<typename T, typename Max, typename Min, typename = void>
+struct wrap_on_error
+{
+	//static_assert(std::is_integral<T>::value,
+				  //"wrapping only supports integer types so far");
+	inline
+	T operator() (T val) const
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
+	{
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+
+		if (RANT_LESS(val, RANT_VALUE(Min))) {
+			return RANT_VALUE(Max) - ((RANT_VALUE(Min)-val-1)%diff);
+		} else if (RANT_LESS(RANT_VALUE(Max), val)) {
+			return RANT_VALUE(Min) + ((val-RANT_VALUE(Max)-1)%diff);
+		}
+		return val;
+	}
+};
+
+template<typename T, typename Max, typename Min>
+struct wrap_on_error<T, Max, Min,
+	typename std::enable_if<std::is_floating_point<T>::value>::type>
+{
+	inline
+	T operator() (T val) const
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
+	{
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+
+		if (RANT_LESS(val, RANT_VALUE(Min))) {
+			return RANT_VALUE(Max) - fmod((RANT_VALUE(Min)-val), diff);
+		} else if (RANT_LESS(RANT_VALUE(Max), val)) {
+			return RANT_VALUE(Min) + fmod((val-RANT_VALUE(Max)), diff);
+		}
+		return val;
 	}
 };
 

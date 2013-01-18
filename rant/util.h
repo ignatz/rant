@@ -18,13 +18,14 @@
 #endif // RANT_EXPLICIT_DOWNCAST
 
 #define RANT_VALUE_NAME __val
-#define RANT_VALUE(VAL) ::rant::value<T, VAL>() ()
 #define RANT_PACKED __attribute__((packed))
 
 #ifdef __clang__
 	#define RANT_LESS(LHS, RHS) ::std::less<T> () (LHS, RHS)
+	#define RANT_VALUE(VAL) ::rant::value<T, VAL> () ()
 #else
 	#define RANT_LESS(LHS, RHS) ::std::less<T> {} (LHS, RHS)
+	#define RANT_VALUE(VAL) ::rant::value<T, VAL> {} ()
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 4
