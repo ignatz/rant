@@ -21,8 +21,8 @@ namespace debug {
 	#endif
 
 	template<typename T,
-		T Max    = T(),
-		T Min    = T(),
+		std::intmax_t Max    = T(),
+		std::intmax_t Min    = T(),
 		typename Check  = void>
 	using integral_range = T;
 

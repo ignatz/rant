@@ -21,7 +21,7 @@ void integral_test()
 {
 	ASSERT_THROW(T(-1), std::underflow_error);
 	ASSERT_THROW(T(65), std::overflow_error);
-	ASSERT_NO_THROW(static_cast<void>(T(64) + T(0)));
+	ASSERT_NO_THROW(UNUSED(T(64) + T(0)));
 
 	ASSERT_THROW(T(0)--,      std::underflow_error);
 	ASSERT_THROW(T(64)+=T(1), std::overflow_error);

@@ -23,8 +23,8 @@
 
 namespace rant {
 template<typename T,
-	T Max   = std::numeric_limits<T>::max(),
-	T Min   = std::numeric_limits<T>::min(),
+	std::intmax_t Max = std::numeric_limits<T>::max(),
+	std::intmax_t Min = std::numeric_limits<T>::min(),
 	typename Check = throw_on_error<T,
 		std::integral_constant<T, Max>,
 		std::integral_constant<T, Min>>>
@@ -34,6 +34,10 @@ private:
 	static_assert(std::is_integral<T>::value,
 				  "T must be integral type");
 	static_assert(Min <= Max, "Max must be >= Min");
+	static_assert(Min >= std::numeric_limits<T>::lowest(),
+				  "Min smaller than minimum value of T");
+	static_assert(Max <= std::numeric_limits<T>::max(),
+				  "Max bigger than maximum value of T");
 
 	typedef integral_range<T, Max, Min, Check> type;
 	typedef T value_type;
@@ -77,39 +81,39 @@ protected:
 
 #define RANT_INT_RET integral_range<T, Max, Min, Check>
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, ==, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, !=, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  <, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  >, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, <=, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, >=, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, ==, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, !=, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t,  <, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t,  >, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, <=, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, >=, bool)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, +, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, -, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, *, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, /, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, +, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, -, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, *, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, /, RANT_INT_RET)
 
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, %, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, %, RANT_INT_RET)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  &, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  |, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T,  ^, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, <<, RANT_INT_RET)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, >>, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t,  &, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t,  |, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t,  ^, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, <<, RANT_INT_RET)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, >>, RANT_INT_RET)
 
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, &&, bool)
-RANT_OP_BINARY_FF_BUILTIN(integral_range, T, ||, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, &&, bool)
+RANT_OP_BINARY_FF_BUILTIN(integral_range, std::intmax_t, ||, bool)
 
 } // rant
 
-RANT_OP_STREAM(rant::integral_range, T)
+RANT_OP_STREAM(rant::integral_range, std::intmax_t)
 
 
 namespace std {
 
-template<typename T, T Max,
-	T Min, typename Check>
+template<typename T, std::intmax_t Max,
+	std::intmax_t Min, typename Check>
 struct numeric_limits<rant::integral_range<T, Max, Min, Check>> :
 	public std::numeric_limits<T>
 {
