@@ -35,7 +35,6 @@ def build(bld):
                 '-Wextra',
                 '-pedantic',
                 #'-DRANT_DISABLE',
-                #'-DRANT_EXPLICIT_DOWNCAST',
                 #'-DRANT_LIGHTWEIGHT_EXCEPTIONS',
             ],
         includes       = '.',

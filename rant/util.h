@@ -11,17 +11,11 @@
 	#define RANT_CONSTEXPR constexpr
 #endif
 
-#ifdef RANT_EXPLICIT_DOWNCAST
-	#define RANT_EXPLICIT explicit
-#else
-	#define RANT_EXPLICIT
-#endif // RANT_EXPLICIT_DOWNCAST
-
 #define RANT_VALUE_NAME __val
 #define RANT_PACKED __attribute__((packed))
 
 #define RANT_VALUE(VAL) ::rant::value_helper<T, VAL>::get()
-#define RANT_LESS(TYPE, LHS, RHS) rant::less(LHS, RHS)
+#define RANT_LESS(TYPE, LHS, RHS) rant::less<TYPE>(LHS, RHS)
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 	#define RANT_LIKELY(x) (__builtin_expect((x), 1))
@@ -80,20 +74,36 @@ struct value_helper<T, std::ratio<Num, Den>> :
 };
 
 
-template<typename T, typename U>
+template<typename T>
+inline
 typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-less(T const& t, U const& u)
+less(T const t, T const u)
 {
 	std::less<long double> r;
 	return r(t, u);
 }
 
-template<typename T, typename U>
+template<typename T>
 inline
-typename std::enable_if<std::is_integral<T>::value, bool>::type
-less(T const& t, U const& u)
+typename std::enable_if<
+	std::is_integral<T>::value &&
+	!std::is_same<T, unsigned long long>::value &&
+	!std::is_same<T, unsigned long>::value, bool>::type
+less(intmax_t const t, intmax_t const u)
 {
 	std::less<intmax_t> r;
+	return r(t, u);
+}
+
+template<typename T>
+inline
+typename std::enable_if<
+	std::is_integral<T>::value && (
+	std::is_same<T, unsigned long long>::value ||
+	std::is_same<T, unsigned long>::value), bool>::type
+less(uintmax_t const t, uintmax_t const u)
+{
+	std::less<uintmax_t> r;
 	return r(t, u);
 }
 

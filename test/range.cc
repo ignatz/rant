@@ -88,4 +88,96 @@ TEST(Range, TypeOverflow)
 	ASSERT_THROW(t(-1), std::underflow_error);
 }
 
+
+typedef ::testing::Types<
+		bool,
+		char,
+		signed char,
+		unsigned char,
+		//wchar_t,
+		short,
+		unsigned short,
+		int,
+		unsigned int,
+		long,
+		unsigned long,
+		long long,
+		unsigned long long
+		//float,
+		//double,
+		//long double
+	> integer_types;
+
+template<typename T>
+struct AllIntegers:
+	public ::testing::Test
+{
+	typedef T type;
+};
+
+TYPED_TEST_CASE(AllIntegers, integer_types);
+
+TYPED_TEST(AllIntegers, Native)
+{
+	typedef typename TestFixture::type type;
+	typedef integral_range<type> t;
+	type max = std::numeric_limits<type>::max();
+	type min = std::numeric_limits<type>::lowest();
+	ASSERT_NO_THROW(t a(max); UNUSED(a));
+	ASSERT_NO_THROW(t a(min); UNUSED(a));
+	ASSERT_FALSE(noexcept(t(max)));
+}
+
+TYPED_TEST(AllIntegers, Limit)
+{
+	typedef typename TestFixture::type type;
+	typedef integral_range<type> t;
+	typedef typename std::conditional<std::is_unsigned<type>::value,
+			unsigned long long,
+			long long>::type limit_t;
+
+	limit_t max = std::numeric_limits<type>::max();
+	limit_t min = std::numeric_limits<type>::lowest();
+	ASSERT_NO_THROW(t a(max); UNUSED(a););
+	ASSERT_NO_THROW(t a(min); UNUSED(a););
+	ASSERT_FALSE(noexcept(t(max)));
+}
+
+
+typedef ::testing::Types<
+		float,
+		double,
+		long double
+	> floating_point_types;
+
+template<typename T>
+struct AllFloats:
+	public ::testing::Test
+{
+	typedef T type;
+};
+
+TYPED_TEST_CASE(AllFloats, floating_point_types);
+
+TYPED_TEST(AllFloats, Native)
+{
+	typedef typename TestFixture::type type;
+	typedef floating_point_range<type> t;
+
+	{
+		type max = std::numeric_limits<type>::max();
+		type min = std::numeric_limits<type>::lowest();
+		ASSERT_THROW(t {max}, std::overflow_error);
+		ASSERT_THROW(t {min}, std::underflow_error);
+	}
+	{
+		type max =  std::numeric_limits<std::intmax_t>::max();
+		type min = -std::numeric_limits<std::intmax_t>::max();
+		ASSERT_NO_THROW(t {max});
+		ASSERT_NO_THROW(t {min});
+	}
+	ASSERT_FALSE(noexcept(t{}));
+}
+
+
 RANT_TEST_COMMON(Range)

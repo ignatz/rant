@@ -45,7 +45,7 @@ public:
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline
-	RANT_CONSTEXPR RANT_EXPLICIT operator T () const
+	RANT_CONSTEXPR operator T () const
 		RANT_NOEXCEPT_SPECIFIER
 	{
 		return RANT_VALUE_NAME;

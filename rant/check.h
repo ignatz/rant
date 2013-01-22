@@ -67,7 +67,7 @@ struct throw_on_error
 		value_helper<T, Min>::value == 0, T>::type
 	operator() (U const val) const
 	{
-		if RANT_UNLIKELY(RANT_LESS(U, RANT_VALUE(Max), val)) {
+		if RANT_UNLIKELY(RANT_LESS(T, RANT_VALUE(Max), val)) {
 			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
 		}
 		return val;
@@ -85,8 +85,8 @@ struct clip_on_error
 	operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
-		return RANT_LESS(U, val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
-			RANT_LESS(U, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		return RANT_LESS(T, val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
+			RANT_LESS(T, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
 
 	template<typename U>
@@ -96,7 +96,7 @@ struct clip_on_error
 	operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
-		return RANT_LESS(U, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		return RANT_LESS(T, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
 };
 
@@ -110,9 +110,9 @@ struct wrap_on_error
 	{
 		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
 
-		if (RANT_LESS(U, val, RANT_VALUE(Min))) {
+		if (RANT_LESS(T, val, RANT_VALUE(Min))) {
 			return RANT_VALUE(Max) - ((RANT_VALUE(Min)-val-1)%diff);
-		} else if (RANT_LESS(U, RANT_VALUE(Max), val)) {
+		} else if (RANT_LESS(T, RANT_VALUE(Max), val)) {
 			return RANT_VALUE(Min) + ((val-RANT_VALUE(Max)-1)%diff);
 		}
 		return val;
