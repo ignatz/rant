@@ -13,7 +13,9 @@ void load(Archiver& ar, \
 	CLASS_NAME<T, Max, Min, Check>& s, \
 	unsigned int const) \
 { \
-	ar >> make_nvp("value", reinterpret_cast<T&>(s)); \
+	T t; \
+	ar >> make_nvp("value", t); \
+	s = CLASS_NAME<T, Max, Min, Check>(t); \
 } \
 \
 template<typename Archiver, typename T, TYPE Max, \
@@ -22,7 +24,8 @@ void save(Archiver& ar, \
 	CLASS_NAME<T, Max, Min, Check> const& s, \
 	unsigned int const) \
 { \
-	ar << make_nvp("value", reinterpret_cast<T const&>(s)); \
+	T t = static_cast<T>(s); \
+	ar << make_nvp("value", t); \
 } \
 \
 template<typename Archiver, typename T, TYPE Max, \
