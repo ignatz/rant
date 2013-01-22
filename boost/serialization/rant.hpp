@@ -37,7 +37,7 @@ void serialize(Archiver& ar, \
 namespace boost {
 namespace serialization {
 
-RANT_ARITHMETIC_SERIALIZER(::rant::integral_range, std::intmax_t)
+RANT_ARITHMETIC_SERIALIZER(::rant::integral_range, T)
 RANT_ARITHMETIC_SERIALIZER(::rant::floating_point_range, typename)
 
 } // serialization

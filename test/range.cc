@@ -46,7 +46,7 @@ TEST(Range, UnsignedIntegral)
 {
 	typedef integral_range<unsigned int, 5, 0> t;
 	ASSERT_NO_THROW(t(5));
-	ASSERT_THROW(t(-1), std::overflow_error);
+	ASSERT_THROW(t(-1), std::underflow_error);
 	ASSERT_THROW(t(6), std::overflow_error);
 
 	typedef integral_range<unsigned char, 5, 1> u;
@@ -79,6 +79,13 @@ TEST(Range, MixedTypes)
 {
 	// this MUST not compile, therefore commented out
 	//rant::integral_range<int, 7, -1>(5) + rant::integral_range<char, 7, -1>(2);
+}
+
+TEST(Range, TypeOverflow)
+{
+	typedef integral_range<unsigned char> t;
+	ASSERT_THROW(t(300), std::overflow_error);
+	ASSERT_THROW(t(-1), std::underflow_error);
 }
 
 RANT_TEST_COMMON(Range)

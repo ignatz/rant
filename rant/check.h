@@ -22,11 +22,9 @@ namespace rant {
 #else
 #define RANT_UNDERFLOW_ERROR(VAL, MIN) rant::underflow(VAL, MIN)
 #define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
-template<typename T>
-typename std::enable_if<
-	std::is_arithmetic<T>::value,
-	std::underflow_error>::type
-underflow(T val, T min)
+template<typename T, typename U>
+std::underflow_error
+underflow(T const val, U const min)
 {
 	std::string s(RANT_UNDERFLOW_MESSAGE ": ");
 	s += std::to_string(val) + " < min(";
@@ -34,11 +32,9 @@ underflow(T val, T min)
 	return std::underflow_error(s);
 }
 
-template<typename T>
-typename std::enable_if<
-	std::is_arithmetic<T>::value,
-	std::overflow_error>::type
-overflow(T val, T max)
+template<typename T, typename U>
+std::overflow_error
+overflow(T const val, U const max)
 {
 	std::string s(RANT_OVERFLOW_MESSAGE ": ");
 	s += std::to_string(val) + " > max(";
@@ -48,56 +44,59 @@ overflow(T val, T max)
 #endif // RANT_LIGHTWEIGHT_EXCEPTIONS
 
 
-template<typename T, typename Max, typename Min, typename = void>
+template<typename T, typename Max, typename Min>
 struct throw_on_error
 {
-	inline
-	T operator() (T val) const
+	template<typename U>
+	typename std::enable_if<
+		!std::is_unsigned<U>::value ||
+		value_helper<T, Min>::value != 0, T>::type
+	operator() (U const val) const
 	{
-		if RANT_UNLIKELY(RANT_LESS(val, RANT_VALUE(Min)))
+		if RANT_UNLIKELY(RANT_LESS(T, val, RANT_VALUE(Min))) {
 			throw RANT_UNDERFLOW_ERROR(val, RANT_VALUE(Min));
-
-		else if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
+		} else if RANT_UNLIKELY(RANT_LESS(T, RANT_VALUE(Max), val)) {
 			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
+		}
+		return val;
+	}
+
+	template<typename U>
+	typename std::enable_if<
+		std::is_unsigned<U>::value &&
+		value_helper<T, Min>::value == 0, T>::type
+	operator() (U const val) const
+	{
+		if RANT_UNLIKELY(RANT_LESS(U, RANT_VALUE(Max), val)) {
+			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
+		}
 		return val;
 	}
 };
+
 
 template<typename T, typename Max, typename Min>
-struct throw_on_error<T, Max, Min,
-	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
-{
-	inline
-	T operator() (T val) const
-	{
-		if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
-			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
-		return val;
-	}
-};
-
-
-template<typename T, typename Max, typename Min, typename = void>
 struct clip_on_error
 {
-	inline
-	T operator() (T val) const
+	template<typename U>
+	typename std::enable_if<
+		!std::is_unsigned<U>::value ||
+		value_helper<T, Min>::value != 0, T>::type
+	operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
-		return RANT_LESS(val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
-			RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		return RANT_LESS(U, val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
+			RANT_LESS(U, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
-};
 
-template<typename T, typename Max, typename Min>
-struct clip_on_error<T, Max, Min,
-	typename std::enable_if<std::is_unsigned<T>::value && !Min::value>::type>
-{
-	inline
-	T operator() (T val) const
+	template<typename U>
+	typename std::enable_if<
+		std::is_unsigned<U>::value &&
+		value_helper<T, Min>::value == 0, T>::type
+	operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
-		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		return RANT_LESS(U, RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
 	}
 };
 
@@ -105,17 +104,15 @@ struct clip_on_error<T, Max, Min,
 template<typename T, typename Max, typename Min, typename = void>
 struct wrap_on_error
 {
-	//static_assert(std::is_integral<T>::value,
-				  //"wrapping only supports integer types so far");
-	inline
-	T operator() (T val) const
+	template<typename U>
+	T operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
 
-		if (RANT_LESS(val, RANT_VALUE(Min))) {
+		if (RANT_LESS(U, val, RANT_VALUE(Min))) {
 			return RANT_VALUE(Max) - ((RANT_VALUE(Min)-val-1)%diff);
-		} else if (RANT_LESS(RANT_VALUE(Max), val)) {
+		} else if (RANT_LESS(U, RANT_VALUE(Max), val)) {
 			return RANT_VALUE(Min) + ((val-RANT_VALUE(Max)-1)%diff);
 		}
 		return val;
@@ -126,15 +123,15 @@ template<typename T, typename Max, typename Min>
 struct wrap_on_error<T, Max, Min,
 	typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
-	inline
-	T operator() (T val) const
+	template<typename U>
+	T operator() (U const val) const
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
 
-		if (RANT_LESS(val, RANT_VALUE(Min))) {
+		if (RANT_LESS(T, val, RANT_VALUE(Min))) {
 			return RANT_VALUE(Max) - fmod((RANT_VALUE(Min)-val), diff);
-		} else if (RANT_LESS(RANT_VALUE(Max), val)) {
+		} else if (RANT_LESS(T, RANT_VALUE(Max), val)) {
 			return RANT_VALUE(Min) + fmod((val-RANT_VALUE(Max)), diff);
 		}
 		return val;

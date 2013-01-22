@@ -52,7 +52,7 @@ TEST(Clip, Integral)
 TEST(Clip, UnsignedIntegral)
 {
 	typedef INTEGRAL_RANGE(unsigned int, 5, 0) t;
-	ASSERT_EQ(t(5), t(-1)); // t(-1) = t(MAX_UINT) = t(5)
+	ASSERT_EQ(t(0), t(-1));
 	ASSERT_EQ(t(5), t(6));
 
 	typedef INTEGRAL_RANGE(unsigned int, 5, 1) u;

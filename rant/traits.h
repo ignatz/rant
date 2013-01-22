@@ -16,10 +16,9 @@ struct traits
 	typedef T type;
 };
 
-template<typename T, std::intmax_t Max, std::intmax_t Min, typename Check>
+template<typename T, T Max, T Min, typename Check>
 struct traits<integral_range<T, Max, Min, Check>>
 {
-
 	typedef T type;
 	typedef Check callback_type;
 };

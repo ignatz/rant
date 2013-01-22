@@ -20,13 +20,8 @@
 #define RANT_VALUE_NAME __val
 #define RANT_PACKED __attribute__((packed))
 
-#ifdef __clang__
-	#define RANT_LESS(LHS, RHS) ::std::less<T> () (LHS, RHS)
-	#define RANT_VALUE(VAL) ::rant::value<T, VAL> () ()
-#else
-	#define RANT_LESS(LHS, RHS) ::std::less<T> {} (LHS, RHS)
-	#define RANT_VALUE(VAL) ::rant::value<T, VAL> {} ()
-#endif
+#define RANT_VALUE(VAL) ::rant::value_helper<T, VAL>::get()
+#define RANT_LESS(TYPE, LHS, RHS) rant::less(LHS, RHS)
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 	#define RANT_LIKELY(x) (__builtin_expect((x), 1))
@@ -60,12 +55,13 @@ struct is_ratio<std::ratio<Num, Den>> :
 
 
 template<typename T, typename Val>
-struct value;
+struct value_helper;
 
 template<typename T, T Val>
-struct value<T, std::integral_constant<T, Val>>
+struct value_helper<T, std::integral_constant<T, Val>> :
+	public std::integral_constant<T, Val>
 {
-	RANT_CONSTEXPR T operator() () const
+	static RANT_CONSTEXPR T get()
 		RANT_NOEXCEPT_COND(T())
 	{
 		return Val;
@@ -73,13 +69,32 @@ struct value<T, std::integral_constant<T, Val>>
 };
 
 template<typename T, intmax_t Num, intmax_t Den>
-struct value<T, std::ratio<Num, Den>>
+struct value_helper<T, std::ratio<Num, Den>> :
+	public std::integral_constant<intmax_t, Num>
 {
-	RANT_CONSTEXPR T operator() () const
+	static RANT_CONSTEXPR T get()
 		RANT_NOEXCEPT_COND(T())
 	{
 		return static_cast<T>(Num) / Den;
 	}
 };
+
+
+template<typename T, typename U>
+typename std::enable_if<std::is_floating_point<T>::value, bool>::type
+less(T const& t, U const& u)
+{
+	std::less<long double> r;
+	return r(t, u);
+}
+
+template<typename T, typename U>
+inline
+typename std::enable_if<std::is_integral<T>::value, bool>::type
+less(T const& t, U const& u)
+{
+	std::less<intmax_t> r;
+	return r(t, u);
+}
 
 } // rant
