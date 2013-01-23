@@ -75,12 +75,19 @@ TEST(Range, MinMax)
 	test_minmax<d>(4, -1);
 }
 
+void assign_throw()
+{
+	integral_range<char, 10> j;
+	j = 11;
+}
+
 TEST(Range, Assignment)
 {
 	_int i = 5;
 	ASSERT_EQ(5, i);
 	_d d = 3.141;
 	ASSERT_EQ(3.141, d);
+	ASSERT_THROW(assign_throw(), std::overflow_error);
 }
 
 TEST(Range, MixedTypes)
@@ -102,7 +109,7 @@ typedef ::testing::Types<
 		char,
 		signed char,
 		unsigned char,
-		//wchar_t,
+		wchar_t,
 		short,
 		unsigned short,
 		int,
@@ -111,9 +118,6 @@ typedef ::testing::Types<
 		unsigned long,
 		long long,
 		unsigned long long
-		//float,
-		//double,
-		//long double
 	> integer_types;
 
 template<typename T>
