@@ -6,6 +6,7 @@
 #include <limits>
 #include <type_traits>
 #include <ratio>
+#include <iostream>
 
 #ifndef RANT_CONSTEXPR
 	#define RANT_CONSTEXPR constexpr
@@ -15,7 +16,7 @@
 #define RANT_PACKED __attribute__((packed))
 
 #define RANT_VALUE(VAL) ::rant::value_helper<T, VAL>::get()
-#define RANT_LESS(TYPE, LHS, RHS) rant::less<TYPE>(LHS, RHS)
+#define RANT_LESS(TYPE, U, LHS, RHS) rant::less<TYPE, U>::compare(LHS, RHS)
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 	#define RANT_LIKELY(x) (__builtin_expect((x), 1))
@@ -55,6 +56,8 @@ template<typename T, T Val>
 struct value_helper<T, std::integral_constant<T, Val>> :
 	public std::integral_constant<T, Val>
 {
+	typedef T type;
+
 	static RANT_CONSTEXPR T get()
 		RANT_NOEXCEPT_COND(T())
 	{
@@ -66,6 +69,8 @@ template<typename T, intmax_t Num, intmax_t Den>
 struct value_helper<T, std::ratio<Num, Den>> :
 	public std::integral_constant<intmax_t, Num>
 {
+	typedef T type;
+
 	static RANT_CONSTEXPR T get()
 		RANT_NOEXCEPT_COND(T())
 	{
@@ -75,36 +80,73 @@ struct value_helper<T, std::ratio<Num, Den>> :
 
 
 template<typename T>
-inline
-typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-less(T const t, T const u)
-{
-	std::less<long double> r;
-	return r(t, u);
-}
+struct is_unsigned_integral :
+	public std::is_unsigned<T>
+{};
 
 template<typename T>
-inline
-typename std::enable_if<
-	std::is_integral<T>::value &&
-	!std::is_same<T, unsigned long long>::value &&
-	!std::is_same<T, unsigned long>::value, bool>::type
-less(intmax_t const t, intmax_t const u)
-{
-	std::less<intmax_t> r;
-	return r(t, u);
-}
+struct is_signed_integral :
+	public std::integral_constant<bool,
+		std::is_integral<T>::value && std::is_signed<T>::value>
+{};
 
-template<typename T>
-inline
-typename std::enable_if<
-	std::is_integral<T>::value && (
-	std::is_same<T, unsigned long long>::value ||
-	std::is_same<T, unsigned long>::value), bool>::type
-less(uintmax_t const t, uintmax_t const u)
+
+template<typename T, typename U>
+struct max
 {
-	std::less<uintmax_t> r;
-	return r(t, u);
-}
+	typedef typename std::conditional<
+		(sizeof(T) > sizeof(U)), T, U>::type type;
+};
+
+
+template<typename T, typename U, typename = void>
+struct promote;
+
+template<typename T, typename U>
+struct promote<T, U, typename std::enable_if<std::is_floating_point<T>::value>::type>
+{
+	typedef typename std::conditional<
+		std::is_floating_point<U>::value,
+		typename max<T, U>::type,
+		T
+	>::type type;
+};
+
+template<typename T, typename U>
+struct promote<T, U, typename std::enable_if<is_signed_integral<T>::value>::type>
+{
+	typedef typename std::conditional<
+		is_signed_integral<U>::value,
+		typename max<T, U>::type,
+		intmax_t
+	>::type type;
+};
+
+template<typename T, typename U>
+struct promote<T, U, typename std::enable_if<is_unsigned_integral<T>::value>::type>
+{
+	typedef typename std::conditional<
+		is_unsigned_integral<U>::value,
+		typename max<T, U>::type,
+		typename std::conditional<
+			(sizeof(U) < sizeof(intmax_t)),
+			intmax_t,
+			uintmax_t
+		>::type
+	>::type type;
+};
+
+
+template<typename T, typename U>
+struct less
+{
+	inline
+	static bool compare(
+		 typename promote<T, U>::type const t,
+		 typename promote<T, U>::type const u)
+	{
+		return t<u;
+	}
+};
 
 } // rant
