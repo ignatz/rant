@@ -75,6 +75,14 @@ TEST(Range, MinMax)
 	test_minmax<d>(4, -1);
 }
 
+TEST(Range, Assignment)
+{
+	_int i = 5;
+	ASSERT_EQ(5, i);
+	_d d = 3.141;
+	ASSERT_EQ(3.141, d);
+}
+
 TEST(Range, MixedTypes)
 {
 	// this MUST not compile, therefore commented out
