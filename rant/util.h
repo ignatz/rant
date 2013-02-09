@@ -6,7 +6,6 @@
 #include <limits>
 #include <type_traits>
 #include <ratio>
-#include <iostream>
 
 #ifndef RANT_CONSTEXPR
 	#define RANT_CONSTEXPR constexpr
@@ -26,14 +25,16 @@
 	#define RANT_UNLIKELY(x) (x)
 #endif
 
+// macros for noexcept specifier and operator
 #define RANT_NOEXCEPT_SPECIFIER noexcept
-#define RANT_NOEXCEPT_OP noexcept
-#define RANT_NOEXCEPT_COND(...) \
-	RANT_NOEXCEPT_SPECIFIER(RANT_NOEXCEPT_OP(__VA_ARGS__))
+#define RANT_NOEXCEPT noexcept
 #if __cplusplus >= 201103L
+	#define RANT_NOEXCEPT_COND(...) \
+		RANT_NOEXCEPT_SPECIFIER(__VA_ARGS__)
 	#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...) \
-	RANT_NOEXCEPT_COND( __VA_ARGS__() )
+		RANT_NOEXCEPT_COND(RANT_NOEXCEPT( __VA_ARGS__() ))
 #else
+	#define RANT_NOEXCEPT_COND(...)
 	#define RANT_IS_NOTHROW_DEFAULT_CONSTR(...)
 #endif
 
@@ -59,7 +60,7 @@ struct value_helper<T, std::integral_constant<T, Val>> :
 	typedef T type;
 
 	static RANT_CONSTEXPR T get()
-		RANT_NOEXCEPT_COND(T())
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		return Val;
 	}
@@ -72,7 +73,7 @@ struct value_helper<T, std::ratio<Num, Den>> :
 	typedef T type;
 
 	static RANT_CONSTEXPR T get()
-		RANT_NOEXCEPT_COND(T())
+		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
 	{
 		return static_cast<T>(Num) / Den;
 	}

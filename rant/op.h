@@ -6,7 +6,6 @@
 #include <ostream>
 #include <type_traits>
 
-
 #define RANT_OP_STREAM(CLASS_NAME, ARG) \
 	template<typename T, ARG Max, \
 		ARG Min, typename Check> \

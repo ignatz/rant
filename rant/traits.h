@@ -11,7 +11,8 @@ namespace rant {
 template<typename T>
 struct traits
 {
-	static_assert(std::is_integral<T>::value,
+	static_assert(std::is_integral<T>::value ||
+				  std::is_floating_point<T>::value,
 				  "arithmetic or range type expected");
 	typedef T type;
 };
