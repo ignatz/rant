@@ -17,13 +17,13 @@ namespace debug {
 	#if __cplusplus < 201103L
 		#error disabling rant requires a newer compiler
 	#else
-		#pragma message "rant's debug::ranges are disabled"
+		#pragma message "rant's debug ranges are disabled"
 	#endif
 
 	template<typename T,
-		T Max    = T(),
-		T Min    = T(),
-		typename Check  = void>
+		T Max          = T(),
+		T Min          = T(),
+		typename Check = void>
 	using integral_range = T;
 
 	template<typename T,

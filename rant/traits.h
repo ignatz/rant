@@ -11,15 +11,15 @@ namespace rant {
 template<typename T>
 struct traits
 {
-	BOOST_STATIC_ASSERT_MSG(boost::is_integral<T>::type::value,
-				  "arithmetic or range type expected");
+	BOOST_STATIC_ASSERT_MSG(boost::is_integral<T>::type::value ||
+							boost::is_floating_point<T>::type::value,
+							"arithmetic or range type expected");
 	typedef T type;
 };
 
 template<typename T, T Max, T Min, typename Check>
 struct traits<integral_range<T, Max, Min, Check> >
 {
-
 	typedef T type;
 	typedef Check callback_type;
 };

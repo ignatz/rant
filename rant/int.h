@@ -41,8 +41,15 @@ private:
 	typedef T value_type;
 
 public:
-	RANT_CONSTEXPR integral_range(T v = T())
-			RANT_NOEXCEPT_COND(RANT_CHECK(v)) :
+	template<typename U>
+	RANT_CONSTEXPR integral_range(
+		U const v = U(),
+		typename boost::enable_if_c<!boost::is_same<U, T>::type::value, void*>::type = 0)
+			RANT_NOEXCEPT_COND(RANT_NOEXCEPT(RANT_CHECK(v))) :
+		RANT_VALUE_NAME(RANT_CHECK(v)) {}
+
+	RANT_CONSTEXPR integral_range(T const v = T())
+			RANT_NOEXCEPT_COND(RANT_NOEXCEPT(RANT_CHECK(v))) :
 		RANT_VALUE_NAME(RANT_CHECK(v)) {}
 
 	inline

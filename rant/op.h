@@ -8,7 +8,6 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 
-
 #define RANT_OP_STREAM(CLASS_NAME, ARG) \
 	template<typename T, ARG Max, \
 		ARG Min, typename Check> \
@@ -51,34 +50,32 @@
 		ARG Min, typename Check> \
 	inline \
 	typename boost::enable_if_c< \
-		boost::is_arithmetic<U>::type::value || \
-		boost::is_same<U, T>::type::value, __VA_ARGS__>::type \
+		boost::is_arithmetic<U>::value, __VA_ARGS__>::type \
 	operator OP ( \
 		U const a, \
 		CLASS_NAME<T, Max, Min, Check> const& b) \
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(__VA_ARGS__) \
 	{ \
-		return __VA_ARGS__(a OP static_cast<T>(b)); \
+		return __VA_ARGS__(a OP static_cast<U>(static_cast<T>(b))); \
 	} \
 	template<typename U, typename T, ARG Max, \
 		ARG Min, typename Check> \
 	inline \
 	typename boost::enable_if_c< \
-		boost::is_arithmetic<U>::type::value || \
-		boost::is_same<U, T>::type::value, __VA_ARGS__>::type \
+		boost::is_arithmetic<U>::type::value, __VA_ARGS__>::type \
 	operator OP ( \
 		CLASS_NAME<T, Max, Min, Check> const& a, \
 		U const b) \
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(__VA_ARGS__) \
 	{ \
-		return __VA_ARGS__(static_cast<T>(a) OP b); \
+		return __VA_ARGS__(static_cast<U>(static_cast<T>(a)) OP b); \
 	} \
 	template<typename T, ARG Max, ARG Min, typename Check, \
 		typename T1, T1 Max1, T1 Min1, typename Check1, \
 		template<typename, T1, T1, typename> class Range> \
 	inline __VA_ARGS__ operator OP ( \
-		CLASS_NAME<T, Max, Min, Check> const, \
-		Range<T1, Max1, Min1, Check1> const) \
+		CLASS_NAME<T, Max, Min, Check> const&, \
+		Range<T1, Max1, Min1, Check1> const&) \
 		RANT_IS_NOTHROW_DEFAULT_CONSTR(__VA_ARGS__) \
 	{ \
 		BOOST_STATIC_ASSERT_MSG((boost::is_same< \

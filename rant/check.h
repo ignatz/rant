@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <cmath>
 #include <boost/utility/enable_if.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -12,101 +13,146 @@
 
 #define RANT_CHECK(VAL) Check () (VAL)
 
-#define RANT_UNDERFLOW_MESSAGE "range underflow"
-#define RANT_OVERFLOW_MESSAGE "range overflow"
-
 namespace rant {
 
+template<typename T, typename Max, typename Min,
+	typename Sanitizer, typename = void>
+struct SanitizerHelper
+{
+	template<typename U>
+	inline T operator() (U const val) const RANT_NOEXCEPT_COND(
+			RANT_NOEXCEPT(Sanitizer::overflow(val)) &&
+			RANT_NOEXCEPT(Sanitizer::underflow(val)))
+	{
+		if RANT_UNLIKELY(RANT_LESS(T, U, val, RANT_VALUE(Min))) {
+			return Sanitizer::underflow(val);
+		} else if RANT_UNLIKELY(RANT_LESS(T, U, RANT_VALUE(Max), val)) {
+			return Sanitizer::overflow(val);
+		}
+		return val;
+	}
+};
+
+// specialization for unsingned integers with Min == 0
+template<typename T, typename Max, typename Min, typename Sanitizer>
+struct SanitizerHelper<T, Max, Min, Sanitizer,
+	typename boost::enable_if_c<boost::is_unsigned<T>::type::value &&
+		value_helper<T, Min>::value == 0, void>::type>
+{
+	template<typename U>
+	inline T operator() (U const val) const RANT_NOEXCEPT_COND(
+			RANT_NOEXCEPT(Sanitizer::overflow(val)) &&
+			RANT_NOEXCEPT(Sanitizer::underflow(val)))
+	{
+		if RANT_UNLIKELY(RANT_LESS(T, U, val, RANT_VALUE(Min))) {
+			return Sanitizer::underflow(val);
+		} else if RANT_UNLIKELY(RANT_LESS(T, U, RANT_VALUE(Max), val)) {
+			return Sanitizer::overflow(val);
+		}
+		return val;
+	}
+
+	// optimized specialization
+	inline T operator() (T const& val) const RANT_NOEXCEPT_COND(
+			RANT_NOEXCEPT(Sanitizer::overflow(val)))
+	{
+		if RANT_UNLIKELY(RANT_LESS(T, T, RANT_VALUE(Max), val)) {
+			return Sanitizer::overflow(val);
+		}
+		return val;
+	}
+};
+
+
+template<typename T, typename Max, typename Min>
+struct throw_on_error :
+	public SanitizerHelper<T, Max, Min, throw_on_error<T, Max, Min> >
+{
+	template<typename U>
+	inline static T overflow(U const val)
+	{
 #ifdef RANT_LIGHTWEIGHT_EXCEPTIONS
-#define RANT_UNDERFLOW_ERROR(VAL, MIN) std::underflow_error(RANT_UNDERFLOW_MESSAGE)
-#define RANT_OVERFLOW_ERROR(VAL, MAX)  std::overflow_error(RANT_OVERFLOW_MESSAGE)
+		throw std::overflow_error("range overflow");
 #else
-#define RANT_UNDERFLOW_ERROR(VAL, MIN) rant::underflow(VAL, MIN)
-#define RANT_OVERFLOW_ERROR(VAL, MAX)  rant::overflow(VAL, MAX)
-template<typename T>
-typename boost::enable_if_c<
-	boost::is_arithmetic<T>::type::value,
-	std::underflow_error>::type
-underflow(T val, T min)
-{
-	std::string s(RANT_UNDERFLOW_MESSAGE ": ");
-	s += boost::lexical_cast<std::string>(val) + " < min(";
-	s += boost::lexical_cast<std::string>(min) + ")";
-	return std::underflow_error(s);
-}
+		std::string s("range overflow: ");
+		s += boost::lexical_cast<std::string>(val) + " > max(";
+		s += boost::lexical_cast<std::string>(RANT_VALUE(Max)) + ")";
+		throw std::overflow_error(s);
+#endif
+		return T(val);
+	}
 
-template<typename T>
-typename boost::enable_if_c<
-	boost::is_arithmetic<T>::type::value,
-	std::overflow_error>::type
-overflow(T val, T max)
-{
-	std::string s(RANT_OVERFLOW_MESSAGE ": ");
-	s += boost::lexical_cast<std::string>(val) + " > max(";
-	s += boost::lexical_cast<std::string>(max) + ")";
-	return std::overflow_error(s);
-}
-#endif // RANT_LIGHTWEIGHT_EXCEPTIONS
-
-
-template<typename T, typename Max, typename Min, typename = void>
-struct throw_on_error
-{
-	inline
-	T operator() (T val) const
+	template<typename U>
+	inline static T underflow(U const val)
 	{
-		if RANT_UNLIKELY(RANT_LESS(val, RANT_VALUE(Min)))
-			throw RANT_UNDERFLOW_ERROR(val, RANT_VALUE(Min));
-
-		else if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
-			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
-		return val;
+#ifdef RANT_LIGHTWEIGHT_EXCEPTIONS
+		throw std::underflow_error("range underflow");
+#else
+		std::string s("range underflow: ");
+		s += boost::lexical_cast<std::string>(val) + " < min(";
+		s += boost::lexical_cast<std::string>(RANT_VALUE(Min)) + ")";
+		throw std::underflow_error(s);
+#endif
+		return T(val);
 	}
 };
 
+
 template<typename T, typename Max, typename Min>
-struct throw_on_error<T, Max, Min,
-	typename boost::enable_if_c<
-		boost::is_unsigned<T>::type::value && !value<T, Min>::value>::type>
+struct clip_on_error :
+	public SanitizerHelper<T, Max, Min, clip_on_error<T, Max, Min> >
 {
-	inline
-	T operator() (T val) const
+	template<typename U>
+	inline static T overflow(U const)
 	{
-		if RANT_UNLIKELY(RANT_LESS(RANT_VALUE(Max), val))
-			throw RANT_OVERFLOW_ERROR(val, RANT_VALUE(Max));
-		return val;
+		return RANT_VALUE(Max);
+	}
+
+	template<typename U>
+	inline static T underflow(U const)
+	{
+		return RANT_VALUE(Min);
 	}
 };
 
 
 template<typename T, typename Max, typename Min, typename = void>
-struct clip_on_error
+struct wrap_on_error :
+	public SanitizerHelper<T, Max, Min, wrap_on_error<T, Max, Min> >
 {
-	inline
-	T operator() (T val) const
-		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
+	template<typename U>
+	inline static T overflow(U const val)
 	{
-		return RANT_LESS(val, RANT_VALUE(Min)) ? RANT_VALUE(Min) :
-			RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+		return RANT_VALUE(Min) + ((val-RANT_VALUE(Max)-1)%diff);
+	}
+
+	template<typename U>
+	inline static T underflow(U const val)
+	{
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+		return RANT_VALUE(Max) - ((RANT_VALUE(Min)-val-1)%diff);
 	}
 };
 
 template<typename T, typename Max, typename Min>
-struct clip_on_error<T, Max, Min,
-	typename boost::enable_if_c<
-		boost::is_unsigned<T>::type::value && !value<T, Min>::value>::type>
+struct wrap_on_error<T, Max, Min,
+	typename boost::enable_if_c<boost::is_floating_point<T>::type::value>::type> :
+	public SanitizerHelper<T, Max, Min, wrap_on_error<T, Max, Min> >
 {
-	inline
-	T operator() (T val) const
-		RANT_IS_NOTHROW_DEFAULT_CONSTR(T)
+	template<typename U>
+	inline static T overflow(U const val)
 	{
-		return RANT_LESS(RANT_VALUE(Max), val) ? RANT_VALUE(Max) : val;
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+		return RANT_VALUE(Min) + fmod((val-RANT_VALUE(Max)), diff);
+	}
+
+	template<typename U>
+	inline static T underflow(U const val)
+	{
+		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
+		return RANT_VALUE(Max) - fmod((RANT_VALUE(Min)-val), diff);
 	}
 };
 
 } // rant
-
-#undef RANT_UNDERFLOW_MESSAGE
-#undef RANT_OVERFLOW_MESSAGE
-#undef RANT_UNDERFLOW_ERROR
-#undef RANT_OVERFLOW_ERROR
