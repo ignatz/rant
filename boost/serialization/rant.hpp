@@ -2,7 +2,6 @@
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/nvp.hpp>
-#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_free.hpp>
 
 #include "rant/rant.h"
