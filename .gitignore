@@ -1,4 +1,6 @@
-build
 .lock-waf*
 .waf-*
+build
 bin
+lib
+include
