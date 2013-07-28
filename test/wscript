@@ -5,37 +5,48 @@ components = ['gtest', '..']
 recurse    = lambda ctx : map(lambda proj: ctx.recurse(proj), components)
 
 def options(opt):
-    opt.load('g++')
-    opt.load('boost')
     recurse(opt)
+    opt.load('compiler_cxx')
+    opt.load('boost')
+    opt.add_option('--no-deprecated-tests', action='store_true', default=False,
+            dest='nodepr', help='build without deprecated tests')
 
 def configure(cfg):
-    cfg.load('g++')
-    cfg.load('boost')
     recurse(cfg)
+    cfg.load('compiler_cxx')
+    cfg.load('boost')
 
     cfg.check_boost(
             lib='serialization system thread',
             uselib_store='BOOST')
 
+    # build with gcov extension if any of the following coverage tools is installed
+    cov = ['lcov', 'gcovr']
+    if any([cfg.find_program(ii, mandatory=False) for ii in cov]):
+        cfg.check_cxx(lib='gcov', linkflags='--coverage', cxxflags='--coverage')
+
 def build(bld):
     recurse(bld)
 
-    bld(
-        target          = 'main',
+    sources = bld.path.ant_glob('*.cc') \
+            + bld.path.ant_glob('regression/*.cc')
+    if not bld.options.nodepr:
+        sources += bld.path.ant_glob('deprecated/*.cc')
+
+    cxxflags = [
+            '-g',
+            '-O0',
+            '-std=c++0x',
+            '-Wall',
+            '-Wextra',
+            '-pedantic',
+            #'-DRANT_DISABLE',
+            #'-DRANT_LIGHTWEIGHT_EXCEPTIONS',
+            ]
+
+    bld(target          = 'rant-tests',
         features        = 'cxx cxxprogram',
-        source          = bld.path.ant_glob('*.cc'),
-        use             = ['rant', 'gtest', 'BOOST'],
+        source          = sources,
+        use             = ['rant', 'gtest', 'BOOST', 'GCOV'],
         install_path    = 'bin',
-        cxxflags        = [
-                '-g',
-                '-O1',
-                '-std=c++0x',
-                '-Wall',
-                '-Wextra',
-                '-pedantic',
-                #'-DRANT_DISABLE',
-                #'-DRANT_LIGHTWEIGHT_EXCEPTIONS',
-            ],
-        includes       = '.',
-    )
+        cxxflags        = cxxflags)

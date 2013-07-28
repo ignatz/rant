@@ -22,6 +22,8 @@ struct traits<integral_range<T, Max, Min, Check>>
 {
 	typedef T type;
 	typedef Check callback_type;
+	typedef std::integral_constant<T, Max> max;
+	typedef std::integral_constant<T, Min> min;
 };
 
 template<typename T, typename Max, typename Min, typename Check>
@@ -29,6 +31,8 @@ struct traits<floating_point_range<T, Max, Min, Check>>
 {
 	typedef T type;
 	typedef Check callback_type;
+	typedef Max max;
+	typedef Min min;
 };
 
 } // rant

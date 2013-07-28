@@ -13,6 +13,7 @@
 
 namespace rant {
 
+// implementation for signed int and float types
 template<typename T, typename Max, typename Min,
 	typename Sanitizer, typename = void>
 struct SanitizerHelper
@@ -51,7 +52,7 @@ struct SanitizerHelper<T, Max, Min, Sanitizer,
 	}
 
 	// optimized specialization
-	inline T operator() (T const& val) const RANT_NOEXCEPT_COND(
+	inline T operator() (T const val) const RANT_NOEXCEPT_COND(
 			RANT_NOEXCEPT(Sanitizer::overflow(val)))
 	{
 		if RANT_UNLIKELY(RANT_LESS(T, T, RANT_VALUE(Max), val)) {
@@ -67,7 +68,7 @@ struct throw_on_error :
 	public SanitizerHelper<T, Max, Min, throw_on_error<T, Max, Min>>
 {
 	template<typename U>
-	inline static T overflow(U const val)
+	inline static T overflow(U const val) throw(std::overflow_error)
 	{
 #ifdef RANT_LIGHTWEIGHT_EXCEPTIONS
 		throw std::overflow_error("range overflow");
@@ -81,7 +82,7 @@ struct throw_on_error :
 	}
 
 	template<typename U>
-	inline static T underflow(U const val)
+	inline static T underflow(U const val) throw(std::underflow_error)
 	{
 #ifdef RANT_LIGHTWEIGHT_EXCEPTIONS
 		throw std::underflow_error("range underflow");
@@ -101,13 +102,13 @@ struct clip_on_error :
 	public SanitizerHelper<T, Max, Min, clip_on_error<T, Max, Min>>
 {
 	template<typename U>
-	inline static T overflow(U const)
+	inline static T overflow(U const) RANT_NOEXCEPT
 	{
 		return RANT_VALUE(Max);
 	}
 
 	template<typename U>
-	inline static T underflow(U const)
+	inline static T underflow(U const) RANT_NOEXCEPT
 	{
 		return RANT_VALUE(Min);
 	}

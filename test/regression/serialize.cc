@@ -3,7 +3,7 @@
 // the minimal "include" footprint ensures, that all
 // necessary headers are available. Otherwise it won't
 // compile.
-#include "boost/serialization/rant.hpp"
+#include <boost/serialization/rant.hpp>
 #include <boost/archive/detail/interface_oarchive.hpp>
 
 using namespace rant;

@@ -96,13 +96,14 @@ template<typename T, typename U>
 struct max
 {
 	typedef typename std::conditional<
-		(sizeof(T) > sizeof(U)), T, U>::type type;
+		(sizeof(T) < sizeof(U)), U, T>::type type;
 };
 
 
 template<typename T, typename U, typename = void>
 struct promote;
 
+// specialization for floating point
 template<typename T, typename U>
 struct promote<T, U, typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
@@ -113,26 +114,30 @@ struct promote<T, U, typename std::enable_if<std::is_floating_point<T>::value>::
 	>::type type;
 };
 
+// for signed integrals
 template<typename T, typename U>
 struct promote<T, U, typename std::enable_if<is_signed_integral<T>::value>::type>
 {
 	typedef typename std::conditional<
 		is_signed_integral<U>::value,
-		typename max<T, U>::type,
-		intmax_t
+		typename max<T, U>::type, // both signed
+		intmax_t                  // U is unsigned, this can also be problematic for U being uintmax_t
+			                      // and large value, which are then wrapped to negative values
 	>::type type;
 };
 
+// for unsigned integrals
 template<typename T, typename U>
 struct promote<T, U, typename std::enable_if<is_unsigned_integral<T>::value>::type>
 {
 	typedef typename std::conditional<
 		is_unsigned_integral<U>::value,
-		typename max<T, U>::type,
-		typename std::conditional<
-			(sizeof(U) < sizeof(intmax_t)),
-			intmax_t,
-			uintmax_t
+		typename max<T, U>::type,  // both unsigned
+		typename std::conditional< // U signed
+			// This a problematic case
+			sizeof(T) == sizeof(uintmax_t) && sizeof(U) == sizeof(intmax_t),
+			uintmax_t,
+			intmax_t
 		>::type
 	>::type type;
 };

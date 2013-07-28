@@ -4,7 +4,7 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
-#include "test/test.h"
+#include "test.h"
 
 typedef rant::integral_range<int>          _int;
 typedef rant::floating_point_range<double> _d;

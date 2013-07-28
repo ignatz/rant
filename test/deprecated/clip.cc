@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "test/test.h"
+#include "test.h"
 
 #define STRIP_PARANTHESIS(...) __VA_ARGS__
 
