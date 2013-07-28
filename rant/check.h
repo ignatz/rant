@@ -113,44 +113,4 @@ struct clip_on_error :
 	}
 };
 
-
-template<typename T, typename Max, typename Min, typename = void>
-struct wrap_on_error :
-	public SanitizerHelper<T, Max, Min, wrap_on_error<T, Max, Min>>
-{
-	template<typename U>
-	inline static T overflow(U const val)
-	{
-		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
-		return RANT_VALUE(Min) + ((val-RANT_VALUE(Max)-1)%diff);
-	}
-
-	template<typename U>
-	inline static T underflow(U const val)
-	{
-		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
-		return RANT_VALUE(Max) - ((RANT_VALUE(Min)-val-1)%diff);
-	}
-};
-
-template<typename T, typename Max, typename Min>
-struct wrap_on_error<T, Max, Min,
-	typename std::enable_if<std::is_floating_point<T>::value>::type> :
-	public SanitizerHelper<T, Max, Min, wrap_on_error<T, Max, Min>>
-{
-	template<typename U>
-	inline static T overflow(U const val)
-	{
-		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
-		return RANT_VALUE(Min) + fmod((val-RANT_VALUE(Max)), diff);
-	}
-
-	template<typename U>
-	inline static T underflow(U const val)
-	{
-		static const T diff = RANT_VALUE(Max) - RANT_VALUE(Min) + 1;
-		return RANT_VALUE(Max) - fmod((RANT_VALUE(Min)-val), diff);
-	}
-};
-
 } // rant
