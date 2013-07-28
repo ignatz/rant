@@ -4,6 +4,9 @@
 #include "test/test.h"
 #include "test/types.h"
 
+#include <boost/multiprecision/cpp_int.hpp>
+using boost::multiprecision::int512_t;
+
 using namespace rant;
 
 TEST(ClipNoExcept, Int)
@@ -89,11 +92,11 @@ TYPED_TEST(ClipIntBuiltin, InRangeInitialization)
 	typedef typename TestFixture::traits traits;
 	typedef TypeParam type;
 
-	ASSERT_EQ(traits::min::value, type( intmax_t(traits::min::value)));
-	ASSERT_EQ(traits::min::value, type(uintmax_t(traits::min::value)));
+	ASSERT_EQ(traits::min::value, type(traits::min::value));
+	ASSERT_EQ(traits::min::value, type(traits::min::value));
 
-	ASSERT_EQ(traits::max::value, type( intmax_t(traits::max::value)));
-	ASSERT_EQ(traits::max::value, type(uintmax_t(traits::max::value)));
+	ASSERT_EQ(traits::max::value, type(traits::max::value));
+	ASSERT_EQ(traits::max::value, type(traits::max::value));
 }
 
 TYPED_TEST(ClipIntBuiltin, OverflowInitialization)
@@ -136,27 +139,21 @@ template<typename Rant>
 class random_test
 {
 private:
-	typedef Rant type;
-	typedef typename rant::traits<type> traits;
+	typedef typename rant::traits<Rant> traits;
 
 	template<typename T>
 	struct Functor
 	{
 		void operator() () const
 		{
-			typedef typename std::conditional<
-					std::is_signed<typename traits::type>::value,
-					intmax_t, uintmax_t
-				>::type max_t;
-
 			REPEAT(10000) {
-				max_t const v = random<T>();
-				if (v > max_t(traits::max::value)) {
-					ASSERT_EQ(traits::max::value, (type(v)));
-				} else if (v < max_t(traits::min::value)) {
-					ASSERT_EQ(traits::min::value, (type(v)));
+				T const v = random<T>();
+				if (int512_t(v) > int512_t(traits::max::value)) {
+					ASSERT_EQ(traits::max::value, (Rant(v)));
+				} else if (int512_t(v) < int512_t(traits::min::value)) {
+					ASSERT_EQ(traits::min::value, (Rant(v)));
 				} else {
-					ASSERT_EQ(v, type(v));
+					ASSERT_EQ(v, Rant(v));
 				}
 			}
 		}
@@ -165,18 +162,18 @@ private:
 public:
 	static void run()
 	{
-		enum : bool { signum = std::is_signed<typename traits::type>::value };
+		typedef typename traits::type base;
 
 		// call random test for signed ctor arguments
 		for_all_types<signed_type<
 				// exception is necessary for corner cases
-				cond<size_t, signum, 64, 32>::value
+				is_max<base>::value && std::is_unsigned<base>::value ? 32 : 64
 			>, Functor> () ();
 
 		// call random test for unsigned ctor arguments
 		for_all_types<unsigned_type<
 				// exception is necessary for corner cases
-				cond<size_t, signum, 32, 64>::value
+				is_max<base>::value && std::is_signed<base>::value ? 32 : 64
 			>, Functor> () ();
 	}
 };

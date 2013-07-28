@@ -15,7 +15,7 @@
 #define RANT_PACKED __attribute__((packed))
 
 #define RANT_VALUE(VAL) ::rant::value_helper<T, VAL>::get()
-#define RANT_LESS(TYPE, U, LHS, RHS) rant::less<TYPE, U>::compare(LHS, RHS)
+#define RANT_LESS(LHS, RHS, lhs, rhs) rant::less<LHS, RHS>::compare(lhs, rhs)
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 	#define RANT_LIKELY(x) (__builtin_expect((x), 1))
@@ -100,6 +100,13 @@ struct max
 };
 
 
+template<typename T, typename U>
+struct same_kind :
+	public std::integral_constant<bool,
+		!(is_signed_integral<T>::value xor is_signed_integral<U>::value)>
+{};
+
+
 template<typename T, typename U, typename = void>
 struct promote;
 
@@ -119,10 +126,9 @@ template<typename T, typename U>
 struct promote<T, U, typename std::enable_if<is_signed_integral<T>::value>::type>
 {
 	typedef typename std::conditional<
-		is_signed_integral<U>::value,
-		typename max<T, U>::type, // both signed
-		intmax_t                  // U is unsigned, this can also be problematic for U being uintmax_t
-			                      // and large value, which are then wrapped to negative values
+		same_kind<T, U>::value,
+		typename max<T, U>::type, // both signed integral
+		intmax_t
 	>::type type;
 };
 
@@ -131,27 +137,39 @@ template<typename T, typename U>
 struct promote<T, U, typename std::enable_if<is_unsigned_integral<T>::value>::type>
 {
 	typedef typename std::conditional<
-		is_unsigned_integral<U>::value,
-		typename max<T, U>::type,  // both unsigned
-		typename std::conditional< // U signed
-			// This a problematic case
-			sizeof(T) == sizeof(uintmax_t) && sizeof(U) == sizeof(intmax_t),
-			uintmax_t,
-			intmax_t
-		>::type
+		same_kind<T, U>::value,
+		typename max<T, U>::type,  // both unsigned integral
+		intmax_t
 	>::type type;
 };
 
 
-template<typename T, typename U>
+template<typename RantT, typename ArgT>
 struct less
 {
-	inline
-	static bool compare(
-		 typename promote<T, U>::type const t,
-		 typename promote<T, U>::type const u)
+	template<typename T, typename U>
+	inline static bool compare(T const t, U const u)
 	{
-		return t<u;
+		typedef typename promote<RantT, ArgT>::type type;
+		return type(t)<type(u);
+	}
+
+	// trap problematic combinations here
+
+	template<typename U>
+	inline static
+	typename std::enable_if<is_signed_integral<U>::value, bool>::type
+	compare(uintmax_t const t, U const u)
+	{
+		return (u<0) ? false : t < uintmax_t(u);
+	}
+
+	template<typename T>
+	inline static
+	typename std::enable_if<is_signed_integral<T>::value, bool>::type
+	compare(T const t, uintmax_t const u)
+	{
+		return (t<0) ? true : uintmax_t(t) < u;
 	}
 };
 
