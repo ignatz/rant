@@ -11,6 +11,15 @@
 
 #include "test/random.h"
 
+// multi-precision ints for easier and more robust testing
+#if defined(USE_GMP)
+#include <gmpxx.h>
+typedef mpz_class mpint_t;
+#else
+#include <boost/multiprecision/cpp_int.hpp>
+typedef boost::multiprecision::cpp_int mpint_t;
+#endif
+
 #define REPEAT(N) \
 	for (size_t __ii=0; __ii<N; ++__ii)
 

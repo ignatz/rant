@@ -4,9 +4,6 @@
 #include "test/test.h"
 #include "test/types.h"
 
-#include <boost/multiprecision/cpp_int.hpp>
-using boost::multiprecision::int512_t;
-
 using namespace rant;
 
 TEST(ThrowNoExcept, Int)
@@ -152,9 +149,9 @@ private:
 		{
 			REPEAT(10000) {
 				T const v = random<T>();
-				if (int512_t(v) > int512_t(traits::max::value)) {
+				if (mpint_t(v) > mpint_t(traits::max::value)) {
 					ASSERT_THROW((Rant(v)), std::overflow_error);
-				} else if (int512_t(v) < int512_t(traits::min::value)) {
+				} else if (mpint_t(v) < mpint_t(traits::min::value)) {
 					ASSERT_THROW((Rant(v)), std::underflow_error);
 				} else {
 					ASSERT_EQ(v, Rant(v));

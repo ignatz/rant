@@ -20,6 +20,11 @@ def configure(cfg):
             lib='serialization system thread',
             uselib_store='BOOST')
 
+    # boost::multiprecision has been introduced in 1.53
+    if cfg.env.BOOST_VERSION < '1_53':
+        cfg.check_cxx(lib=['gmp', 'gmpxx'], uselib_store='GMP',
+                defines='USE_GMP')
+
     # build with gcov extension if any of the following coverage tools is installed
     cov = ['lcov', 'gcovr']
     if any([cfg.find_program(ii, mandatory=False) for ii in cov]):
@@ -47,6 +52,6 @@ def build(bld):
     bld(target          = 'rant-tests',
         features        = 'cxx cxxprogram',
         source          = sources,
-        use             = ['rant', 'gtest', 'BOOST', 'GCOV'],
+        use             = ['rant', 'gtest', 'BOOST', 'GCOV', 'GMP'],
         install_path    = 'bin',
         cxxflags        = cxxflags)

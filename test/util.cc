@@ -5,9 +5,6 @@
 #include "test/test.h"
 #include "test/types.h"
 
-#include <boost/multiprecision/cpp_int.hpp>
-using boost::multiprecision::int512_t;
-
 using namespace rant;
 
 TEST(Util, SameKind)
@@ -30,7 +27,7 @@ struct Inner
 			T const t = random<T>();
 			U const u = random<U>();
 
-			ASSERT_EQ((int512_t(t) < int512_t(u)), (RANT_LESS(T, U, t, u)))
+			ASSERT_EQ((mpint_t(t) < mpint_t(u)), (RANT_LESS(T, U, t, u)))
 				<< typeid(T).name() << " " << typeid(U).name();
 		}
 	}
